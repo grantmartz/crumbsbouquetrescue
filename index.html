@@ -152,6 +152,7 @@
         const EATER_MOUTH_CLOSED = null; // Dog head profile with mouth closed
         const CLOUD_IMAGE = null; // Cloud image for background
         const FINCH_IMAGE = null; // Special finch sprite (1 in 50 chance)
+        const TREE_SKYLINE_IMAGE = null; // Tree skyline image for bottom edge
         
         // Placeholder colors (used when images are null)
         const SPRITE_COLOR = '#d44e3a';  // Red-orange from homepage
@@ -159,6 +160,7 @@
         const CLOUD_COLOR = '#f5d5c8';   // Soft peachy pink
         const EATER_COLOR = '#d44e3a';   // Red-orange for the eater sprite
         const FINCH_COLOR = '#4a9eff';   // Blue for special finch
+        const TREE_COLOR = '#2d4a2b';    // Dark green for pine trees
         // ============================================
         
         // Game state
@@ -233,6 +235,13 @@
             finchImage.src = FINCH_IMAGE;
         }
         
+        // Tree skyline image
+        let treeSkylineImage = null;
+        if (TREE_SKYLINE_IMAGE) {
+            treeSkylineImage = new Image();
+            treeSkylineImage.src = TREE_SKYLINE_IMAGE;
+        }
+        
         // Input handling
         const keys = {};
         let touchStartX = 0;
@@ -258,6 +267,9 @@
         // Clouds array
         const clouds = [];
         
+        // Pine trees along the bottom
+        const pineTrees = [];
+        
         // Initialize clouds
         function initClouds() {
             for (let i = 0; i < 5; i++) {
@@ -267,6 +279,19 @@
                     width: 60 + Math.random() * 40,
                     height: 20 + Math.random() * 15,
                     speed: 0.3 + Math.random() * 0.5
+                });
+            }
+        }
+        
+        // Initialize pine trees along the bottom
+        function initPineTrees() {
+            const treeSpacing = 60;
+            const treeCount = Math.ceil(canvas.width / treeSpacing) + 1;
+            for (let i = 0; i < treeCount; i++) {
+                pineTrees.push({
+                    x: i * treeSpacing - 30,
+                    height: 40 + Math.random() * 30,
+                    width: 25 + Math.random() * 15
                 });
             }
         }
@@ -308,6 +333,36 @@
                 
                 ctx.globalAlpha = 1;
             }
+        }
+        
+        // Draw pine tree silhouette
+        function drawPineTree(tree) {
+            ctx.fillStyle = TREE_COLOR; // Dark green silhouette
+            
+            const baseY = canvas.height;
+            const tipY = baseY - tree.height;
+            const centerX = tree.x;
+            
+            // Draw three stacked triangular sections
+            const sections = 3;
+            const sectionHeight = tree.height / sections;
+            
+            for (let i = 0; i < sections; i++) {
+                const topY = tipY + (i * sectionHeight * 0.7);
+                const bottomY = tipY + ((i + 1) * sectionHeight * 0.9);
+                const widthAtSection = tree.width * (1 + i * 0.4);
+                
+                ctx.beginPath();
+                ctx.moveTo(centerX, topY); // Top point
+                ctx.lineTo(centerX - widthAtSection / 2, bottomY); // Bottom left
+                ctx.lineTo(centerX + widthAtSection / 2, bottomY); // Bottom right
+                ctx.closePath();
+                ctx.fill();
+            }
+            
+            // Trunk
+            const trunkWidth = tree.width * 0.2;
+            ctx.fillRect(centerX - trunkWidth / 2, baseY - sectionHeight * 0.4, trunkWidth, sectionHeight * 0.4);
         }
         
         // Update clouds
@@ -849,6 +904,16 @@
             // Draw clouds
             clouds.forEach(drawCloud);
             
+            // Draw pine trees or tree skyline (behind gameplay elements)
+            if (treeSkylineImage && treeSkylineImage.complete) {
+                // Use custom tree skyline image - stretch across bottom
+                const skylineHeight = 80; // Adjust as needed
+                ctx.drawImage(treeSkylineImage, 0, canvas.height - skylineHeight, canvas.width, skylineHeight);
+            } else {
+                // Fallback to individual pine trees
+                pineTrees.forEach(drawPineTree);
+            }
+            
             // Draw flowers
             flowers.forEach(drawFlower);
             
@@ -1113,6 +1178,7 @@
         
         // Initialize
         initClouds();
+        initPineTrees();
         lastFrameTime = performance.now();
         document.getElementById('highScore').textContent = 'High Score: ' + highScore;
         gameLoop(lastFrameTime);
