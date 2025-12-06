@@ -14,7 +14,7 @@
         body {
             font-family: 'Rockwell', 'Georgia', serif;
             font-weight: bold;
-            background: #FFF4D4;
+            background: #f9f2e7;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -128,8 +128,9 @@
             <div id="highScore" style="font-size: 18px; margin-top: 5px;">High Score: 0</div>
             <div id="gameOver">Game Over! Click to restart</div>
             <div id="instructions">
-                Desktop: Arrow keys to move | Space to restart<br>
-                Mobile: Touch and drag to move
+                Desktop: Arrow keys to move<br>
+                Mobile: Touch and drag to move<br>
+                Tap/Spacebar to Restart
             </div>
         </div>
     </div>
@@ -910,7 +911,15 @@
                 ctx.textAlign = 'center';
                 ctx.fillText('Game Over!', canvas.width/2, canvas.height/2 - 20);
                 ctx.font = 'bold 20px Rockwell, Georgia, serif';
-                ctx.fillText('Spacebar to Restart', canvas.width/2, canvas.height/2 + 20);
+                ctx.fillText('Tap/Spacebar to Restart', canvas.width/2, canvas.height/2 + 20);
+            }
+            
+            // Draw "Click to Start" on initial screen
+            if (!gameActive && !gameOverShown && countdown === 0) {
+                ctx.fillStyle = '#d44e3a';
+                ctx.font = 'bold 28px Rockwell, Georgia, serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Click to Start', canvas.width/2, canvas.height/2);
             }
         }
         
@@ -1024,7 +1033,7 @@
         });
         
         // Touch controls
-        canvas.addEventListener('touchstart', (e) => {
+        document.addEventListener('touchstart', (e) => {
             e.preventDefault();
             
             if (!gameActive && gameOverShown && gameOverPhase === 'gameover') {
@@ -1044,21 +1053,24 @@
             
             const touch = e.touches[0];
             const rect = canvas.getBoundingClientRect();
-            touchStartX = touch.clientX - rect.left;
+            // Map screen touch to canvas coordinates
+            touchStartX = ((touch.clientX - rect.left) / rect.width) * canvas.width;
             touchCurrentX = touchStartX;
             isTouching = true;
         });
         
-        canvas.addEventListener('touchmove', (e) => {
+        document.addEventListener('touchmove', (e) => {
             e.preventDefault();
             if (isTouching) {
                 const touch = e.touches[0];
                 const rect = canvas.getBoundingClientRect();
-                touchCurrentX = touch.clientX - rect.left;
+                // Map screen touch to canvas coordinates
+                const canvasX = ((touch.clientX - rect.left) / rect.width) * canvas.width;
+                touchCurrentX = touchStartX + (canvasX - touchStartX);
             }
         });
         
-        canvas.addEventListener('touchend', (e) => {
+        document.addEventListener('touchend', (e) => {
             e.preventDefault();
             isTouching = false;
             touchStartX = 0;
@@ -1104,13 +1116,6 @@
         lastFrameTime = performance.now();
         document.getElementById('highScore').textContent = 'High Score: ' + highScore;
         gameLoop(lastFrameTime);
-        
-        // Show initial message
-        ctx.fillStyle = '#d44e3a';  // Red-orange
-        ctx.font = 'bold 20px Rockwell, Georgia, serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('Click or Press Any Key', canvas.width/2, canvas.height/2);
-        ctx.fillText('to Start!', canvas.width/2, canvas.height/2 + 30);
     </script>
 </body>
 </html>
