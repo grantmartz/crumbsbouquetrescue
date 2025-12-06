@@ -14,7 +14,7 @@
         body {
             font-family: 'Rockwell', 'Georgia', serif;
             font-weight: bold;
-            background: #FFF4D4;
+            background: #fff4df;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -144,12 +144,12 @@
         // ============================================
         // To use your custom images, replace these URLs with your hosted image URLs
         // Example: const SPRITE_IMAGE = 'https://yoursite.com/animal.png';
-        const SPRITE_IMAGE = https://raw.githubusercontent.com/grantmartz/crumbsbouquetrescue/refs/heads/main/assets/Crumb_Small.png; // Set to null to use placeholder shape
+        const SPRITE_IMAGE = 'https://raw.githubusercontent.com/grantmartz/crumbsbouquetrescue/refs/heads/main/assets/Crumb_Small.png'; // Set to null to use placeholder shape
         const FLOWER_IMAGE_1 = null; // First flower style
         const FLOWER_IMAGE_2 = null; // Second flower style
         const FLOWER_IMAGE_3 = null; // Third flower style
-        const EATER_MOUTH_OPEN = https://raw.githubusercontent.com/grantmartz/crumbsbouquetrescue/refs/heads/main/assets/Cricket_Small_Left.png; // Dog head profile with mouth open
-        const EATER_MOUTH_CLOSED = https://raw.githubusercontent.com/grantmartz/crumbsbouquetrescue/refs/heads/main/assets/Cricket_Small_Right.png; // Dog head profile with mouth closed
+        const EATER_MOUTH_OPEN = 'https://raw.githubusercontent.com/grantmartz/crumbsbouquetrescue/refs/heads/main/assets/Cricket_Small_Left.png'; // Dog head profile with mouth open
+        const EATER_MOUTH_CLOSED = 'https://raw.githubusercontent.com/grantmartz/crumbsbouquetrescue/refs/heads/main/assets/Cricket_Small_Right.png'; // Dog head profile with mouth closed
         const CLOUD_IMAGE = null; // Cloud image for background
         const FINCH_IMAGE = null; // Special finch sprite (1 in 50 chance)
         const TREE_SKYLINE_IMAGE = null; // Tree skyline image for bottom edge
@@ -300,13 +300,10 @@
         function drawCloud(cloud) {
             if (cloudImage && cloudImage.complete) {
                 // Use custom cloud image
-                ctx.globalAlpha = 0.4;
                 ctx.drawImage(cloudImage, cloud.x - cloud.width/2, cloud.y - cloud.height/2, cloud.width, cloud.height);
-                ctx.globalAlpha = 1;
             } else {
-                // Fallback to placeholder fluffy cloud
-                ctx.fillStyle = CLOUD_COLOR;
-                ctx.globalAlpha = 0.4;
+                // Fallback to placeholder fluffy cloud - solid soft pink
+                ctx.fillStyle = '#f5d5c8'; // Soft pink, no transparency
                 
                 const baseRadius = cloud.height / 2;
                 
@@ -330,8 +327,6 @@
                 // Right circle
                 ctx.arc(cloud.x + baseRadius * 0.9, cloud.y + baseRadius * 0.1, baseRadius * 0.8, 0, Math.PI * 2);
                 ctx.fill();
-                
-                ctx.globalAlpha = 1;
             }
         }
         
