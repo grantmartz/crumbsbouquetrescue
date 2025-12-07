@@ -1116,6 +1116,7 @@
                 ctx.fillStyle = '#f5d5c8';
                 ctx.font = '14px Rockwell, Georgia, serif';
                 ctx.fillText('Press ENTER to submit', canvas.width/2, canvas.height/2 + 75);
+                ctx.fillText('(or leave blank to skip)', canvas.width/2, canvas.height/2 + 92);
             }
             
             // Draw "Click to Start" on initial screen
@@ -1229,7 +1230,13 @@
             if (showNameEntry && gameOverPhase === 'nameentry') {
                 if (e.key === 'Enter') {
                     if (playerName.trim().length > 0) {
+                        // Submit score if name provided
                         submitScore(playerName, score);
+                        gameOverPhase = 'gameover';
+                    } else {
+                        // Skip leaderboard submission if name is blank
+                        showNameEntry = false;
+                        playerName = '';
                         gameOverPhase = 'gameover';
                     }
                 } else if (e.key === 'Backspace') {
