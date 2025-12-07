@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - Crumb's Bouquet Rescue</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Rockwell', 'Georgia', serif;
+            font-weight: bold;
+            background: #fff4d4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+        }
+        
+        #leaderboardContainer {
+            background: #e8b84d;
+            border: 8px solid #d44e3a;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+            outline: 8px dotted #d44e3a;
+            outline-offset: 8px;
+        }
+        
+        h1 {
+            color: #d44e3a;
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .trophy {
+            text-align: center;
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        #leaderboardList {
+            background: #fef9f0;
+            border: 4px solid #d44e3a;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 400px;
+        }
+        
+        .score-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: #fff;
+            border-radius: 6px;
+            border-left: 5px solid #d44e3a;
+            transition: transform 0.2s;
+        }
+        
+        .score-entry:hover {
+            transform: translateX(5px);
+        }
+        
+        .score-entry.rank-1 {
+            background: #ffd700;
+            border-left-color: #FFD700;
+            font-size: 18px;
+        }
+        
+        .score-entry.rank-2 {
+            background: #e8e8e8;
+            border-left-color: #C0C0C0;
+            font-size: 16px;
+        }
+        
+        .score-entry.rank-3 {
+            background: #f4d9b8;
+            border-left-color: #CD7F32;
+            font-size: 16px;
+        }
+        
+        .rank {
+            font-size: 20px;
+            font-weight: bold;
+            color: #d44e3a;
+            min-width: 35px;
+        }
+        
+        .name {
+            flex: 1;
+            color: #2d4a2b;
+            font-size: 16px;
+            padding: 0 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .score {
+            font-size: 18px;
+            font-weight: bold;
+            color: #d44e3a;
+            min-width: 60px;
+            text-align: right;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #d44e3a;
+            font-size: 18px;
+            padding: 40px;
+        }
+        
+        .no-scores {
+            text-align: center;
+            color: #d44e3a;
+            font-size: 18px;
+            padding: 40px;
+            font-style: italic;
+        }
+        
+        .last-updated {
+            text-align: center;
+            color: #2d4a2b;
+            font-size: 12px;
+            margin-top: 15px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div id="leaderboardContainer">
+        <div class="trophy">🏆</div>
+        <h1>Top 10 Players</h1>
+        <div id="leaderboardList">
+            <div class="loading">Loading leaderboard...</div>
+        </div>
+        <div class="last-updated" id="lastUpdated"></div>
+    </div>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
+    <script>
+        // ============================================
+        // FIREBASE CONFIGURATION
+        // ============================================
+        // Replace these values with your Firebase project config
+        // Get these from: Firebase Console → Project Settings → Your apps → SDK setup and configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCkJGin3saoC6s59YhEOno7y60hlj154A8",
+            authDomain: "crumbs-bouquet-rescue.firebaseapp.com",
+            databaseURL: "https://crumbs-bouquet-rescue-default-rtdb.firebaseio.com",
+            projectId: "crumbs-bouquet-rescue",
+            storageBucket: "crumbs-bouquet-rescue.firebasestorage.app",
+            messagingSenderId: "293182118702",
+            appId: "1:293182118702:web:e9b642090b5d965e5538bf"
+        };
+        
+        // Initialize Firebase (only if config is set)
+        let database = null;
+        const isFirebaseConfigured = firebaseConfig.apiKey !== "AIzaSyCkJGin3saoC6s59YhEOno7y60hlj154A8";
+        
+        if (isFirebaseConfigured) {
+            firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
+            console.log("Firebase initialized successfully");
+            loadLeaderboard();
+        } else {
+            document.getElementById('leaderboardList').innerHTML = '<div class="no-scores">Firebase not configured.<br>See setup guide.</div>';
+        }
+        
+        // Load and display leaderboard
+        function loadLeaderboard() {
+            if (!database) {
+                document.getElementById('leaderboardList').innerHTML = '<div class="no-scores">Database unavailable</div>';
+                return;
+            }
+            
+            database.ref('scores').orderByChild('score').limitToLast(10).on('value', (snapshot) => {
+                const scores = [];
+                snapshot.forEach((childSnapshot) => {
+                    scores.push({
+                        id: childSnapshot.key,
+                        ...childSnapshot.val()
+                    });
+                });
+                
+                // Reverse to show highest first
+                scores.reverse();
+                
+                displayLeaderboard(scores);
+                updateTimestamp();
+            });
+        }
+        
+        // Display leaderboard in UI
+        function displayLeaderboard(scores) {
+            const listElement = document.getElementById('leaderboardList');
+            
+            if (scores.length === 0) {
+                listElement.innerHTML = '<div class="no-scores">No scores yet!<br>Be the first to play!</div>';
+                return;
+            }
+            
+            let html = '';
+            scores.forEach((entry, index) => {
+                const rank = index + 1;
+                const rankClass = rank <= 3 ? `rank-${rank}` : '';
+                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+                
+                html += `
+                    <div class="score-entry ${rankClass}">
+                        <div class="rank">${medal || rank + '.'}</div>
+                        <div class="name">${escapeHtml(entry.name)}</div>
+                        <div class="score">${entry.score}</div>
+                    </div>
+                `;
+            });
+            
+            listElement.innerHTML = html;
+        }
+        
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Update timestamp
+        function updateTimestamp() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString();
+            document.getElementById('lastUpdated').textContent = `Last updated: ${timeStr}`;
+        }
+    </script>
+</body>
+</html>
