@@ -34,6 +34,42 @@
             outline: 8px dotted #d44e3a;
             outline-offset: 5px;
             margin: 10px auto;
+            position: relative;
+        }
+        
+        /* Fullscreen styling */
+        #gameContainer:fullscreen,
+        #gameContainer:-webkit-full-screen,
+        #gameContainer:-moz-full-screen,
+        #gameContainer:-ms-fullscreen {
+            max-width: 600px;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #fff4d4;
+            border: none;
+            border-radius: 0;
+            outline: none;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        #gameContainer:fullscreen #gameTitle,
+        #gameContainer:-webkit-full-screen #gameTitle {
+            font-size: 32px;
+        }
+        
+        #gameContainer:fullscreen canvas,
+        #gameContainer:-webkit-full-screen canvas {
+            max-height: 70vh;
+            width: auto;
+            height: auto;
+            display: block;
+            margin: 0 auto;
         }
         
         #gameTitle {
@@ -76,6 +112,7 @@
             margin-top: 15px;
             color: #d44e3a;
             text-align: center;
+            padding-bottom: 20px;
         }
         
         #score {
@@ -133,6 +170,32 @@
                 Tap/Spacebar to Restart
             </div>
         </div>
+        
+        <!-- START button overlay on canvas -->
+        <button id="startButton" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; font-size: 24px; padding: 12px 25px;">START GAME</button>
+        
+        <!-- Fullscreen button in corner -->
+        <button id="fullscreenButton" style="
+            position: absolute; 
+            bottom: 10px; 
+            right: 10px; 
+            z-index: 10; 
+            width: 36px; 
+            height: 36px; 
+            padding: 0;
+            display: none;
+            background: rgba(212, 78, 58, 0.9);
+            border: 2px solid #d44e3a;
+            border-radius: 4px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        " title="Toggle Fullscreen">
+            <svg id="fullscreenIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fef9f0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <!-- Outward arrows (expand) -->
+                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+            </svg>
+        </button>
     </div>
 
     <!-- Firebase SDK - Must load BEFORE game script -->
@@ -148,13 +211,13 @@
         // ============================================
         // To use your custom images, replace these URLs with your hosted image URLs
         // Example: const SPRITE_IMAGE = 'https://yoursite.com/animal.png';
-        const SPRITE_IMAGE = 'https://github.com/grantmartz/crumbsbouquetrescue/blob/main/assets/Crumb_Small.png?raw=true'; // Set to null to use placeholder shape
+        const SPRITE_IMAGE = null; // Set to null to use placeholder shape
         const FLOWER_IMAGE_1 = null; // First flower style
         const FLOWER_IMAGE_2 = null; // Second flower style
         const FLOWER_IMAGE_3 = null; // Third flower style
         const FLOWER_IMAGE_4 = null; // Fourth flower style (orange)
-        const EATER_MOUTH_OPEN = 'https://github.com/grantmartz/crumbsbouquetrescue/blob/main/assets/Cricket_Small_Left.png?raw=true'; // Dog head profile with mouth open
-        const EATER_MOUTH_CLOSED = 'https://github.com/grantmartz/crumbsbouquetrescue/blob/main/assets/Cricket_Small_Right.png?raw=true'; // Dog head profile with mouth closed
+        const EATER_MOUTH_OPEN = null; // Dog head profile with mouth open
+        const EATER_MOUTH_CLOSED = null; // Dog head profile with mouth closed
         const CLOUD_IMAGE = null; // Cloud image for background
         const FINCH_IMAGE = null; // Special finch sprite (1 in 50 chance)
         const TREE_SKYLINE_IMAGE = null; // Tree skyline image for bottom edge
@@ -170,6 +233,7 @@
         
         // Game state
         let gameActive = false;
+        let gameStarted = false; // Track if game has been started at all
         let score = 0;
         let gameOverShown = false;
         let countdown = 0; // 0 = no countdown, 3, 2, 1 = counting down
@@ -193,8 +257,8 @@
         const player = {
             x: canvas.width / 2,
             y: 100,
-            width: 55,
-            height: 55,
+            width: 40,
+            height: 40,
             velocityY: 0,
             velocityX: 0,
             gravity: 0.2,  // Reduced further for slower falling
@@ -699,8 +763,8 @@
                     window.currentEatingFlower = {
                         x: topFlower.x,
                         y: topFlower.y,
-                        width: 60,
-                        height: 50,
+                        width: 45,
+                        height: 40,
                         animationFrame: 0,
                         phase: 'chomp1_open'
                     };
@@ -753,6 +817,21 @@
                         gameOverPhase = 'nameentry';
                         showNameEntry = true;
                         gameOverTimer = 0;
+                        
+                        // On mobile, use prompt dialog instead of keyboard input
+                        if ('ontouchstart' in window) {
+                            setTimeout(() => {
+                                const name = prompt('TOP 10 SCORE!\n\nEnter your name:\n(or leave blank to skip)');
+                                if (name !== null) { // User clicked OK (not Cancel)
+                                    if (name.trim().length > 0) {
+                                        submitScore(name, score);
+                                    }
+                                    showNameEntry = false;
+                                    playerName = '';
+                                    gameOverPhase = 'gameover';
+                                }
+                            }, 100);
+                        }
                     } else {
                         gameOverPhase = 'gameover';
                         gameOverTimer = 0;
@@ -898,8 +977,8 @@
                         x: flower.x,
                         y: -50,
                         targetY: 20, // Stop at y=20
-                        width: 60,
-                        height: 50,
+                        width: 45,
+                        height: 40,
                         speed: 3,
                         animationFrame: 0,
                         phase: 'descending',
@@ -1115,11 +1194,8 @@
             }
             
             // Draw "Click to Start" on initial screen
-            if (!gameActive && !gameOverShown && countdown === 0) {
-                ctx.fillStyle = '#d44e3a';
-                ctx.font = 'bold 28px Rockwell, Georgia, serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('Click to Start', canvas.width/2, canvas.height/2);
+            if (!gameActive && !gameOverShown && countdown === 0 && !gameStarted) {
+                // Don't draw anything - START GAME button handles this
             }
         }
         
@@ -1140,6 +1216,7 @@
         // Start game
         function startGame() {
             gameActive = false; // Don't start immediately
+            gameStarted = true; // Mark that game has been started
             gameOverShown = false;
             gameOverPhase = '';
             gameOverTimer = 0;
@@ -1157,6 +1234,10 @@
             flowerSpawnTimer = 0;
             countdown = 3; // Start countdown from 3
             countdownTimer = 0;
+            
+            // Hide start button, show fullscreen button
+            document.getElementById('startButton').style.display = 'none';
+            document.getElementById('fullscreenButton').style.display = 'flex';
             
             player.x = canvas.width / 2;
             player.y = 100;
@@ -1251,20 +1332,77 @@
                 e.preventDefault(); // Prevent page scroll
                 if (!gameActive && gameOverShown && gameOverPhase === 'gameover') {
                     startGame();
-                } else if (!gameActive && countdown === 0 && !gameOverShown) {
-                    startGame();
                 }
                 return;
             }
             
-            // Start game on first keypress
-            if (!gameActive && !gameOverShown && countdown === 0) {
-                startGame();
-            }
+            // Don't start game on keypress before START button is clicked
         });
         
         document.addEventListener('keyup', (e) => {
             keys[e.key] = false;
+        });
+        
+        // Start button click handler
+        document.getElementById('startButton').addEventListener('click', function() {
+            startGame();
+        });
+        
+        // Fullscreen button handler
+        document.getElementById('fullscreenButton').addEventListener('click', function() {
+            toggleFullscreen();
+        });
+        
+        // Fullscreen toggle function
+        function toggleFullscreen() {
+            const container = document.getElementById('gameContainer');
+            const icon = document.getElementById('fullscreenIcon');
+            
+            if (!document.fullscreenElement) {
+                // Enter fullscreen
+                if (container.requestFullscreen) {
+                    container.requestFullscreen();
+                } else if (container.webkitRequestFullscreen) { // Safari
+                    container.webkitRequestFullscreen();
+                } else if (container.msRequestFullscreen) { // IE11
+                    container.msRequestFullscreen();
+                }
+                // Change to inward arrows (compress icon)
+                icon.innerHTML = '<path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>';
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) { // Safari
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { // IE11
+                    document.msExitFullscreen();
+                }
+                // Change to outward arrows (expand icon)
+                icon.innerHTML = '<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>';
+            }
+        }
+        
+        // Listen for fullscreen changes to update button icon
+        document.addEventListener('fullscreenchange', function() {
+            const icon = document.getElementById('fullscreenIcon');
+            if (!document.fullscreenElement) {
+                // Not in fullscreen - show expand icon (outward arrows)
+                icon.innerHTML = '<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>';
+            } else {
+                // In fullscreen - show compress icon (inward arrows)
+                icon.innerHTML = '<path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>';
+            }
+        });
+        
+        // Also listen for webkit fullscreen change (Safari)
+        document.addEventListener('webkitfullscreenchange', function() {
+            const icon = document.getElementById('fullscreenIcon');
+            if (!document.webkitFullscreenElement) {
+                icon.innerHTML = '<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>';
+            } else {
+                icon.innerHTML = '<path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>';
+            }
         });
         
         // Touch controls
@@ -1277,12 +1415,8 @@
                 return;
             }
             
-            // Don't handle touch movement if game hasn't started yet (countdown or initial screen)
+            // Don't handle touch movement if game hasn't started yet
             if (!gameActive) {
-                if (countdown === 0 && !gameOverShown) {
-                    // Initial game start
-                    startGame();
-                }
                 return;
             }
             
@@ -1320,12 +1454,8 @@
                 return;
             }
             
-            // Don't handle mouse movement if game hasn't started yet (countdown or initial screen)
+            // Don't handle mouse movement if game hasn't started yet
             if (!gameActive) {
-                if (countdown === 0 && !gameOverShown) {
-                    // Initial game start
-                    startGame();
-                }
                 return;
             }
             
