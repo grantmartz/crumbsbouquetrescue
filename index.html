@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bounce Game - Wedding Edition</title>
+    <title>Leaderboard - Crumb's Bouquet Rescue</title>
     <style>
         * {
             margin: 0;
@@ -19,1305 +19,136 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 5px;
-            overflow: auto;
+            padding: 10px;
         }
         
-        #gameContainer {
+        #leaderboardContainer {
             background: #e8b84d;
             border: 8px solid #d44e3a;
             border-radius: 12px;
-            padding: 10px;
+            padding: 20px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-            max-width: 380px;
-            width: calc(100vw - 50px);
+            max-width: 500px;
+            width: 100%;
             outline: 8px dotted #d44e3a;
-            outline-offset: 5px;
-            margin: 10px auto;
+            outline-offset: 8px;
         }
         
-        #gameTitle {
-            font-size: 22px;
-            font-weight: bold;
+        h1 {
             color: #d44e3a;
             text-align: center;
-            margin-bottom: 10px;
+            font-size: 32px;
+            margin-bottom: 20px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
         }
         
-        #gameCanvas {
+        .trophy {
+            text-align: center;
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        #leaderboardList {
             background: #fef9f0;
             border: 4px solid #d44e3a;
-            display: block;
-            width: 100%;
-            height: auto;
-            max-height: 75vh;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 400px;
         }
         
-        /* For very small screens */
-        @media (max-height: 700px) {
-            #gameContainer {
-                padding: 8px;
-                max-width: 320px;
-            }
-            #gameTitle {
-                font-size: 18px;
-                margin-bottom: 8px;
-            }
-            #gameCanvas {
-                max-height: 70vh;
-            }
+        .score-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: #fff;
+            border-radius: 6px;
+            border-left: 5px solid #d44e3a;
+            transition: transform 0.2s;
         }
         
-        #ui {
-            margin-top: 15px;
-            color: #d44e3a;
-            text-align: center;
+        .score-entry:hover {
+            transform: translateX(5px);
         }
         
-        #score {
-            font-size: 24px;
+        .score-entry.rank-1 {
+            background: #ffd700;
+            border-left-color: #FFD700;
+            font-size: 18px;
+        }
+        
+        .score-entry.rank-2 {
+            background: #e8e8e8;
+            border-left-color: #C0C0C0;
+            font-size: 16px;
+        }
+        
+        .score-entry.rank-3 {
+            background: #f4d9b8;
+            border-left-color: #CD7F32;
+            font-size: 16px;
+        }
+        
+        .rank {
+            font-size: 20px;
             font-weight: bold;
-            margin-bottom: 10px;
+            color: #d44e3a;
+            min-width: 35px;
         }
         
-        #instructions {
-            font-size: 14px;
-            margin-top: 10px;
-            line-height: 1.4;
+        .name {
+            flex: 1;
+            color: #2d4a2b;
+            font-size: 16px;
+            padding: 0 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         
-        #gameOver {
-            display: none;
+        .score {
             font-size: 18px;
             font-weight: bold;
-            margin: 10px 0;
+            color: #d44e3a;
+            min-width: 60px;
+            text-align: right;
         }
         
-        button {
-            background: #d44e3a;
-            color: #fef9f0;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            font-family: 'Rockwell', 'Georgia', serif;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 4px;
-            margin-top: 10px;
+        .loading {
+            text-align: center;
+            color: #d44e3a;
+            font-size: 18px;
+            padding: 40px;
         }
         
-        button:hover {
-            background: #c23d2c;
+        .no-scores {
+            text-align: center;
+            color: #d44e3a;
+            font-size: 18px;
+            padding: 40px;
+            font-style: italic;
         }
         
-        button:active {
-            transform: translateY(2px);
+        .last-updated {
+            text-align: center;
+            color: #2d4a2b;
+            font-size: 12px;
+            margin-top: 15px;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
-    <div id="gameContainer">
-        <div id="gameTitle">Crumb's Bouquet Rescue</div>
-        <canvas id="gameCanvas" width="400" height="600"></canvas>
-        <div id="ui">
-            <div id="score">Score: 0</div>
-            <div id="highScore" style="font-size: 18px; margin-top: 5px;">High Score: 0</div>
-            <div id="gameOver">Game Over! Click to restart</div>
-            <div id="instructions">
-                Desktop: Arrow keys to move<br>
-                Mobile: Touch and drag to move<br>
-                Tap/Spacebar to Restart
-            </div>
+    <div id="leaderboardContainer">
+        <div class="trophy">🏆</div>
+        <h1>Top 10 Players</h1>
+        <div id="leaderboardList">
+            <div class="loading">Loading leaderboard...</div>
         </div>
+        <div class="last-updated" id="lastUpdated"></div>
     </div>
-
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        // ============================================
-        // CUSTOMIZE YOUR ASSETS HERE
-        // ============================================
-        // To use your custom images, replace these URLs with your hosted image URLs
-        // Example: const SPRITE_IMAGE = 'https://yoursite.com/animal.png';
-        const SPRITE_IMAGE = null; // Set to null to use placeholder shape
-        const FLOWER_IMAGE_1 = null; // First flower style
-        const FLOWER_IMAGE_2 = null; // Second flower style
-        const FLOWER_IMAGE_3 = null; // Third flower style
-        const EATER_MOUTH_OPEN = null; // Dog head profile with mouth open
-        const EATER_MOUTH_CLOSED = null; // Dog head profile with mouth closed
-        const CLOUD_IMAGE = null; // Cloud image for background
-        const FINCH_IMAGE = null; // Special finch sprite (1 in 50 chance)
-        const TREE_SKYLINE_IMAGE = null; // Tree skyline image for bottom edge
-        
-        // Placeholder colors (used when images are null)
-        const SPRITE_COLOR = '#d44e3a';  // Red-orange from homepage
-        const FLOWER_COLORS = ['#d44e3a', '#f5a3b5', '#e8b84d'];  // Red, Pink, Yellow
-        const CLOUD_COLOR = '#f5d5c8';   // Soft peachy pink
-        const EATER_COLOR = '#d44e3a';   // Red-orange for the eater sprite
-        const FINCH_COLOR = '#4a9eff';   // Blue for special finch
-        const TREE_COLOR = '#2d4a2b';    // Dark green for pine trees
-        // ============================================
-        
-        // Game state
-        let gameActive = false;
-        let score = 0;
-        let gameOverShown = false;
-        let countdown = 0; // 0 = no countdown, 3, 2, 1 = counting down
-        let countdownTimer = 0;
-        let highScore = parseInt(localStorage.getItem('weddingGameHighScore')) || 0;
-        let gameOverPhase = ''; // '', 'eating', 'scolding', 'gameover'
-        let gameOverTimer = 0;
-        let bonusText = null; // {text: string, x: number, y: number, timer: number}
-        
-        // Leaderboard state
-        let topScores = []; // Array of {name: string, score: number, timestamp: number}
-        let showNameEntry = false;
-        let playerName = '';
-        let isTopTenScore = false;
-        
-        // Player sprite
-        const player = {
-            x: canvas.width / 2,
-            y: 100,
-            width: 40,
-            height: 40,
-            velocityY: 0,
-            velocityX: 0,
-            gravity: 0.2,  // Reduced further for slower falling
-            bounceStrength: -8,  // Reduced from -15 to prevent bouncing off screen
-            moveSpeed: 7,
-            image: null
-        };
-        
-        // Load sprite image if provided
-        if (SPRITE_IMAGE) {
-            player.image = new Image();
-            player.image.src = SPRITE_IMAGE;
-        }
-        
-        // Flower images
-        let flowerImages = [null, null, null];
-        if (FLOWER_IMAGE_1) {
-            flowerImages[0] = new Image();
-            flowerImages[0].src = FLOWER_IMAGE_1;
-        }
-        if (FLOWER_IMAGE_2) {
-            flowerImages[1] = new Image();
-            flowerImages[1].src = FLOWER_IMAGE_2;
-        }
-        if (FLOWER_IMAGE_3) {
-            flowerImages[2] = new Image();
-            flowerImages[2].src = FLOWER_IMAGE_3;
-        }
-        
-        // Eater images
-        let eaterMouthOpen = null;
-        let eaterMouthClosed = null;
-        if (EATER_MOUTH_OPEN) {
-            eaterMouthOpen = new Image();
-            eaterMouthOpen.src = EATER_MOUTH_OPEN;
-        }
-        if (EATER_MOUTH_CLOSED) {
-            eaterMouthClosed = new Image();
-            eaterMouthClosed.src = EATER_MOUTH_CLOSED;
-        }
-        
-        // Cloud image
-        let cloudImage = null;
-        if (CLOUD_IMAGE) {
-            cloudImage = new Image();
-            cloudImage.src = CLOUD_IMAGE;
-        }
-        
-        // Finch image
-        let finchImage = null;
-        if (FINCH_IMAGE) {
-            finchImage = new Image();
-            finchImage.src = FINCH_IMAGE;
-        }
-        
-        // Tree skyline image
-        let treeSkylineImage = null;
-        if (TREE_SKYLINE_IMAGE) {
-            treeSkylineImage = new Image();
-            treeSkylineImage.src = TREE_SKYLINE_IMAGE;
-        }
-        
-        // Input handling
-        const keys = {};
-        let touchStartX = 0;
-        let touchCurrentX = 0;
-        let isTouching = false;
-        
-        // Flowers array
-        const flowers = [];
-        let flowerSpawnTimer = 0;
-        const flowerSpawnInterval = 60; // frames between spawns (reduced from 90 for more flowers)
-        let flowerTypeCounter = 0; // Cycles through 0, 1, 2 for different flower types
-        
-        // Eater sprites (swoops down to eat missed flowers)
-        const eaters = [];
-        
-        // Particles for bounce effects
-        const particles = [];
-        
-        // Timing
-        let lastFrameTime = performance.now();
-        const targetFrameTime = 1000 / 60; // 60 FPS
-        
-        // Clouds array
-        const clouds = [];
-        
-        // Pine trees along the bottom
-        const pineTrees = [];
-        
-        // Initialize clouds
-        function initClouds() {
-            for (let i = 0; i < 5; i++) {
-                clouds.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * (canvas.height * 0.4),
-                    width: 60 + Math.random() * 40,
-                    height: 20 + Math.random() * 15,
-                    speed: 0.3 + Math.random() * 0.5
-                });
-            }
-        }
-        
-        // Initialize pine trees along the bottom
-        function initPineTrees() {
-            const treeSpacing = 60;
-            const treeCount = Math.ceil(canvas.width / treeSpacing) + 1;
-            for (let i = 0; i < treeCount; i++) {
-                pineTrees.push({
-                    x: i * treeSpacing - 30,
-                    height: 40 + Math.random() * 30,
-                    width: 25 + Math.random() * 15
-                });
-            }
-        }
-        
-        // ============================================
-        // FIREBASE LEADERBOARD FUNCTIONS
-        // ============================================
-        
-        // Load top scores from Firebase
-        function loadLeaderboard() {
-            if (!database) {
-                console.log("Firebase not available, skipping leaderboard load");
-                return;
-            }
-            
-            database.ref('scores').orderByChild('score').limitToLast(10).on('value', (snapshot) => {
-                topScores = [];
-                snapshot.forEach((childSnapshot) => {
-                    topScores.push({
-                        id: childSnapshot.key,
-                        ...childSnapshot.val()
-                    });
-                });
-                // Reverse to show highest first
-                topScores.reverse();
-                console.log("Leaderboard loaded:", topScores);
-            });
-        }
-        
-        // Check if score makes top 10
-        function isTopTen(currentScore) {
-            if (!database) return false;
-            if (topScores.length < 10) return true;
-            return currentScore > topScores[topScores.length - 1].score;
-        }
-        
-        // Submit score to Firebase
-        function submitScore(name, scoreValue) {
-            if (!database) {
-                console.log("Firebase not available, score not submitted");
-                return;
-            }
-            
-            const newScore = {
-                name: name.trim(), // Just trim whitespace, no other changes
-                score: scoreValue,
-                timestamp: Date.now()
-            };
-            
-            database.ref('scores').push(newScore)
-                .then(() => {
-                    console.log("Score submitted successfully");
-                    showNameEntry = false;
-                    playerName = '';
-                })
-                .catch((error) => {
-                    console.error("Error submitting score:", error);
-                });
-        }
-        
-        // Draw cloud (classic fluffy cloud with overlapping circles or custom image)
-        function drawCloud(cloud) {
-            if (cloudImage && cloudImage.complete) {
-                // Use custom cloud image
-                ctx.drawImage(cloudImage, cloud.x - cloud.width/2, cloud.y - cloud.height/2, cloud.width, cloud.height);
-            } else {
-                // Fallback to placeholder fluffy cloud - solid soft pink
-                ctx.fillStyle = '#f5d5c8'; // Soft pink, no transparency
-                
-                const baseRadius = cloud.height / 2;
-                
-                // Draw 4 overlapping circles to create a fluffy cloud
-                ctx.beginPath();
-                // Left circle (smallest)
-                ctx.arc(cloud.x - baseRadius * 0.8, cloud.y, baseRadius * 0.7, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.beginPath();
-                // Left-center circle
-                ctx.arc(cloud.x - baseRadius * 0.3, cloud.y - baseRadius * 0.3, baseRadius * 0.9, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.beginPath();
-                // Center circle (largest)
-                ctx.arc(cloud.x + baseRadius * 0.2, cloud.y, baseRadius, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.beginPath();
-                // Right circle
-                ctx.arc(cloud.x + baseRadius * 0.9, cloud.y + baseRadius * 0.1, baseRadius * 0.8, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-        
-        // Draw pine tree silhouette
-        function drawPineTree(tree) {
-            ctx.fillStyle = TREE_COLOR; // Dark green silhouette
-            
-            const baseY = canvas.height;
-            const tipY = baseY - tree.height;
-            const centerX = tree.x;
-            
-            // Draw three stacked triangular sections
-            const sections = 3;
-            const sectionHeight = tree.height / sections;
-            
-            for (let i = 0; i < sections; i++) {
-                const topY = tipY + (i * sectionHeight * 0.7);
-                const bottomY = tipY + ((i + 1) * sectionHeight * 0.9);
-                const widthAtSection = tree.width * (1 + i * 0.4);
-                
-                ctx.beginPath();
-                ctx.moveTo(centerX, topY); // Top point
-                ctx.lineTo(centerX - widthAtSection / 2, bottomY); // Bottom left
-                ctx.lineTo(centerX + widthAtSection / 2, bottomY); // Bottom right
-                ctx.closePath();
-                ctx.fill();
-            }
-            
-            // Trunk
-            const trunkWidth = tree.width * 0.2;
-            ctx.fillRect(centerX - trunkWidth / 2, baseY - sectionHeight * 0.4, trunkWidth, sectionHeight * 0.4);
-        }
-        
-        // Update clouds
-        function updateClouds() {
-            clouds.forEach(cloud => {
-                cloud.x += cloud.speed;
-                if (cloud.x - cloud.width/2 > canvas.width) {
-                    cloud.x = -cloud.width/2;
-                    cloud.y = Math.random() * (canvas.height * 0.4);
-                }
-            });
-        }
-        
-        // Draw player (placeholder or custom image)
-        function drawPlayer() {
-            if (player.image && player.image.complete) {
-                ctx.drawImage(player.image, player.x - player.width/2, player.y - player.height/2, player.width, player.height);
-            } else {
-                // Placeholder: simple animal-like shape (circle with ears)
-                ctx.fillStyle = SPRITE_COLOR;
-                
-                // Body
-                ctx.beginPath();
-                ctx.arc(player.x, player.y, player.width/2, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Ears
-                ctx.beginPath();
-                ctx.arc(player.x - player.width/3, player.y - player.height/3, player.width/4, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.beginPath();
-                ctx.arc(player.x + player.width/3, player.y - player.height/3, player.width/4, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-        
-        // Draw flower (placeholder or custom image)
-        function drawFlower(flower) {
-            // Draw finch if it's a finch
-            if (flower.isFinch) {
-                if (finchImage && finchImage.complete) {
-                    ctx.drawImage(finchImage, flower.x - flower.width/2, flower.y - flower.height/2, flower.width, flower.height);
-                } else {
-                    // Placeholder finch: simple bird shape
-                    ctx.fillStyle = FINCH_COLOR;
-                    
-                    // Body (oval)
-                    ctx.beginPath();
-                    ctx.ellipse(flower.x, flower.y, flower.width/3, flower.height/4, 0, 0, Math.PI * 2);
-                    ctx.fill();
-                    
-                    // Head (circle)
-                    ctx.beginPath();
-                    ctx.arc(flower.x + flower.width/4, flower.y - flower.height/6, flower.width/5, 0, Math.PI * 2);
-                    ctx.fill();
-                    
-                    // Wing (arc)
-                    ctx.beginPath();
-                    ctx.arc(flower.x - flower.width/6, flower.y, flower.width/4, 0, Math.PI * 2);
-                    ctx.fill();
-                    
-                    // Beak (small triangle)
-                    ctx.fillStyle = '#ffa500';
-                    ctx.beginPath();
-                    ctx.moveTo(flower.x + flower.width/3, flower.y - flower.height/6);
-                    ctx.lineTo(flower.x + flower.width/2.3, flower.y - flower.height/8);
-                    ctx.lineTo(flower.x + flower.width/3, flower.y - flower.height/12);
-                    ctx.fill();
-                }
-                return;
-            }
-            
-            // Regular flower drawing
-            const flowerImage = flowerImages[flower.type];
-            
-            if (flowerImage && flowerImage.complete) {
-                ctx.drawImage(flowerImage, flower.x - flower.width/2, flower.y - flower.height/2, flower.width, flower.height);
-            } else {
-                // Placeholder: simple flower shape with color based on type
-                ctx.fillStyle = FLOWER_COLORS[flower.type];
-                
-                // Stem
-                ctx.fillRect(flower.x - 3, flower.y, 6, flower.height/2);
-                
-                // Petals (5 circles around center)
-                const petalRadius = flower.width/5;
-                const centerY = flower.y - flower.height/4;
-                for (let i = 0; i < 5; i++) {
-                    const angle = (i * Math.PI * 2 / 5) - Math.PI/2;
-                    const petalX = flower.x + Math.cos(angle) * petalRadius * 1.2;
-                    const petalY = centerY + Math.sin(angle) * petalRadius * 1.2;
-                    
-                    ctx.beginPath();
-                    ctx.arc(petalX, petalY, petalRadius, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-                
-                // Center
-                ctx.beginPath();
-                ctx.arc(flower.x, centerY, petalRadius * 0.8, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-        
-        // Draw eater sprite (dog's head facing downward, with chomping animation)
-        function drawEater(eater) {
-            // Determine if mouth should be open or closed based on phase
-            const mouthOpen = eater.phase === 'descending' || 
-                             eater.phase === 'chomp1_open' || 
-                             eater.phase === 'chomp2_open';
-            
-            // Use custom images if provided
-            if (mouthOpen && eaterMouthOpen && eaterMouthOpen.complete) {
-                ctx.drawImage(eaterMouthOpen, eater.x - eater.width/2, eater.y - eater.height/2, eater.width, eater.height);
-                return;
-            } else if (!mouthOpen && eaterMouthClosed && eaterMouthClosed.complete) {
-                ctx.drawImage(eaterMouthClosed, eater.x - eater.width/2, eater.y - eater.height/2, eater.width, eater.height);
-                return;
-            }
-            
-            // Fallback to placeholder drawing
-            ctx.fillStyle = EATER_COLOR;
-            
-            // Head (main circle)
-            ctx.beginPath();
-            ctx.arc(eater.x, eater.y, eater.width/2, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Left ear (floppy, pointing down-left)
-            ctx.beginPath();
-            ctx.ellipse(eater.x - eater.width/3, eater.y - eater.height/4, eater.width/4, eater.height/3, -0.3, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Right ear (floppy, pointing down-right)
-            ctx.beginPath();
-            ctx.ellipse(eater.x + eater.width/3, eater.y - eater.height/4, eater.width/4, eater.height/3, 0.3, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Snout (oval pointing downward)
-            ctx.beginPath();
-            ctx.ellipse(eater.x, eater.y + eater.height/4, eater.width/3, eater.height/3, 0, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Draw mouth differently based on open/closed state
-            if (mouthOpen) {
-                // Open mouth (small arc at bottom of snout)
-                ctx.fillStyle = '#1a0a0a';
-                ctx.beginPath();
-                ctx.arc(eater.x, eater.y + eater.height/2.5, eater.width/6, 0, Math.PI);
-                ctx.fill();
-            }
-            
-            // Nose (small circle at bottom of snout)
-            ctx.fillStyle = '#3a2a1a';
-            ctx.beginPath();
-            ctx.arc(eater.x, eater.y + eater.height/2, eater.width/8, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Eyes (two small circles)
-            ctx.fillStyle = '#3a2a1a';
-            ctx.beginPath();
-            ctx.arc(eater.x - eater.width/5, eater.y, eater.width/10, 0, Math.PI * 2);
-            ctx.fill();
-            
-            ctx.beginPath();
-            ctx.arc(eater.x + eater.width/5, eater.y, eater.width/10, 0, Math.PI * 2);
-            ctx.fill();
-        }
-        
-        // Spawn a new flower (or finch!)
-        function spawnFlower() {
-            // 1 in 50 chance to spawn a finch instead
-            const isFinch = Math.random() < 0.02;
-            
-            // Progressive difficulty - flowers rise faster as score increases
-            const baseRiseSpeed = 2;
-            const speedIncrease = Math.floor(score / 20) * 0.3; // +0.3 speed every 20 points
-            const riseSpeed = Math.min(baseRiseSpeed + speedIncrease, 4); // Cap at 4
-            
-            const flower = {
-                x: Math.random() * (canvas.width - 80) + 40,
-                y: canvas.height,
-                width: 50,
-                height: 60,
-                riseSpeed: riseSpeed,
-                bounced: false,
-                type: isFinch ? 'finch' : flowerTypeCounter,
-                isFinch: isFinch
-            };
-            flowers.push(flower);
-            
-            // Only cycle flower types if not a finch
-            if (!isFinch) {
-                flowerTypeCounter = (flowerTypeCounter + 1) % 3;
-            }
-        }
-        
-        // Spawn particles on flower bounce
-        function spawnParticles(x, y, color) {
-            const particleCount = 8;
-            for (let i = 0; i < particleCount; i++) {
-                const angle = (Math.PI * 2 * i) / particleCount;
-                const speed = 2 + Math.random() * 2;
-                particles.push({
-                    x: x,
-                    y: y,
-                    vx: Math.cos(angle) * speed,
-                    vy: Math.sin(angle) * speed - 2, // Slight upward bias
-                    size: 3 + Math.random() * 3,
-                    color: color,
-                    life: 1.0, // 1.0 = fully visible, 0.0 = gone
-                    decay: 0.015 + Math.random() * 0.01
-                });
-            }
-        }
-        
-        // Check collision between player and flower
-        function checkCollision(flower) {
-            const playerBottom = player.y + player.height/2;
-            const flowerTop = flower.y - flower.height/2;
-            
-            // Wider hitbox - add 10px padding on each side
-            const hitboxPadding = 10;
-            
-            // Check if player is moving downward and overlapping with flower
-            if (player.velocityY > 0 && 
-                playerBottom >= flowerTop && 
-                playerBottom <= flowerTop + 20 &&
-                player.x > flower.x - flower.width/2 - hitboxPadding && 
-                player.x < flower.x + flower.width/2 + hitboxPadding) {
-                return true;
-            }
-            return false;
-        }
-        
-        // Update game state
-        function update(deltaTime = 1) {
-            // Handle countdown
-            if (countdown > 0) {
-                countdownTimer += deltaTime;
-                if (countdownTimer >= 60) { // 60 frames = 1 second
-                    countdown--;
-                    countdownTimer = 0;
-                    if (countdown === 0) {
-                        gameActive = true; // Start game after countdown
-                    }
-                }
-                return; // Don't update game during countdown
-            }
-            
-            // Handle game over sequence (BEFORE checking gameActive)
-            if (gameOverPhase === 'eating') {
-                gameOverTimer += deltaTime;
-                
-                // Check if there's a current flower being eaten
-                if (!window.currentEatingFlower && flowers.length > 0) {
-                    // Find topmost flower (lowest y value)
-                    let topFlower = flowers[0];
-                    let topIndex = 0;
-                    for (let i = 1; i < flowers.length; i++) {
-                        if (flowers[i].y < topFlower.y) {
-                            topFlower = flowers[i];
-                            topIndex = i;
-                        }
-                    }
-                    
-                    // Convert this flower to an eater animation
-                    window.currentEatingFlower = {
-                        x: topFlower.x,
-                        y: topFlower.y,
-                        width: 45,
-                        height: 40,
-                        animationFrame: 0,
-                        phase: 'chomp1_open'
-                    };
-                    
-                    // Remove the flower
-                    flowers.splice(topIndex, 1);
-                }
-                
-                // Update current eating animation
-                if (window.currentEatingFlower) {
-                    window.currentEatingFlower.animationFrame += deltaTime;
-                    const chompDuration = 6;
-                    
-                    if (window.currentEatingFlower.phase === 'chomp1_open') {
-                        if (window.currentEatingFlower.animationFrame >= chompDuration) {
-                            window.currentEatingFlower.phase = 'chomp1_close';
-                            window.currentEatingFlower.animationFrame = 0;
-                        }
-                    } else if (window.currentEatingFlower.phase === 'chomp1_close') {
-                        if (window.currentEatingFlower.animationFrame >= chompDuration) {
-                            window.currentEatingFlower.phase = 'chomp2_open';
-                            window.currentEatingFlower.animationFrame = 0;
-                        }
-                    } else if (window.currentEatingFlower.phase === 'chomp2_open') {
-                        if (window.currentEatingFlower.animationFrame >= chompDuration) {
-                            window.currentEatingFlower.phase = 'chomp2_close';
-                            window.currentEatingFlower.animationFrame = 0;
-                        }
-                    } else if (window.currentEatingFlower.phase === 'chomp2_close') {
-                        if (window.currentEatingFlower.animationFrame >= chompDuration) {
-                            // Done with this flower
-                            window.currentEatingFlower = null;
-                        }
-                    }
-                }
-                
-                // When all flowers eaten, move to scolding
-                if (flowers.length === 0 && !window.currentEatingFlower) {
-                    gameOverPhase = 'scolding';
-                    gameOverTimer = 0;
-                }
-                return; // Don't process normal game logic
-            } else if (gameOverPhase === 'scolding') {
-                gameOverTimer += deltaTime;
-                
-                // Show scolding for 90 frames (1.5 seconds)
-                if (gameOverTimer >= 90) {
-                    // Check if we should show name entry for top 10
-                    if (isTopTenScore && database) {
-                        gameOverPhase = 'nameentry';
-                        showNameEntry = true;
-                        gameOverTimer = 0;
-                    } else {
-                        gameOverPhase = 'gameover';
-                        gameOverTimer = 0;
-                    }
-                }
-                return; // Don't process normal game logic
-            } else if (gameOverPhase === 'nameentry') {
-                // Wait for player to enter name
-                return; // Don't process normal game logic
-            }
-            
-            if (!gameActive) return;
-            
-            // Update player horizontal movement
-            if (keys['ArrowLeft'] || keys['a'] || keys['A']) {
-                player.velocityX = -player.moveSpeed;
-            } else if (keys['ArrowRight'] || keys['d'] || keys['D']) {
-                player.velocityX = player.moveSpeed;
-            } else if (isTouching) {
-                const touchDelta = touchCurrentX - touchStartX;
-                player.velocityX = touchDelta * 0.2;
-            } else {
-                player.velocityX *= Math.pow(0.85, deltaTime); // Friction with delta time
-            }
-            
-            player.x += player.velocityX * deltaTime;
-            
-            // Keep player in bounds
-            if (player.x < player.width/2) {
-                player.x = player.width/2;
-                player.velocityX = 0;
-            }
-            if (player.x > canvas.width - player.width/2) {
-                player.x = canvas.width - player.width/2;
-                player.velocityX = 0;
-            }
-            
-            // Apply gravity (dynamic based on height)
-            if (player.y < 50) {
-                // Floaty zone - reduced gravity for more air control
-                player.velocityY += player.gravity * 0.5 * deltaTime;
-            } else {
-                // Normal zone - standard gravity
-                player.velocityY += player.gravity * deltaTime;
-            }
-            
-            player.y += player.velocityY * deltaTime;
-            
-            // Soft ceiling - prevent going above y=50
-            if (player.y < 50) {
-                player.y = 50;
-                // Absorb excess upward velocity
-                if (player.velocityY < 0) {
-                    player.velocityY = 0;
-                }
-            }
-            
-            // Update clouds
-            updateClouds();
-            
-            // Spawn flowers continuously (faster as score increases)
-            flowerSpawnTimer += deltaTime;
-            const baseSpawnInterval = 60;
-            const spawnSpeedUp = Math.floor(score / 30) * 5; // -5 frames every 30 points
-            const currentSpawnInterval = Math.max(baseSpawnInterval - spawnSpeedUp, 35); // Min 35 frames
-            
-            if (flowerSpawnTimer >= currentSpawnInterval) {
-                spawnFlower();
-                flowerSpawnTimer = 0;
-            }
-            
-            // Update flowers
-            for (let i = flowers.length - 1; i >= 0; i--) {
-                const flower = flowers[i];
-                
-                // Don't update flowers during game over sequence
-                if (gameOverPhase === 'eating' || gameOverPhase === 'scolding') {
-                    continue;
-                }
-                
-                // Move flower up
-                if (!flower.bounced) {
-                    flower.y -= flower.riseSpeed * deltaTime;
-                }
-                
-                // Check collision
-                if (!flower.bounced && checkCollision(flower)) {
-                    player.velocityY = player.bounceStrength;
-                    flower.bounced = true;
-                    
-                    // Spawn particles based on flower type
-                    const particleColor = flower.isFinch ? FINCH_COLOR : FLOWER_COLORS[flower.type];
-                    spawnParticles(flower.x, flower.y, particleColor);
-                    
-                    // Award points based on type
-                    const pointsAwarded = flower.isFinch ? 10 : 1;
-                    score += pointsAwarded;
-                    document.getElementById('score').textContent = 'Score: ' + score;
-                    
-                    // Show bonus text for finch
-                    if (flower.isFinch) {
-                        bonusText = {
-                            text: 'Bird! +10!',
-                            x: flower.x,
-                            y: flower.y - 30,
-                            timer: 0
-                        };
-                    }
-                    
-                    // Update high score if needed
-                    if (score > highScore) {
-                        highScore = score;
-                        localStorage.setItem('weddingGameHighScore', highScore.toString());
-                        document.getElementById('highScore').textContent = 'High Score: ' + highScore;
-                    }
-                }
-                
-                // Spawn eater if flower reaches top without being bounced
-                if (!flower.bounced && !flower.eaterSpawned && flower.y < 50) {
-                    // Spawn an eater at the top to "eat" this flower
-                    const eater = {
-                        x: flower.x,
-                        y: -50,
-                        targetY: 20, // Stop at y=20
-                        width: 45,
-                        height: 40,
-                        speed: 3,
-                        animationFrame: 0,
-                        phase: 'descending',
-                        isGameOverEater: false
-                    };
-                    eaters.push(eater);
-                    flower.eaterSpawned = true; // Mark so we don't spawn multiple eaters
-                }
-                
-                // Remove flowers that were bounced or went way off screen
-                if (flower.bounced || flower.y < -100) {
-                    flowers.splice(i, 1);
-                }
-            }
-            
-            // Update eaters
-            for (let i = eaters.length - 1; i >= 0; i--) {
-                const eater = eaters[i];
-                eater.animationFrame += deltaTime;
-                
-                // Use faster animation for game over eaters
-                const chompDuration = eater.isGameOverEater ? 6 : 10;
-                
-                if (eater.phase === 'descending') {
-                    // Move eater down toward target
-                    eater.y += eater.speed * deltaTime;
-                    
-                    // When reaching target, start chomping animation
-                    if (eater.y >= eater.targetY) {
-                        eater.phase = 'chomp1_open';
-                        eater.animationFrame = 0;
-                    }
-                } else if (eater.phase === 'chomp1_open') {
-                    if (eater.animationFrame >= chompDuration) {
-                        eater.phase = 'chomp1_close';
-                        eater.animationFrame = 0;
-                    }
-                } else if (eater.phase === 'chomp1_close') {
-                    if (eater.animationFrame >= chompDuration) {
-                        eater.phase = 'chomp2_open';
-                        eater.animationFrame = 0;
-                    }
-                } else if (eater.phase === 'chomp2_open') {
-                    if (eater.animationFrame >= chompDuration) {
-                        eater.phase = 'chomp2_close';
-                        eater.animationFrame = 0;
-                    }
-                } else if (eater.phase === 'chomp2_close') {
-                    if (eater.animationFrame >= chompDuration) {
-                        eater.phase = 'leaving';
-                        eater.animationFrame = 0;
-                    }
-                } else if (eater.phase === 'leaving') {
-                    // Slide back up
-                    eater.y -= 5 * deltaTime;
-                    
-                    // Remove when off screen
-                    if (eater.y < -eater.height - 20) {
-                        eaters.splice(i, 1);
-                    }
-                }
-            }
-            
-            // Game over if player falls off bottom
-            if (player.y > canvas.height + player.height) {
-                gameOver();
-            }
-            
-            // Update bonus text timer
-            if (bonusText) {
-                bonusText.timer += deltaTime;
-                bonusText.y -= 1 * deltaTime; // Float upward
-                if (bonusText.timer >= 60) { // Show for 1 second
-                    bonusText = null;
-                }
-            }
-            
-            // Update particles
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i];
-                p.x += p.vx * deltaTime;
-                p.y += p.vy * deltaTime;
-                p.vy += 0.1 * deltaTime; // Gravity
-                p.life -= p.decay * deltaTime;
-                
-                if (p.life <= 0) {
-                    particles.splice(i, 1);
-                }
-            }
-        }
-        
-        // Draw everything
-        function draw() {
-            // Clear canvas
-            ctx.fillStyle = '#fef9f0';  // Cream background matching homepage
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw clouds
-            clouds.forEach(drawCloud);
-            
-            // Draw pine trees or tree skyline (behind gameplay elements)
-            if (treeSkylineImage && treeSkylineImage.complete) {
-                // Use custom tree skyline image - stretch across bottom
-                const skylineHeight = 80; // Adjust as needed
-                ctx.drawImage(treeSkylineImage, 0, canvas.height - skylineHeight, canvas.width, skylineHeight);
-            } else {
-                // Fallback to individual pine trees
-                pineTrees.forEach(drawPineTree);
-            }
-            
-            // Draw flowers
-            flowers.forEach(drawFlower);
-            
-            // Draw eaters
-            eaters.forEach(drawEater);
-            
-            // Draw current eating flower (during game over)
-            if (window.currentEatingFlower) {
-                drawEater(window.currentEatingFlower);
-            }
-            
-            // Draw player
-            drawPlayer();
-            
-            // Draw particles
-            particles.forEach(p => {
-                ctx.globalAlpha = p.life;
-                ctx.fillStyle = p.color;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.globalAlpha = 1;
-            });
-            
-            // Draw bonus text
-            if (bonusText) {
-                ctx.fillStyle = '#4a9eff';
-                ctx.font = 'bold 24px Rockwell, Georgia, serif';
-                ctx.textAlign = 'center';
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 3;
-                ctx.strokeText(bonusText.text, bonusText.x, bonusText.y);
-                ctx.fillText(bonusText.text, bonusText.x, bonusText.y);
-            }
-            
-            // Draw countdown if active
-            if (countdown > 0) {
-                ctx.font = 'bold 80px Rockwell, Georgia, serif';
-                ctx.textAlign = 'center';
-                ctx.strokeStyle = '#d44e3a';
-                ctx.lineWidth = 4;
-                ctx.strokeText(countdown.toString(), canvas.width/2, canvas.height/2);
-                ctx.fillStyle = '#e8b84d';  // Sunshine yellow
-                ctx.fillText(countdown.toString(), canvas.width/2, canvas.height/2);
-            }
-            
-            // Draw scolding text during game over
-            if (gameOverPhase === 'scolding') {
-                ctx.fillStyle = '#d44e3a';
-                ctx.font = 'bold 32px Rockwell, Georgia, serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('No, Cricket!', canvas.width/2, canvas.height/2 - 20);
-                ctx.fillText('Bad!', canvas.width/2, canvas.height/2 + 20);
-            }
-            
-            // Draw game over text
-            if (gameOverPhase === 'gameover') {
-                ctx.fillStyle = '#d44e3a';
-                ctx.font = 'bold 36px Rockwell, Georgia, serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('Game Over!', canvas.width/2, canvas.height/2 - 20);
-                ctx.font = 'bold 20px Rockwell, Georgia, serif';
-                ctx.fillText('Tap/Spacebar to Restart', canvas.width/2, canvas.height/2 + 20);
-            }
-            
-            // Draw name entry screen for top 10
-            if (gameOverPhase === 'nameentry' && showNameEntry) {
-                // Semi-transparent overlay
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // Title
-                ctx.fillStyle = '#e8b84d';
-                ctx.font = 'bold 32px Rockwell, Georgia, serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('TOP 10!', canvas.width/2, canvas.height/2 - 80);
-                
-                // Score
-                ctx.fillStyle = '#f5a3b5';
-                ctx.font = 'bold 24px Rockwell, Georgia, serif';
-                ctx.fillText('Score: ' + score, canvas.width/2, canvas.height/2 - 40);
-                
-                // Name prompt
-                ctx.fillStyle = '#fef9f0';
-                ctx.font = 'bold 18px Rockwell, Georgia, serif';
-                ctx.fillText('Enter your name:', canvas.width/2, canvas.height/2);
-                
-                // Name input box
-                ctx.strokeStyle = '#e8b84d';
-                ctx.lineWidth = 3;
-                ctx.strokeRect(canvas.width/2 - 100, canvas.height/2 + 10, 200, 40);
-                
-                // Name text
-                ctx.fillStyle = '#d44e3a';
-                ctx.font = 'bold 24px Rockwell, Georgia, serif';
-                ctx.fillText(playerName + '_', canvas.width/2, canvas.height/2 + 38);
-                
-                // Instructions
-                ctx.fillStyle = '#f5d5c8';
-                ctx.font = '14px Rockwell, Georgia, serif';
-                ctx.fillText('Press ENTER to submit', canvas.width/2, canvas.height/2 + 75);
-            }
-            
-            // Draw "Click to Start" on initial screen
-            if (!gameActive && !gameOverShown && countdown === 0) {
-                ctx.fillStyle = '#d44e3a';
-                ctx.font = 'bold 28px Rockwell, Georgia, serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('Click to Start', canvas.width/2, canvas.height/2);
-            }
-        }
-        
-        // Game loop
-        function gameLoop(currentTime) {
-            // Calculate delta time and cap it to prevent huge jumps when tab loses focus
-            const deltaTime = Math.min((currentTime - lastFrameTime) / targetFrameTime, 3);
-            lastFrameTime = currentTime;
-            
-            // Only update if delta time is reasonable (prevents updates during long pauses)
-            if (deltaTime < 5) {
-                update(deltaTime);
-            }
-            draw();
-            requestAnimationFrame(gameLoop);
-        }
-        
-        // Start game
-        function startGame() {
-            gameActive = false; // Don't start immediately
-            gameOverShown = false;
-            gameOverPhase = '';
-            gameOverTimer = 0;
-            window.currentEatingFlower = null;
-            bonusText = null;
-            showNameEntry = false;
-            playerName = '';
-            isTopTenScore = false;
-            score = 0;
-            flowers.length = 0;
-            eaters.length = 0;
-            particles.length = 0;
-            flowerSpawnTimer = 0;
-            countdown = 3; // Start countdown from 3
-            countdownTimer = 0;
-            
-            player.x = canvas.width / 2;
-            player.y = 100;
-            player.velocityY = 0;
-            player.velocityX = 0;
-            
-            document.getElementById('score').textContent = 'Score: 0';
-            document.getElementById('highScore').textContent = 'High Score: ' + highScore;
-            
-            // Spawn initial flowers immediately at different heights
-            spawnFlower(); // First flower at bottom
-            
-            // Add a second flower already partway up
-            const flower2 = {
-                x: Math.random() * (canvas.width - 80) + 40,
-                y: canvas.height - 150,
-                width: 50,
-                height: 60,
-                riseSpeed: 2,
-                bounced: false,
-                type: 1
-            };
-            flowers.push(flower2);
-            flowerTypeCounter = 2; // Next flower will be type 2
-            
-            // Add a third flower even higher
-            const flower3 = {
-                x: Math.random() * (canvas.width - 80) + 40,
-                y: canvas.height - 300,
-                width: 50,
-                height: 60,
-                riseSpeed: 2,
-                bounced: false,
-                type: 2
-            };
-            flowers.push(flower3);
-            flowerTypeCounter = 0; // Reset to cycle from beginning
-        }
-        
-        // Game over
-        function gameOver() {
-            if (gameOverShown) return;
-            gameActive = false;
-            player.velocityY = 0; // Stop velocity immediately
-            player.velocityX = 0;
-            
-            // Clear any in-progress eaters from normal gameplay
-            eaters.length = 0;
-            
-            // Check if score makes top 10
-            if (database && isTopTen(score)) {
-                isTopTenScore = true;
-            } else {
-                isTopTenScore = false;
-            }
-            
-            // Start eating phase
-            gameOverPhase = 'eating';
-            gameOverTimer = 0;
-            gameOverShown = true;
-        }
-        
-        // Event listeners
-        document.addEventListener('keydown', (e) => {
-            // Handle name entry
-            if (showNameEntry && gameOverPhase === 'nameentry') {
-                if (e.key === 'Enter') {
-                    if (playerName.trim().length > 0) {
-                        submitScore(playerName, score);
-                        gameOverPhase = 'gameover';
-                    }
-                } else if (e.key === 'Backspace') {
-                    e.preventDefault();
-                    playerName = playerName.slice(0, -1);
-                } else if (e.key.length === 1 && playerName.length < 15) {
-                    // Only allow letters, numbers, and spaces
-                    if (/[a-zA-Z0-9 ]/.test(e.key)) {
-                        playerName += e.key;
-                    }
-                }
-                return; // Don't process other keys during name entry
-            }
-            
-            keys[e.key] = true;
-            
-            // Spacebar restarts game
-            if (e.key === ' ' || e.key === 'Spacebar') {
-                e.preventDefault(); // Prevent page scroll
-                if (!gameActive && gameOverShown && gameOverPhase === 'gameover') {
-                    startGame();
-                } else if (!gameActive && countdown === 0 && !gameOverShown) {
-                    startGame();
-                }
-                return;
-            }
-            
-            // Start game on first keypress
-            if (!gameActive && !gameOverShown && countdown === 0) {
-                startGame();
-            }
-        });
-        
-        document.addEventListener('keyup', (e) => {
-            keys[e.key] = false;
-        });
-        
-        // Touch controls
-        document.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            
-            if (!gameActive && gameOverShown && gameOverPhase === 'gameover') {
-                // Just restart the game on touch
-                startGame();
-                return;
-            }
-            
-            // Don't handle touch movement if game hasn't started yet (countdown or initial screen)
-            if (!gameActive) {
-                if (countdown === 0 && !gameOverShown) {
-                    // Initial game start
-                    startGame();
-                }
-                return;
-            }
-            
-            const touch = e.touches[0];
-            const rect = canvas.getBoundingClientRect();
-            // Map screen touch to canvas coordinates
-            touchStartX = ((touch.clientX - rect.left) / rect.width) * canvas.width;
-            touchCurrentX = touchStartX;
-            isTouching = true;
-        });
-        
-        document.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            if (isTouching) {
-                const touch = e.touches[0];
-                const rect = canvas.getBoundingClientRect();
-                // Map screen touch to canvas coordinates
-                const canvasX = ((touch.clientX - rect.left) / rect.width) * canvas.width;
-                touchCurrentX = touchStartX + (canvasX - touchStartX);
-            }
-        });
-        
-        document.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            isTouching = false;
-            touchStartX = 0;
-            touchCurrentX = 0;
-        });
-        
-        // Mouse controls (for desktop)
-        canvas.addEventListener('mousedown', (e) => {
-            if (!gameActive && gameOverShown && gameOverPhase === 'gameover') {
-                // Don't start touch controls, just restart the game
-                startGame();
-                return;
-            }
-            
-            // Don't handle mouse movement if game hasn't started yet (countdown or initial screen)
-            if (!gameActive) {
-                if (countdown === 0 && !gameOverShown) {
-                    // Initial game start
-                    startGame();
-                }
-                return;
-            }
-            
-            const rect = canvas.getBoundingClientRect();
-            touchStartX = e.clientX - rect.left;
-            touchCurrentX = touchStartX;
-            isTouching = true;
-        });
-        
-        canvas.addEventListener('mousemove', (e) => {
-            if (isTouching) {
-                const rect = canvas.getBoundingClientRect();
-                touchCurrentX = e.clientX - rect.left;
-            }
-        });
-        
-        canvas.addEventListener('mouseup', () => {
-            isTouching = false;
-        });
-        
-        // Initialize
-        initClouds();
-        initPineTrees();
-        loadLeaderboard(); // Load Firebase leaderboard
-        lastFrameTime = performance.now();
-        document.getElementById('highScore').textContent = 'High Score: ' + highScore;
-        gameLoop(lastFrameTime);
-    </script>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -1347,8 +178,74 @@
             firebase.initializeApp(firebaseConfig);
             database = firebase.database();
             console.log("Firebase initialized successfully");
+            loadLeaderboard();
         } else {
-            console.log("Firebase not configured - using localStorage only");
+            document.getElementById('leaderboardList').innerHTML = '<div class="no-scores">Firebase not configured.<br>See setup guide.</div>';
+        }
+        
+        // Load and display leaderboard
+        function loadLeaderboard() {
+            if (!database) {
+                document.getElementById('leaderboardList').innerHTML = '<div class="no-scores">Database unavailable</div>';
+                return;
+            }
+            
+            database.ref('scores').orderByChild('score').limitToLast(10).on('value', (snapshot) => {
+                const scores = [];
+                snapshot.forEach((childSnapshot) => {
+                    scores.push({
+                        id: childSnapshot.key,
+                        ...childSnapshot.val()
+                    });
+                });
+                
+                // Reverse to show highest first
+                scores.reverse();
+                
+                displayLeaderboard(scores);
+                updateTimestamp();
+            });
+        }
+        
+        // Display leaderboard in UI
+        function displayLeaderboard(scores) {
+            const listElement = document.getElementById('leaderboardList');
+            
+            if (scores.length === 0) {
+                listElement.innerHTML = '<div class="no-scores">No scores yet!<br>Be the first to play!</div>';
+                return;
+            }
+            
+            let html = '';
+            scores.forEach((entry, index) => {
+                const rank = index + 1;
+                const rankClass = rank <= 3 ? `rank-${rank}` : '';
+                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+                
+                html += `
+                    <div class="score-entry ${rankClass}">
+                        <div class="rank">${medal || rank + '.'}</div>
+                        <div class="name">${escapeHtml(entry.name)}</div>
+                        <div class="score">${entry.score}</div>
+                    </div>
+                `;
+            });
+            
+            listElement.innerHTML = html;
+        }
+        
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Update timestamp
+        function updateTimestamp() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString();
+            document.getElementById('lastUpdated').textContent = `Last updated: ${timeStr}`;
         }
     </script>
 </body>
