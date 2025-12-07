@@ -620,15 +620,10 @@
                 height: 60,
                 riseSpeed: riseSpeed,
                 bounced: false,
-                type: isFinch ? 'finch' : flowerTypeCounter,
+                type: isFinch ? 'finch' : Math.floor(Math.random() * 4), // Random flower type 0-3
                 isFinch: isFinch
             };
             flowers.push(flower);
-            
-            // Only cycle flower types if not a finch
-            if (!isFinch) {
-                flowerTypeCounter = (flowerTypeCounter + 1) % 4; // Cycle through 0, 1, 2, 3
-            }
         }
         
         // Spawn particles on flower bounce
@@ -1182,10 +1177,9 @@
                 height: 60,
                 riseSpeed: 2,
                 bounced: false,
-                type: 1
+                type: Math.floor(Math.random() * 4)
             };
             flowers.push(flower2);
-            flowerTypeCounter = 2; // Next flower will be type 2
             
             // Add a third flower even higher
             const flower3 = {
@@ -1195,10 +1189,9 @@
                 height: 60,
                 riseSpeed: 2,
                 bounced: false,
-                type: 2
+                type: Math.floor(Math.random() * 4)
             };
             flowers.push(flower3);
-            flowerTypeCounter = 3; // Next flower will be type 3 (orange)
         }
         
         // Game over
