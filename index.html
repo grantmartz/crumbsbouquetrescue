@@ -453,18 +453,9 @@
                 return;
             }
             
-            // Validate name format - require at least first name and last initial
+            // Just trim whitespace, no other validation or sanitization
             const trimmedName = name.trim();
-            const nameParts = trimmedName.split(/\s+/);
-            
-            if (nameParts.length < 2) {
-                alert("Please enter your first name and last initial (e.g., 'John D')");
-                return;
-            }
-            
-            // Sanitize name - uppercase
-            const sanitizedName = trimmedName.toUpperCase();
-            const normalizedNewName = normalizeName(sanitizedName);
+            const normalizedNewName = normalizeName(trimmedName);
             
             // Check for existing scores with same normalized name
             database.ref('scores').once('value', (snapshot) => {
@@ -501,7 +492,7 @@
                 
                 // Submit new score
                 const newScore = {
-                    name: sanitizedName,
+                    name: trimmedName,
                     score: scoreValue,
                     timestamp: Date.now()
                 };
@@ -904,7 +895,7 @@
                         // On mobile, use prompt dialog instead of keyboard input
                         if ('ontouchstart' in window) {
                             setTimeout(() => {
-                                const name = prompt('TOP 10 SCORE!\n\nEnter your name:\n(First name and last initial, e.g., "John D")\n\n(or leave blank to skip)');
+                                const name = prompt('TOP 10 SCORE!\n\nEnter your name:\n(or leave blank to skip)');
                                 // Handle both Cancel (null) and empty string as skip
                                 if (name !== null && name.trim().length > 0) {
                                     submitScore(name, score);
@@ -1261,9 +1252,7 @@
                 // Name prompt
                 ctx.fillStyle = '#fef9f0';
                 ctx.font = 'bold 18px Rockwell, Georgia, serif';
-                ctx.fillText('Enter your name:', canvas.width/2, canvas.height/2 - 20);
-                ctx.font = '13px Rockwell, Georgia, serif';
-                ctx.fillText('(First name and last initial)', canvas.width/2, canvas.height/2);
+                ctx.fillText('Enter your name:', canvas.width/2, canvas.height/2);
                 
                 // Name input box
                 ctx.strokeStyle = '#e8b84d';
