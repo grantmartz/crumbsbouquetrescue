@@ -35,6 +35,9 @@
             outline-offset: 5px;
             margin: 10px auto;
             position: relative;
+            touch-action: none; /* Prevents scrolling/zooming when touching game */
+            -webkit-user-select: none;
+            user-select: none;
         }
         
         /* Fullscreen styling */
@@ -160,12 +163,46 @@
         <div id="gameTitle">Crumb's Bouquet Rescue</div>
         <canvas id="gameCanvas" width="400" height="600"></canvas>
         <div id="ui">
-            <div id="score">Score: 0</div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                <button id="leftButton" style="
+                    width: 50px;
+                    height: 50px;
+                    background: rgba(212, 78, 58, 0.9);
+                    border: 3px solid #d44e3a;
+                    border-radius: 8px;
+                    color: #fef9f0;
+                    font-size: 28px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    user-select: none;
+                    -webkit-user-select: none;
+                ">←</button>
+                <div id="score" style="min-width: 120px;">Score: 0</div>
+                <button id="rightButton" style="
+                    width: 50px;
+                    height: 50px;
+                    background: rgba(212, 78, 58, 0.9);
+                    border: 3px solid #d44e3a;
+                    border-radius: 8px;
+                    color: #fef9f0;
+                    font-size: 28px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    user-select: none;
+                    -webkit-user-select: none;
+                ">→</button>
+            </div>
             <div id="highScore" style="font-size: 18px; margin-top: 5px;">High Score: 0</div>
             <div id="gameOver">Game Over! Click to restart</div>
             <div id="instructions">
                 Desktop: Arrow keys to move<br>
-                Mobile: Touch and drag to move<br>
+                Mobile: Touch and drag OR use buttons<br>
                 Tap/Spacebar to Restart
             </div>
         </div>
@@ -822,9 +859,9 @@
             if (!gameActive) return;
             
             // Update player horizontal movement
-            if (keys['ArrowLeft'] || keys['a'] || keys['A']) {
+            if (keys['ArrowLeft'] || keys['a'] || keys['A'] || leftButtonPressed) {
                 player.velocityX = -player.moveSpeed;
-            } else if (keys['ArrowRight'] || keys['d'] || keys['D']) {
+            } else if (keys['ArrowRight'] || keys['d'] || keys['D'] || rightButtonPressed) {
                 player.velocityX = player.moveSpeed;
             } else if (isTouching) {
                 const touchDelta = touchCurrentX - touchStartX;
@@ -1330,8 +1367,62 @@
             startGame();
         });
         
-        // Touch controls
-        document.addEventListener('touchstart', (e) => {
+        // Button controls with tap-and-hold
+        let leftButtonPressed = false;
+        let rightButtonPressed = false;
+        
+        // Left button
+        document.getElementById('leftButton').addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            leftButtonPressed = true;
+        });
+        
+        document.getElementById('leftButton').addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            leftButtonPressed = true;
+        });
+        
+        document.getElementById('leftButton').addEventListener('mouseup', function(e) {
+            e.preventDefault();
+            leftButtonPressed = false;
+        });
+        
+        document.getElementById('leftButton').addEventListener('touchend', function(e) {
+            e.preventDefault();
+            leftButtonPressed = false;
+        });
+        
+        document.getElementById('leftButton').addEventListener('mouseleave', function(e) {
+            leftButtonPressed = false;
+        });
+        
+        // Right button
+        document.getElementById('rightButton').addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            rightButtonPressed = true;
+        });
+        
+        document.getElementById('rightButton').addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            rightButtonPressed = true;
+        });
+        
+        document.getElementById('rightButton').addEventListener('mouseup', function(e) {
+            e.preventDefault();
+            rightButtonPressed = false;
+        });
+        
+        document.getElementById('rightButton').addEventListener('touchend', function(e) {
+            e.preventDefault();
+            rightButtonPressed = false;
+        });
+        
+        document.getElementById('rightButton').addEventListener('mouseleave', function(e) {
+            rightButtonPressed = false;
+        });
+        
+        // Touch controls - ONLY on canvas
+        canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
             
             if (!gameActive && gameOverShown && gameOverPhase === 'gameover') {
@@ -1353,7 +1444,7 @@
             isTouching = true;
         });
         
-        document.addEventListener('touchmove', (e) => {
+        canvas.addEventListener('touchmove', (e) => {
             e.preventDefault();
             if (isTouching) {
                 const touch = e.touches[0];
@@ -1364,7 +1455,7 @@
             }
         });
         
-        document.addEventListener('touchend', (e) => {
+        canvas.addEventListener('touchend', (e) => {
             e.preventDefault();
             isTouching = false;
             touchStartX = 0;
