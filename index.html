@@ -193,16 +193,18 @@
                 ">→</button>
             </div>
             <div id="highScore" style="font-size: 18px; margin-top: 5px;">High Score: 0</div>
-            <div id="gameOver">Game Over! Click to restart</div>
+            <div id="gameOver"></div>
             <div id="instructions">
                 Desktop: Arrow keys to move<br>
-                Mobile: Touch and drag OR use buttons<br>
-                Tap/Spacebar to Restart
+                Mobile: Touch and drag OR use buttons
             </div>
         </div>
         
         <!-- START button overlay on canvas -->
-        <button id="startButton" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; font-size: 18px; padding: 10px 10px;">START GAME</button>
+        <button id="startButton" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; font-size: 18px; padding: 10px;">START GAME</button>
+        
+        <!-- RESTART button overlay on canvas -->
+        <button id="restartButton" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; font-size: 18px; padding: 10px; display: none;">RESTART</button>
     </div>
 
     <!-- Firebase SDK - Must load BEFORE game script -->
@@ -1156,9 +1158,13 @@
                 ctx.fillStyle = '#d44e3a';
                 ctx.font = 'bold 36px Rockwell, Georgia, serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('Game Over!', canvas.width/2, canvas.height/2 - 20);
-                ctx.font = 'bold 20px Rockwell, Georgia, serif';
-                ctx.fillText('Tap/Spacebar to Restart', canvas.width/2, canvas.height/2 + 20);
+                ctx.fillText('Game Over!', canvas.width/2, canvas.height/2);
+                
+                // Show restart button
+                document.getElementById('restartButton').style.display = 'block';
+            } else {
+                // Hide restart button when not in game over
+                document.getElementById('restartButton').style.display = 'none';
             }
             
             // Draw name entry screen for top 10
@@ -1333,12 +1339,9 @@
             
             keys[e.key] = true;
             
-            // Spacebar restarts game
+            // Spacebar for page control only
             if (e.key === ' ' || e.key === 'Spacebar') {
                 e.preventDefault(); // Prevent page scroll
-                if (!gameActive && gameOverShown && gameOverPhase === 'gameover') {
-                    startGame();
-                }
                 return;
             }
             
@@ -1358,6 +1361,21 @@
         document.getElementById('startButton').addEventListener('touchend', function(e) {
             e.preventDefault();
             e.stopPropagation();
+            startGame();
+        });
+        
+        // Restart button click handler
+        document.getElementById('restartButton').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('restartButton').style.display = 'none';
+            startGame();
+        });
+        
+        document.getElementById('restartButton').addEventListener('touchend', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('restartButton').style.display = 'none';
             startGame();
         });
         
@@ -1419,13 +1437,7 @@
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
             
-            if (!gameActive && gameOverShown && gameOverPhase === 'gameover') {
-                // Just restart the game on touch
-                startGame();
-                return;
-            }
-            
-            // Don't handle touch movement if game hasn't started yet
+            // Don't handle touch movement if game hasn't started yet or is over
             if (!gameActive) {
                 return;
             }
@@ -1458,13 +1470,7 @@
         
         // Mouse controls (for desktop)
         canvas.addEventListener('mousedown', (e) => {
-            if (!gameActive && gameOverShown && gameOverPhase === 'gameover') {
-                // Don't start touch controls, just restart the game
-                startGame();
-                return;
-            }
-            
-            // Don't handle mouse movement if game hasn't started yet
+            // Don't handle mouse movement if game hasn't started yet or is over
             if (!gameActive) {
                 return;
             }
