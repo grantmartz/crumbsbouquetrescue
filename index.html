@@ -112,7 +112,6 @@
             margin-top: 15px;
             color: #d44e3a;
             text-align: center;
-            padding-bottom: 20px;
         }
         
         #score {
@@ -172,30 +171,7 @@
         </div>
         
         <!-- START button overlay on canvas -->
-        <button id="startButton" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; font-size: 18px; padding: 10px 15px;">START GAME</button>
-        
-        <!-- Fullscreen button in corner -->
-        <button id="fullscreenButton" style="
-            position: absolute; 
-            bottom: 10px; 
-            right: 10px; 
-            z-index: 10; 
-            width: 36px; 
-            height: 36px; 
-            padding: 0;
-            display: none;
-            background: rgba(212, 78, 58, 0.9);
-            border: 2px solid #d44e3a;
-            border-radius: 4px;
-            cursor: pointer;
-            align-items: center;
-            justify-content: center;
-        " title="Toggle Fullscreen">
-            <svg id="fullscreenIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fef9f0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <!-- Outward arrows (expand) -->
-                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
-            </svg>
-        </button>
+        <button id="startButton" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; font-size: 24px; padding: 12px 25px;">START GAME</button>
     </div>
 
     <!-- Firebase SDK - Must load BEFORE game script -->
@@ -1235,9 +1211,8 @@
             countdown = 3; // Start countdown from 3
             countdownTimer = 0;
             
-            // Hide start button, show fullscreen button
+            // Hide start button
             document.getElementById('startButton').style.display = 'none';
-            document.getElementById('fullscreenButton').style.display = 'flex';
             
             player.x = canvas.width / 2;
             player.y = 100;
@@ -1346,63 +1321,6 @@
         // Start button click handler
         document.getElementById('startButton').addEventListener('click', function() {
             startGame();
-        });
-        
-        // Fullscreen button handler
-        document.getElementById('fullscreenButton').addEventListener('click', function() {
-            toggleFullscreen();
-        });
-        
-        // Fullscreen toggle function
-        function toggleFullscreen() {
-            const container = document.getElementById('gameContainer');
-            const icon = document.getElementById('fullscreenIcon');
-            
-            if (!document.fullscreenElement) {
-                // Enter fullscreen
-                if (container.requestFullscreen) {
-                    container.requestFullscreen();
-                } else if (container.webkitRequestFullscreen) { // Safari
-                    container.webkitRequestFullscreen();
-                } else if (container.msRequestFullscreen) { // IE11
-                    container.msRequestFullscreen();
-                }
-                // Change to inward arrows (compress icon)
-                icon.innerHTML = '<path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>';
-            } else {
-                // Exit fullscreen
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) { // Safari
-                    document.webkitExitFullscreen();
-                } else if (document.msExitFullscreen) { // IE11
-                    document.msExitFullscreen();
-                }
-                // Change to outward arrows (expand icon)
-                icon.innerHTML = '<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>';
-            }
-        }
-        
-        // Listen for fullscreen changes to update button icon
-        document.addEventListener('fullscreenchange', function() {
-            const icon = document.getElementById('fullscreenIcon');
-            if (!document.fullscreenElement) {
-                // Not in fullscreen - show expand icon (outward arrows)
-                icon.innerHTML = '<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>';
-            } else {
-                // In fullscreen - show compress icon (inward arrows)
-                icon.innerHTML = '<path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>';
-            }
-        });
-        
-        // Also listen for webkit fullscreen change (Safari)
-        document.addEventListener('webkitfullscreenchange', function() {
-            const icon = document.getElementById('fullscreenIcon');
-            if (!document.webkitFullscreenElement) {
-                icon.innerHTML = '<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>';
-            } else {
-                icon.innerHTML = '<path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>';
-            }
         });
         
         // Touch controls
