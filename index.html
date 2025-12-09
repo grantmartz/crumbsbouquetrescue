@@ -173,7 +173,18 @@
                     justify-content: center;
                     user-select: none;
                     -webkit-user-select: none;
-                ">←</button>
+                    position: relative;
+                ">
+                    ←
+                    <span style="
+                        position: absolute;
+                        top: -15px;
+                        left: -15px;
+                        right: -15px;
+                        bottom: -15px;
+                        z-index: 1;
+                    "></span>
+                </button>
                 <div id="score" style="min-width: 120px;">Score: 0</div>
                 <button id="rightButton" style="
                     width: 50px;
@@ -190,7 +201,18 @@
                     justify-content: center;
                     user-select: none;
                     -webkit-user-select: none;
-                ">→</button>
+                    position: relative;
+                ">
+                    →
+                    <span style="
+                        position: absolute;
+                        top: -15px;
+                        left: -15px;
+                        right: -15px;
+                        bottom: -15px;
+                        z-index: 1;
+                    "></span>
+                </button>
             </div>
             <div id="highScore" style="font-size: 18px; margin-top: 5px;">High Score: 0</div>
             <div id="gameOver"></div>
