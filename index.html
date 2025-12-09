@@ -14,13 +14,9 @@
         body {
             font-family: 'Rockwell', 'Georgia', serif;
             font-weight: bold;
-            background: #fff4d4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 5px;
-            overflow: auto;
+            background: transparent;
+            margin: 0;
+            padding: 0;
         }
         
         #gameContainer {
@@ -835,14 +831,14 @@
                         if ('ontouchstart' in window) {
                             setTimeout(() => {
                                 const name = prompt('TOP 10 SCORE!\n\nEnter your name:\n(or leave blank to skip)');
-                                if (name !== null) { // User clicked OK (not Cancel)
-                                    if (name.trim().length > 0) {
-                                        submitScore(name, score);
-                                    }
-                                    showNameEntry = false;
-                                    playerName = '';
-                                    gameOverPhase = 'gameover';
+                                // Handle both Cancel (null) and empty string as skip
+                                if (name !== null && name.trim().length > 0) {
+                                    submitScore(name, score);
                                 }
+                                // Always exit name entry and show game over
+                                showNameEntry = false;
+                                playerName = '';
+                                gameOverPhase = 'gameover';
                             }, 100);
                         }
                     } else {
