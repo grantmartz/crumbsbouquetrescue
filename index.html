@@ -29,7 +29,6 @@
             width: calc(100vw - 50px);
             margin: 0 auto;
             position: relative;
-            touch-action: none; /* Prevents scrolling/zooming when touching game */
             -webkit-user-select: none;
             user-select: none;
         }
@@ -443,27 +442,80 @@
         }
         
         // Submit score to Firebase
+        // Normalize name for comparison (remove spaces, punctuation, lowercase)
+        function normalizeName(name) {
+            return name.toLowerCase().replace(/[^a-z0-9]/g, '');
+        }
+        
         function submitScore(name, scoreValue) {
             if (!database) {
                 console.log("Firebase not available, score not submitted");
                 return;
             }
             
-            const newScore = {
-                name: name.trim(), // Just trim whitespace, no other changes
-                score: scoreValue,
-                timestamp: Date.now()
-            };
+            // Validate name format - require at least first name and last initial
+            const trimmedName = name.trim();
+            const nameParts = trimmedName.split(/\s+/);
             
-            database.ref('scores').push(newScore)
-                .then(() => {
-                    console.log("Score submitted successfully");
-                    showNameEntry = false;
-                    playerName = '';
-                })
-                .catch((error) => {
-                    console.error("Error submitting score:", error);
+            if (nameParts.length < 2) {
+                alert("Please enter your first name and last initial (e.g., 'John D')");
+                return;
+            }
+            
+            // Sanitize name - uppercase
+            const sanitizedName = trimmedName.toUpperCase();
+            const normalizedNewName = normalizeName(sanitizedName);
+            
+            // Check for existing scores with same normalized name
+            database.ref('scores').once('value', (snapshot) => {
+                let existingScoreId = null;
+                let existingScore = null;
+                
+                snapshot.forEach((childSnapshot) => {
+                    const scoreData = childSnapshot.val();
+                    const normalizedExistingName = normalizeName(scoreData.name);
+                    
+                    // If same person exists
+                    if (normalizedExistingName === normalizedNewName) {
+                        // If their old score is lower, mark it for deletion
+                        if (scoreData.score < scoreValue) {
+                            existingScoreId = childSnapshot.key;
+                            existingScore = scoreData.score;
+                        } else {
+                            // Their old score is higher, don't submit new one
+                            console.log("Existing higher score found, not submitting");
+                            showNameEntry = false;
+                            playerName = '';
+                            return;
+                        }
+                    }
                 });
+                
+                // Delete old lower score if found
+                if (existingScoreId) {
+                    database.ref('scores/' + existingScoreId).remove()
+                        .then(() => {
+                            console.log("Removed old lower score:", existingScore);
+                        });
+                }
+                
+                // Submit new score
+                const newScore = {
+                    name: sanitizedName,
+                    score: scoreValue,
+                    timestamp: Date.now()
+                };
+                
+                database.ref('scores').push(newScore)
+                    .then(() => {
+                        console.log("Score submitted successfully");
+                        showNameEntry = false;
+                        playerName = '';
+                    })
+                    .catch((error) => {
+                        console.error("Error submitting score:", error);
+                    });
+            });
         }
         
         // Draw cloud (classic fluffy cloud with overlapping circles or custom image)
@@ -852,7 +904,7 @@
                         // On mobile, use prompt dialog instead of keyboard input
                         if ('ontouchstart' in window) {
                             setTimeout(() => {
-                                const name = prompt('TOP 10 SCORE!\n\nEnter your name:\n(or leave blank to skip)');
+                                const name = prompt('TOP 10 SCORE!\n\nEnter your name:\n(First name and last initial, e.g., "John D")\n\n(or leave blank to skip)');
                                 // Handle both Cancel (null) and empty string as skip
                                 if (name !== null && name.trim().length > 0) {
                                     submitScore(name, score);
@@ -1209,7 +1261,9 @@
                 // Name prompt
                 ctx.fillStyle = '#fef9f0';
                 ctx.font = 'bold 18px Rockwell, Georgia, serif';
-                ctx.fillText('Enter your name:', canvas.width/2, canvas.height/2);
+                ctx.fillText('Enter your name:', canvas.width/2, canvas.height/2 - 20);
+                ctx.font = '13px Rockwell, Georgia, serif';
+                ctx.fillText('(First name and last initial)', canvas.width/2, canvas.height/2);
                 
                 // Name input box
                 ctx.strokeStyle = '#e8b84d';
