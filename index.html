@@ -1318,8 +1318,15 @@
             keys[e.key] = false;
         });
         
-        // Start button click handler
-        document.getElementById('startButton').addEventListener('click', function() {
+        // Start button click handler (both mouse and touch)
+        document.getElementById('startButton').addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent touch event from bubbling
+            startGame();
+        });
+        
+        document.getElementById('startButton').addEventListener('touchend', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             startGame();
         });
         
