@@ -13,7 +13,7 @@ import {
     EATER_MOUTH_CLOSED,
     CLOUD_IMAGE,
     FINCH_IMAGE,
-    TREE_SKYLINE_IMAGE,
+    TREE_IMAGE,
     CANVAS_WIDTH,
     CANVAS_HEIGHT
 } from '../shared/config.js';
@@ -25,8 +25,8 @@ import {
 export const player = {
     x: CANVAS_WIDTH / 2,
     y: 100,
-    width: 40,
-    height: 40,
+    width: 60,
+    height: 50,
     velocityY: 0,
     velocityX: 0,
     gravity: 0.2,  // Reduced for slower falling
@@ -90,11 +90,11 @@ if (FINCH_IMAGE) {
     finchImage.src = FINCH_IMAGE;
 }
 
-// Tree skyline image
-export let treeSkylineImage = null;
-if (TREE_SKYLINE_IMAGE) {
-    treeSkylineImage = new Image();
-    treeSkylineImage.src = TREE_SKYLINE_IMAGE;
+// Tree image (tiled)
+export let treeImage = null;
+if (TREE_IMAGE) {
+    treeImage = new Image();
+    treeImage.src = TREE_IMAGE;
 }
 
 // ============================================
@@ -156,11 +156,23 @@ export function initPineTrees(canvasWidth) {
     pineTrees.length = 0; // Clear array
     const treeSpacing = 60;
     const treeCount = Math.ceil(canvasWidth / treeSpacing) + 1;
+
+    // Base dimensions for tree image
+    const baseHeight = 70;
+    const baseWidth = 50;
+
     for (let i = 0; i < treeCount; i++) {
+        // Random scale between 0.85 and 1.15 (±15% variation)
+        const scale = 0.85 + Math.random() * 0.3;
+
         pineTrees.push({
             x: i * treeSpacing - 30,
-            height: 40 + Math.random() * 30,
-            width: 25 + Math.random() * 15
+            baseHeight: baseHeight,
+            baseWidth: baseWidth,
+            scale: scale,
+            // Calculated dimensions (used by both image and procedural rendering)
+            height: baseHeight * scale,
+            width: baseWidth * scale
         });
     }
 }

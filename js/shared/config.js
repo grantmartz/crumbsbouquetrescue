@@ -9,23 +9,23 @@
 // To use custom images, replace these URLs with your hosted image URLs
 // Set to null to use placeholder shapes
 
-export const SPRITE_IMAGE = null; // Main character sprite
-export const FLOWER_IMAGE_1 = null; // First flower style
-export const FLOWER_IMAGE_2 = null; // Second flower style
-export const FLOWER_IMAGE_3 = null; // Third flower style
-export const FLOWER_IMAGE_4 = null; // Fourth flower style (orange)
-export const EATER_MOUTH_OPEN = null; // Dog head profile with mouth open
-export const EATER_MOUTH_CLOSED = null; // Dog head profile with mouth closed
-export const CLOUD_IMAGE = null; // Cloud image for background
-export const FINCH_IMAGE = null; // Special finch sprite (1 in 50 chance)
-export const TREE_SKYLINE_IMAGE = null; // Tree skyline image for bottom edge
+export const SPRITE_IMAGE = 'assets/CRUMB_small.png'; // Main character sprite
+export const FLOWER_IMAGE_1 = 'assets/RED_Flower_SMALL.png'; // First flower style
+export const FLOWER_IMAGE_2 = 'assets/PINK_Flower_SMALL.png'; // Second flower style
+export const FLOWER_IMAGE_3 = 'assets/YELLOW_Flower_SMALL.png'; // Third flower style
+export const FLOWER_IMAGE_4 = 'assets/ORANGE_Flower_SMALL.png'; // Fourth flower style (orange)
+export const EATER_MOUTH_OPEN = 'assets/CRICKET_open_SMALL.png'; // Dog head profile with mouth open
+export const EATER_MOUTH_CLOSED = 'assets/CRICKET_closed_SMALL.png'; // Dog head profile with mouth closed
+export const CLOUD_IMAGE = 'assets/CLOUD_Small.png'; // Cloud image for background
+export const FINCH_IMAGE = 'assets/FINCH_Small.png'; // Special finch sprite (1 in 50 chance)
+export const TREE_IMAGE = 'assets/TREE_Small.png'; // Single tree image (tiled across bottom with size variations)
 
 // ============================================
 // INSTRUCTIONS & LEADERBOARD ASSETS
 // ============================================
-export const FLOWER_LEFT_IMAGE = null; // Flower image for instructions page (left)
-export const FLOWER_RIGHT_IMAGE = null; // Flower image for instructions page (right)
-export const TROPHY_IMAGE = null; // Trophy image for leaderboard page
+export const FLOWER_LEFT_IMAGE = 'assets/PINK_Flower_SMALL.png'; // Flower image for instructions page (left)
+export const FLOWER_RIGHT_IMAGE = 'assets/YELLOW_Flower_SMALL.png'; // Flower image for instructions page (right)
+export const TROPHY_IMAGE = 'assets/TROPHY_Small.png'; // Trophy image for leaderboard page
 
 // ============================================
 // COLOR CONSTANTS

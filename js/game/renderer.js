@@ -15,7 +15,7 @@ import {
     eaterMouthClosed,
     cloudImage,
     finchImage,
-    treeSkylineImage
+    treeImage
 } from './entities.js';
 
 import { gameState } from './state.js';
@@ -282,13 +282,16 @@ export function draw() {
     // Draw clouds
     clouds.forEach(drawCloud);
 
-    // Draw pine trees or tree skyline (behind gameplay elements)
-    if (treeSkylineImage && treeSkylineImage.complete) {
-        // Use custom tree skyline image - stretch across bottom
-        const skylineHeight = 80; // Adjust as needed
-        ctx.drawImage(treeSkylineImage, 0, canvas.height - skylineHeight, canvas.width, skylineHeight);
+    // Draw pine trees (behind gameplay elements)
+    if (treeImage && treeImage.complete) {
+        // Draw tiled tree images with size variations
+        pineTrees.forEach(tree => {
+            const drawX = tree.x - tree.width / 2;
+            const drawY = canvas.height - tree.height;
+            ctx.drawImage(treeImage, drawX, drawY, tree.width, tree.height);
+        });
     } else {
-        // Fallback to individual pine trees
+        // Fallback to procedural pine trees
         pineTrees.forEach(drawPineTree);
     }
 

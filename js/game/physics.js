@@ -79,8 +79,8 @@ export function spawnFlower() {
     const flower = {
         x: Math.random() * (canvas.width - 80) + 40,
         y: canvas.height,
-        width: 50,
-        height: 60,
+        width: isFinch ? 60 : 50,  // Finches are wider
+        height: isFinch ? 50 : 50,
         riseSpeed: riseSpeed,
         bounced: false,
         type: isFinch ? 'finch' : Math.floor(Math.random() * 4), // Random flower type 0-3
@@ -155,8 +155,8 @@ export function update(deltaTime = 1) {
             gameState.currentEatingFlower = {
                 x: topFlower.x,
                 y: topFlower.y,
-                width: 45,
-                height: 40,
+                width: 60,
+                height: 60,
                 animationFrame: 0,
                 phase: 'chomp1_open'
             };
@@ -381,8 +381,8 @@ export function update(deltaTime = 1) {
                 x: flower.x,
                 y: -50,
                 targetY: 20, // Stop at y=20
-                width: 45,
-                height: 40,
+                width: 60,
+                height: 60,
                 speed: 3,
                 animationFrame: 0,
                 phase: 'descending',
