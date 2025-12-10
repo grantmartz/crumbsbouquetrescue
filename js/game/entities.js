@@ -154,7 +154,7 @@ export function initClouds(canvasWidth, canvasHeight) {
  */
 export function initPineTrees(canvasWidth) {
     pineTrees.length = 0; // Clear array
-    const treeSpacing = 60;
+    const treeSpacing = 30;  // Reduced from 60 to double tree count
     const treeCount = Math.ceil(canvasWidth / treeSpacing) + 1;
 
     // Base dimensions for tree image
