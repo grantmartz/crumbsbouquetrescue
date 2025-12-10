@@ -1,0 +1,138 @@
+/* ============================================
+   LEADERBOARD PAGE STYLES - leaderboard.html
+   ============================================ */
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+#leaderboardContainer {
+    background: var(--color-secondary);
+    border: 8px solid var(--color-primary);
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    max-width: 400px;
+    width: 100%;
+}
+
+h1 {
+    color: var(--color-primary);
+    text-align: center;
+    font-size: 22px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.trophy {
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.trophy img {
+    max-width: 60px;
+    max-height: 60px;
+    display: block;
+    margin: 0 auto;
+}
+
+.trophy-placeholder {
+    font-size: 40px;
+}
+
+#leaderboardList {
+    background: var(--color-background);
+    border: 4px solid var(--color-primary);
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 220px;
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.score-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    background: #fff;
+    border-radius: 6px;
+    border-left: 4px solid var(--color-primary);
+    transition: transform 0.2s;
+    font-size: 14px;
+}
+
+.score-entry:hover {
+    transform: translateX(5px);
+}
+
+.score-entry.rank-1 {
+    background: #ffd700;
+    border-left-color: #FFD700;
+    font-size: 16px;
+}
+
+.score-entry.rank-2 {
+    background: #e8e8e8;
+    border-left-color: #C0C0C0;
+    font-size: 15px;
+}
+
+.score-entry.rank-3 {
+    background: #f4d9b8;
+    border-left-color: #CD7F32;
+    font-size: 15px;
+}
+
+.rank {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--color-primary);
+    min-width: 30px;
+}
+
+.name {
+    flex: 1;
+    color: #2d4a2b;
+    font-size: 14px;
+    padding: 0 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.score {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--color-primary);
+    min-width: 50px;
+    text-align: right;
+}
+
+.loading {
+    text-align: center;
+    color: var(--color-primary);
+    font-size: 18px;
+    padding: 40px;
+}
+
+.no-scores {
+    text-align: center;
+    color: var(--color-primary);
+    font-size: 18px;
+    padding: 40px;
+    font-style: italic;
+}
+
+.last-updated {
+    text-align: center;
+    color: #2d4a2b;
+    font-size: 11px;
+    margin-top: 8px;
+    font-style: italic;
+}

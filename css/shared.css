@@ -1,0 +1,49 @@
+/* ============================================
+   SHARED STYLES - Crumb's Bouquet Rescue
+   ============================================ */
+
+/* CSS Custom Properties for consistent theming */
+:root {
+    --color-primary: #d44e3a;      /* Red-orange */
+    --color-secondary: #e8b84d;    /* Sunshine yellow */
+    --color-background: #fef9f0;   /* Cream */
+    --font-family: 'Rockwell', 'Georgia', serif;
+}
+
+/* Universal reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Base body styles */
+body {
+    font-family: var(--font-family);
+    font-weight: bold;
+    background: transparent;
+    margin: 0;
+    padding: 0;
+}
+
+/* Button styles (shared across pages) */
+button {
+    background: var(--color-primary);
+    color: var(--color-background);
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-family: var(--font-family);
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+button:hover {
+    background: #c23d2c;
+}
+
+button:active {
+    transform: translateY(2px);
+}
