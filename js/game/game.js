@@ -49,18 +49,13 @@ function gameLoop(currentTime) {
  * Start a new game
  */
 function startGame() {
-    console.log('START GAME CLICKED');
-
     // Reset game state
     resetGameState();
     gameState.gameStarted = true; // Mark that game has been started
     gameState.countdown = 3; // Start countdown from 3
 
-    console.log('Game state set, countdown started');
-
     // Hide start button
     document.getElementById('startButton').style.display = 'none';
-    console.log('Start button hidden');
 
     // Reset player
     player.x = canvas.width / 2;
@@ -327,20 +322,14 @@ canvas.addEventListener('mouseup', () => {
 // INITIALIZATION
 // ============================================
 
-console.log('Game module loading...');
-
 // Initialize clouds and trees
 initClouds(canvas.width, canvas.height);
 initPineTrees(canvas.width);
 initPlayer(canvas.width);
 
-console.log('Entities initialized');
-
 // Load high score from localStorage
 loadHighScore();
 document.getElementById('highScore').textContent = 'High Score: ' + gameState.highScore;
-
-console.log('High score loaded');
 
 // Load leaderboard from Firebase
 if (database) {
@@ -349,10 +338,6 @@ if (database) {
     });
 }
 
-console.log('Starting game loop...');
-
 // Start game loop
 lastFrameTime = performance.now();
 gameLoop(lastFrameTime);
-
-console.log('Game initialized successfully!');
