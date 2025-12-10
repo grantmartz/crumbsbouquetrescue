@@ -36,7 +36,7 @@ export function getAssetUrl(assetPath) {
 // To use custom images, replace these URLs with your hosted image URLs
 // Set to null to use placeholder shapes
 
-export const SPRITE_IMAGE = getAssetUrl('assets/Crumb_small.png'); // Main character sprite
+export const SPRITE_IMAGE = getAssetUrl('assets/Crumb_Small.png'); // Main character sprite
 export const FLOWER_IMAGE_1 = getAssetUrl('assets/RED_Flower_SMALL.png'); // First flower style
 export const FLOWER_IMAGE_2 = getAssetUrl('assets/PINK_Flower_SMALL.png'); // Second flower style
 export const FLOWER_IMAGE_3 = getAssetUrl('assets/YELLOW_Flower_SMALL.png'); // Third flower style
