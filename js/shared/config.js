@@ -4,28 +4,55 @@
    ============================================ */
 
 // ============================================
+// ASSET BASE PATH
+// ============================================
+// For local development: use './' (relative paths)
+// For GitHub Pages embedding: use absolute URL
+// Example: 'https://username.github.io/crumbsbouquetrescue/'
+export const ASSET_BASE_PATH = 'https://grantmartz.github.io/crumbsbouquetrescue/';
+
+/**
+ * Get full asset URL by combining base path with asset path
+ * @param {string} assetPath - Relative asset path (e.g., 'assets/image.png')
+ * @returns {string} Full asset URL
+ */
+export function getAssetUrl(assetPath) {
+    if (!assetPath) return null;
+
+    // If assetPath is already absolute (starts with http:// or https://), return as-is
+    if (assetPath.startsWith('http://') || assetPath.startsWith('https://')) {
+        return assetPath;
+    }
+
+    // Combine base path with asset path
+    const base = ASSET_BASE_PATH.endsWith('/') ? ASSET_BASE_PATH : ASSET_BASE_PATH + '/';
+    const asset = assetPath.startsWith('/') ? assetPath.substring(1) : assetPath;
+    return base + asset;
+}
+
+// ============================================
 // GAME ASSET URLS
 // ============================================
 // To use custom images, replace these URLs with your hosted image URLs
 // Set to null to use placeholder shapes
 
-export const SPRITE_IMAGE = 'assets/CRUMB_small.png'; // Main character sprite
-export const FLOWER_IMAGE_1 = 'assets/RED_Flower_SMALL.png'; // First flower style
-export const FLOWER_IMAGE_2 = 'assets/PINK_Flower_SMALL.png'; // Second flower style
-export const FLOWER_IMAGE_3 = 'assets/YELLOW_Flower_SMALL.png'; // Third flower style
-export const FLOWER_IMAGE_4 = 'assets/ORANGE_Flower_SMALL.png'; // Fourth flower style (orange)
-export const EATER_MOUTH_OPEN = 'assets/CRICKET_open_SMALL.png'; // Dog head profile with mouth open
-export const EATER_MOUTH_CLOSED = 'assets/CRICKET_closed_SMALL.png'; // Dog head profile with mouth closed
-export const CLOUD_IMAGE = 'assets/CLOUD_Small.png'; // Cloud image for background
-export const FINCH_IMAGE = 'assets/FINCH_Small.png'; // Special finch sprite (1 in 50 chance)
-export const TREE_IMAGE = 'assets/TREE_Small.png'; // Single tree image (tiled across bottom with size variations)
+export const SPRITE_IMAGE = getAssetUrl('assets/CRUMB_small.png'); // Main character sprite
+export const FLOWER_IMAGE_1 = getAssetUrl('assets/RED_Flower_SMALL.png'); // First flower style
+export const FLOWER_IMAGE_2 = getAssetUrl('assets/PINK_Flower_SMALL.png'); // Second flower style
+export const FLOWER_IMAGE_3 = getAssetUrl('assets/YELLOW_Flower_SMALL.png'); // Third flower style
+export const FLOWER_IMAGE_4 = getAssetUrl('assets/ORANGE_Flower_SMALL.png'); // Fourth flower style (orange)
+export const EATER_MOUTH_OPEN = getAssetUrl('assets/CRICKET_open_SMALL.png'); // Dog head profile with mouth open
+export const EATER_MOUTH_CLOSED = getAssetUrl('assets/CRICKET_closed_SMALL.png'); // Dog head profile with mouth closed
+export const CLOUD_IMAGE = getAssetUrl('assets/CLOUD_Small.png'); // Cloud image for background
+export const FINCH_IMAGE = getAssetUrl('assets/FINCH_Small.png'); // Special finch sprite (1 in 50 chance)
+export const TREE_IMAGE = getAssetUrl('assets/TREE_Small.png'); // Single tree image (tiled across bottom with size variations)
 
 // ============================================
 // INSTRUCTIONS & LEADERBOARD ASSETS
 // ============================================
-export const FLOWER_LEFT_IMAGE = 'assets/PINK_Flower_SMALL.png'; // Flower image for instructions page (left)
-export const FLOWER_RIGHT_IMAGE = 'assets/YELLOW_Flower_SMALL.png'; // Flower image for instructions page (right)
-export const TROPHY_IMAGE = 'assets/TROPHY_Small.png'; // Trophy image for leaderboard page
+export const FLOWER_LEFT_IMAGE = getAssetUrl('assets/PINK_Flower_SMALL.png'); // Flower image for instructions page (left)
+export const FLOWER_RIGHT_IMAGE = getAssetUrl('assets/YELLOW_Flower_SMALL.png'); // Flower image for instructions page (right)
+export const TROPHY_IMAGE = getAssetUrl('assets/TROPHY_Small.png'); // Trophy image for leaderboard page
 
 // ============================================
 // COLOR CONSTANTS
