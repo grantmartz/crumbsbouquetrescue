@@ -327,18 +327,18 @@ export function update(deltaTime = 1) {
             player.velocityY = player.bounceStrength;
             flower.bounced = true;
 
-            // Get current flower color (type 0, 1, 2 for flowers, or 'finch')
-            const currentColor = flower.isFinch ? 'finch' : flower.type;
-
-            // Check if same color as last bounce (only for regular flowers, not finch)
-            if (!flower.isFinch && currentColor === gameState.lastFlowerColor) {
-                gameState.comboStreak++; // Increase streak
-            } else {
-                gameState.comboStreak = 1; // Reset to 1 (first of this color)
+            // Check if same color as last bounce (only for regular flowers)
+            if (!flower.isFinch) {
+                // Regular flower - check combo
+                if (flower.type === gameState.lastFlowerColor) {
+                    gameState.comboStreak++; // Increase streak
+                } else {
+                    gameState.comboStreak = 1; // Reset to 1 (first of this color)
+                }
+                // Update last color (only for regular flowers, not birds)
+                gameState.lastFlowerColor = flower.type;
             }
-
-            // Update last color
-            gameState.lastFlowerColor = currentColor;
+            // If it's a finch, don't update lastFlowerColor or comboStreak
 
             // Calculate points based on streak
             const pointsAwarded = flower.isFinch ? 10 : gameState.comboStreak;
