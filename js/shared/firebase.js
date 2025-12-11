@@ -71,6 +71,23 @@ export function isTopTen(currentScore, topScores = topScoresCache) {
 }
 
 /**
+ * Sanitize a name for storage to prevent duplicate entries via spacing tricks
+ * - Trims leading/trailing whitespace
+ * - Collapses multiple consecutive spaces into single space
+ * - Only allows alphanumeric and single spaces
+ * - Limits to 15 characters
+ * @param {string} name - Name to sanitize
+ * @returns {string}
+ */
+export function sanitizeName(name) {
+    return name
+        .trim()                           // Remove leading/trailing spaces
+        .replace(/\s+/g, ' ')             // Collapse multiple spaces to single space
+        .replace(/[^a-zA-Z0-9 ]/g, '')    // Remove non-alphanumeric except spaces
+        .slice(0, 15);                    // Limit to 15 characters
+}
+
+/**
  * Normalize name for comparison (remove spaces, punctuation, lowercase)
  * @param {string} name - Name to normalize
  * @returns {string}
@@ -93,9 +110,9 @@ export function submitScore(name, scoreValue, onSuccess, onError) {
         return;
     }
 
-    // Just trim whitespace, no other validation or sanitization
-    const trimmedName = name.trim();
-    const normalizedNewName = normalizeName(trimmedName);
+    // Sanitize name to prevent spacing exploits
+    const sanitizedName = sanitizeName(name);
+    const normalizedNewName = normalizeName(sanitizedName);
 
     // Check for existing scores with same normalized name
     database.ref('scores').once('value', (snapshot) => {
@@ -131,7 +148,7 @@ export function submitScore(name, scoreValue, onSuccess, onError) {
 
         // Submit new score
         const newScore = {
-            name: trimmedName,
+            name: sanitizedName,
             score: scoreValue,
             timestamp: Date.now()
         };
