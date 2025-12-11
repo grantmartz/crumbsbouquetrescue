@@ -9,7 +9,7 @@
 // Direct paths to local asset files
 // Set to null to use placeholder shapes
 
-export const SPRITE_IMAGE = 'assets/CRUMB_small.png'; // Main character sprite
+export const SPRITE_IMAGE = 'assets/CRUMB_SMALL.png'; // Main character sprite
 export const FLOWER_IMAGE_1 = 'assets/RED_Flower_SMALL.png'; // First flower style
 export const FLOWER_IMAGE_2 = 'assets/PINK_Flower_SMALL.png'; // Second flower style
 export const FLOWER_IMAGE_3 = 'assets/YELLOW_Flower_SMALL.png'; // Third flower style
