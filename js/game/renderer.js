@@ -286,11 +286,11 @@ export function drawEater(eater) {
  */
 export function draw() {
     // Clear canvas
-    ctx.fillStyle = '#f7e5dc';  // Off-white pinkish cream background
+    ctx.fillStyle = '#f7e0d6';  // Off-white pinkish cream background
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw very subtle diagonal line texture
-    ctx.strokeStyle = 'rgba(235, 210, 200, 0.15)';  // Slightly darker pink, very transparent
+    ctx.strokeStyle = 'rgba(232, 184, 77, 0.07)';  // Light yellow, very transparent
     ctx.lineWidth = 6;
     const lineSpacing = 20;
     for (let i = -canvas.height; i < canvas.width + canvas.height; i += lineSpacing) {
