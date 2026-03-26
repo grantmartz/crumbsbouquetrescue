@@ -141,8 +141,8 @@ export function initClouds(canvasWidth, canvasHeight) {
         clouds.push({
             x: Math.random() * canvasWidth,
             y: Math.random() * (canvasHeight * 0.4),
-            width: 60 + Math.random() * 40,
-            height: 20 + Math.random() * 15,
+            width: 100 + Math.random() * 60,
+            height: 35 + Math.random() * 25,
             speed: 0.3 + Math.random() * 0.5
         });
     }
