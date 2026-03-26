@@ -3,90 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bounce Game - Wedding Edition</title>
+    <title>Crumb's Bouquet Rescue</title>
     <link rel="stylesheet" href="css/shared.css">
     <link rel="stylesheet" href="css/game.css">
 </head>
 <body>
     <div id="gameContainer">
-        <div id="gameTitle">Crumb's Bouquet Rescue</div>
-        <canvas id="gameCanvas" width="400" height="600"></canvas>
-        <div id="ui">
-            <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
-                <button id="leftButton" style="
-                    width: 50px;
-                    height: 50px;
-                    background: rgba(212, 78, 58, 0.9);
-                    border: 3px solid #d44e3a;
-                    border-radius: 8px;
-                    color: #fef9f0;
-                    font-size: 28px;
-                    font-weight: bold;
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    user-select: none;
-                    -webkit-user-select: none;
-                    position: relative;
-                ">
-                    ←
-                    <span style="
-                        position: absolute;
-                        top: -15px;
-                        left: -15px;
-                        right: -15px;
-                        bottom: -15px;
-                        z-index: 1;
-                    "></span>
-                </button>
-                <div id="score" style="min-width: 120px;">Score: 0</div>
-                <button id="rightButton" style="
-                    width: 50px;
-                    height: 50px;
-                    background: rgba(212, 78, 58, 0.9);
-                    border: 3px solid #d44e3a;
-                    border-radius: 8px;
-                    color: #fef9f0;
-                    font-size: 28px;
-                    font-weight: bold;
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    user-select: none;
-                    -webkit-user-select: none;
-                    position: relative;
-                ">
-                    →
-                    <span style="
-                        position: absolute;
-                        top: -15px;
-                        left: -15px;
-                        right: -15px;
-                        bottom: -15px;
-                        z-index: 1;
-                    "></span>
-                </button>
-            </div>
-            <div id="highScore" style="font-size: 18px; margin-top: 5px;">High Score: 0</div>
-            <div id="gameOver"></div>
-            <div id="instructions">
-                Desktop: Arrow keys to move<br>
-                Mobile: Touch and drag OR use buttons
-            </div>
-        </div>
-
-        <!-- START button overlay on canvas -->
-        <button id="startButton" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; font-size: 18px; padding: 10px;">START GAME</button>
-
-        <!-- RESTART button overlay on canvas -->
-        <button id="restartButton" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; font-size: 18px; padding: 10px; display: none;">RESTART</button>
+        <canvas id="gameCanvas" width="920" height="614"></canvas>
     </div>
-
-    <!-- Firebase SDK - Must load BEFORE game script -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
     <!-- Game module entry point -->
     <script type="module" src="js/game/game.js"></script>

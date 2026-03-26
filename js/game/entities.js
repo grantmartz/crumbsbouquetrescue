@@ -31,7 +31,7 @@ export const player = {
     velocityX: 0,
     gravity: 0.2,  // Reduced for slower falling
     bounceStrength: -8,  // Reduced from -15 to prevent bouncing off screen
-    moveSpeed: 7,
+    moveSpeed: 11,  // Increased from 7 for wider 920px playing field
     image: null
 };
 

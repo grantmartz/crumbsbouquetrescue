@@ -42,8 +42,8 @@ export const TREE_COLOR = '#2d4a2b';    // Dark green for pine trees
 // ============================================
 // CANVAS DIMENSIONS
 // ============================================
-export const CANVAS_WIDTH = 400;
-export const CANVAS_HEIGHT = 600;
+export const CANVAS_WIDTH = 920;
+export const CANVAS_HEIGHT = 614;
 
 // ============================================
 // PHYSICS CONSTANTS

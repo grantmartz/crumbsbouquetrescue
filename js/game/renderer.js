@@ -110,26 +110,31 @@ export function drawPineTree(tree) {
 
 /**
  * Draw player (placeholder or custom image)
+ * Visual size is 10% larger than hitbox
  */
 export function drawPlayer() {
+    const visualScale = 1.1;
+    const visualWidth = player.width * visualScale;
+    const visualHeight = player.height * visualScale;
+
     if (player.image && player.image.complete) {
-        ctx.drawImage(player.image, player.x - player.width/2, player.y - player.height/2, player.width, player.height);
+        ctx.drawImage(player.image, player.x - visualWidth/2, player.y - visualHeight/2, visualWidth, visualHeight);
     } else {
         // Placeholder: simple animal-like shape (circle with ears)
         ctx.fillStyle = SPRITE_COLOR;
 
         // Body
         ctx.beginPath();
-        ctx.arc(player.x, player.y, player.width/2, 0, Math.PI * 2);
+        ctx.arc(player.x, player.y, visualWidth/2, 0, Math.PI * 2);
         ctx.fill();
 
         // Ears
         ctx.beginPath();
-        ctx.arc(player.x - player.width/3, player.y - player.height/3, player.width/4, 0, Math.PI * 2);
+        ctx.arc(player.x - visualWidth/3, player.y - visualHeight/3, visualWidth/4, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.beginPath();
-        ctx.arc(player.x + player.width/3, player.y - player.height/3, player.width/4, 0, Math.PI * 2);
+        ctx.arc(player.x + visualWidth/3, player.y - visualHeight/3, visualWidth/4, 0, Math.PI * 2);
         ctx.fill();
     }
 }
@@ -206,8 +211,13 @@ export function drawFlower(flower) {
 
 /**
  * Draw eater sprite (dog's head facing downward, with chomping animation)
+ * Visual size is 10% larger than hitbox
  */
 export function drawEater(eater) {
+    const visualScale = 1.1;
+    const visualWidth = eater.width * visualScale;
+    const visualHeight = eater.height * visualScale;
+
     // Determine if mouth should be open or closed based on phase
     const mouthOpen = eater.phase === 'descending' ||
                      eater.phase === 'chomp1_open' ||
@@ -215,10 +225,10 @@ export function drawEater(eater) {
 
     // Use custom images if provided
     if (mouthOpen && eaterMouthOpen && eaterMouthOpen.complete) {
-        ctx.drawImage(eaterMouthOpen, eater.x - eater.width/2, eater.y - eater.height/2, eater.width, eater.height);
+        ctx.drawImage(eaterMouthOpen, eater.x - visualWidth/2, eater.y - visualHeight/2, visualWidth, visualHeight);
         return;
     } else if (!mouthOpen && eaterMouthClosed && eaterMouthClosed.complete) {
-        ctx.drawImage(eaterMouthClosed, eater.x - eater.width/2, eater.y - eater.height/2, eater.width, eater.height);
+        ctx.drawImage(eaterMouthClosed, eater.x - visualWidth/2, eater.y - visualHeight/2, visualWidth, visualHeight);
         return;
     }
 
@@ -227,22 +237,22 @@ export function drawEater(eater) {
 
     // Head (main circle)
     ctx.beginPath();
-    ctx.arc(eater.x, eater.y, eater.width/2, 0, Math.PI * 2);
+    ctx.arc(eater.x, eater.y, visualWidth/2, 0, Math.PI * 2);
     ctx.fill();
 
     // Left ear (floppy, pointing down-left)
     ctx.beginPath();
-    ctx.ellipse(eater.x - eater.width/3, eater.y - eater.height/4, eater.width/4, eater.height/3, -0.3, 0, Math.PI * 2);
+    ctx.ellipse(eater.x - visualWidth/3, eater.y - visualHeight/4, visualWidth/4, visualHeight/3, -0.3, 0, Math.PI * 2);
     ctx.fill();
 
     // Right ear (floppy, pointing down-right)
     ctx.beginPath();
-    ctx.ellipse(eater.x + eater.width/3, eater.y - eater.height/4, eater.width/4, eater.height/3, 0.3, 0, Math.PI * 2);
+    ctx.ellipse(eater.x + visualWidth/3, eater.y - visualHeight/4, visualWidth/4, visualHeight/3, 0.3, 0, Math.PI * 2);
     ctx.fill();
 
     // Snout (oval pointing downward)
     ctx.beginPath();
-    ctx.ellipse(eater.x, eater.y + eater.height/4, eater.width/3, eater.height/3, 0, 0, Math.PI * 2);
+    ctx.ellipse(eater.x, eater.y + visualHeight/4, visualWidth/3, visualHeight/3, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // Draw mouth differently based on open/closed state
@@ -250,24 +260,24 @@ export function drawEater(eater) {
         // Open mouth (small arc at bottom of snout)
         ctx.fillStyle = '#1a0a0a';
         ctx.beginPath();
-        ctx.arc(eater.x, eater.y + eater.height/2.5, eater.width/6, 0, Math.PI);
+        ctx.arc(eater.x, eater.y + visualHeight/2.5, visualWidth/6, 0, Math.PI);
         ctx.fill();
     }
 
     // Nose (small circle at bottom of snout)
     ctx.fillStyle = '#3a2a1a';
     ctx.beginPath();
-    ctx.arc(eater.x, eater.y + eater.height/2, eater.width/8, 0, Math.PI * 2);
+    ctx.arc(eater.x, eater.y + visualHeight/2, visualWidth/8, 0, Math.PI * 2);
     ctx.fill();
 
     // Eyes (two small circles)
     ctx.fillStyle = '#3a2a1a';
     ctx.beginPath();
-    ctx.arc(eater.x - eater.width/5, eater.y, eater.width/10, 0, Math.PI * 2);
+    ctx.arc(eater.x - visualWidth/5, eater.y, visualWidth/10, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.beginPath();
-    ctx.arc(eater.x + eater.width/5, eater.y, eater.width/10, 0, Math.PI * 2);
+    ctx.arc(eater.x + visualWidth/5, eater.y, visualWidth/10, 0, Math.PI * 2);
     ctx.fill();
 }
 
@@ -306,8 +316,10 @@ export function draw() {
         drawEater(gameState.currentEatingFlower);
     }
 
-    // Draw player
-    drawPlayer();
+    // Draw player (only when not in attract mode)
+    if (!gameState.attractMode) {
+        drawPlayer();
+    }
 
     // Draw particles
     particles.forEach(p => {
@@ -318,6 +330,14 @@ export function draw() {
         ctx.fill();
         ctx.globalAlpha = 1;
     });
+
+    // Draw score on canvas (upper right corner) - only during active game
+    if (!gameState.attractMode) {
+        ctx.fillStyle = '#d44e3a';
+        ctx.font = 'bold 28px Rockwell, Georgia, serif';
+        ctx.textAlign = 'right';
+        ctx.fillText('Score: ' + gameState.score, canvas.width - 20, 40);
+    }
 
     // Draw bonus text
     if (gameState.bonusText) {
@@ -343,65 +363,46 @@ export function draw() {
 
     // Draw scolding text during game over
     if (gameState.gameOverPhase === 'scolding') {
-        ctx.fillStyle = '#d44e3a';
-        ctx.font = 'bold 32px Rockwell, Georgia, serif';
+        ctx.font = 'bold 64px Rockwell, Georgia, serif';
         ctx.textAlign = 'center';
-        ctx.fillText('No, Cricket!', canvas.width/2, canvas.height/2 - 20);
-        ctx.fillText('Bad!', canvas.width/2, canvas.height/2 + 20);
+
+        // Yellow outline
+        ctx.strokeStyle = '#e8b84d';
+        ctx.lineWidth = 4;
+        ctx.strokeText('No, Cricket!', canvas.width/2, canvas.height/2 - 40);
+
+        // Red fill
+        ctx.fillStyle = '#d44e3a';
+        ctx.fillText('No, Cricket!', canvas.width/2, canvas.height/2 - 40);
+
+        // Show "Bad!" after a full second (60 frames)
+        if (gameState.gameOverTimer >= 60) {
+            ctx.strokeText('Bad!', canvas.width/2, canvas.height/2 + 40);
+            ctx.fillText('Bad!', canvas.width/2, canvas.height/2 + 40);
+        }
     }
 
     // Draw game over text
     if (gameState.gameOverPhase === 'gameover') {
-        ctx.fillStyle = '#d44e3a';
-        ctx.font = 'bold 36px Rockwell, Georgia, serif';
+        ctx.font = 'bold 48px Rockwell, Georgia, serif';
         ctx.textAlign = 'center';
-        ctx.fillText('Game Over!', canvas.width/2, canvas.height/2);
 
-        // Show restart button
-        document.getElementById('restartButton').style.display = 'block';
-    } else {
-        // Hide restart button when not in game over
-        document.getElementById('restartButton').style.display = 'none';
-    }
-
-    // Draw name entry screen for top 10
-    if (gameState.gameOverPhase === 'nameentry' && gameState.showNameEntry) {
-        // Semi-transparent overlay
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Title
-        ctx.fillStyle = '#e8b84d';
-        ctx.font = 'bold 32px Rockwell, Georgia, serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('TOP 10!', canvas.width/2, canvas.height/2 - 80);
-
-        // Score
-        ctx.fillStyle = '#f5a3b5';
-        ctx.font = 'bold 24px Rockwell, Georgia, serif';
-        ctx.fillText('Score: ' + gameState.score, canvas.width/2, canvas.height/2 - 40);
-
-        // Name prompt
-        ctx.fillStyle = '#fef9f0';
-        ctx.font = 'bold 18px Rockwell, Georgia, serif';
-        ctx.fillText('Enter your name:', canvas.width/2, canvas.height/2);
-
-        // Name input box
+        // Yellow outline/border
         ctx.strokeStyle = '#e8b84d';
-        ctx.lineWidth = 3;
-        ctx.strokeRect(canvas.width/2 - 100, canvas.height/2 + 10, 200, 40);
+        ctx.lineWidth = 4;
+        ctx.strokeText('GAME OVER', canvas.width/2, canvas.height/2 - 20);
 
-        // Name text
+        // Red fill
         ctx.fillStyle = '#d44e3a';
-        ctx.font = 'bold 24px Rockwell, Georgia, serif';
-        ctx.fillText(gameState.playerName + '_', canvas.width/2, canvas.height/2 + 38);
+        ctx.fillText('GAME OVER', canvas.width/2, canvas.height/2 - 20);
 
-        // Instructions
-        ctx.fillStyle = '#f5d5c8';
-        ctx.font = '14px Rockwell, Georgia, serif';
-        ctx.fillText('Press ENTER to submit', canvas.width/2, canvas.height/2 + 75);
-        ctx.fillText('(or leave blank to skip)', canvas.width/2, canvas.height/2 + 92);
+        // Show "Press Start to Continue" (gamepad will handle restart)
+        ctx.fillStyle = '#e8b84d';
+        ctx.font = 'bold 24px Rockwell, Georgia, serif';
+        ctx.fillText('Press Start to Continue', canvas.width/2, canvas.height/2 + 30);
     }
+
+    // Name entry screen is now handled by nameentry.js
 
     // Draw "Click to Start" on initial screen
     if (!gameState.gameActive && !gameState.gameOverShown && gameState.countdown === 0 && !gameState.gameStarted) {

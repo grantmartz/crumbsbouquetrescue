@@ -14,7 +14,6 @@ import {
 } from './entities.js';
 import { canvas } from './renderer.js';
 import { FLOWER_COLORS, FINCH_COLOR } from '../shared/config.js';
-import { database, isTopTen, submitScore } from '../shared/firebase.js';
 
 // ============================================
 // CLOUD PHYSICS
@@ -202,41 +201,17 @@ export function update(deltaTime = 1) {
     } else if (gameState.gameOverPhase === 'scolding') {
         gameState.gameOverTimer += deltaTime;
 
-        // Show scolding for 90 frames (1.5 seconds)
-        if (gameState.gameOverTimer >= 90) {
+        // Show scolding for 180 frames (3 seconds: 1s for "No, Cricket!", 2s after "Bad!")
+        if (gameState.gameOverTimer >= 180) {
             // Check if we should show name entry for top 10
-            if (gameState.isTopTenScore && database) {
+            if (gameState.isTopTenScore) {
                 gameState.gameOverPhase = 'nameentry';
                 gameState.showNameEntry = true;
                 gameState.gameOverTimer = 0;
-
-                // On mobile, use prompt dialog instead of keyboard input
-                if ('ontouchstart' in window) {
-                    setTimeout(() => {
-                        const name = prompt('TOP 10 SCORE!\n\nEnter your name:\n(or leave blank to skip)');
-                        // Handle both Cancel (null) and empty string as skip
-                        if (name !== null && name.trim().length > 0) {
-                            submitScore(name, gameState.score,
-                                () => {
-                                    gameState.showNameEntry = false;
-                                    gameState.playerName = '';
-                                    gameState.gameOverPhase = 'gameover';
-                                },
-                                (error) => {
-                                    console.error("Score submission error:", error);
-                                    gameState.showNameEntry = false;
-                                    gameState.playerName = '';
-                                    gameState.gameOverPhase = 'gameover';
-                                }
-                            );
-                        } else {
-                            // Skip name entry
-                            gameState.showNameEntry = false;
-                            gameState.playerName = '';
-                            gameState.gameOverPhase = 'gameover';
-                        }
-                    }, 100);
-                }
+                // Reset name entry state for arcade picker
+                gameState.nameEntryChars = ['A', 'A', 'A'];
+                gameState.nameEntryCursor = 0;
+                gameState.nameEntryCharIndex = 0;
             } else {
                 gameState.gameOverPhase = 'gameover';
                 gameState.gameOverTimer = 0;
@@ -244,20 +219,17 @@ export function update(deltaTime = 1) {
         }
         return; // Don't process normal game logic
     } else if (gameState.gameOverPhase === 'nameentry') {
-        // Wait for player to enter name
+        // Name entry handled by nameentry.js (will be implemented)
         return; // Don't process normal game logic
     }
 
     if (!gameState.gameActive) return;
 
-    // Update player horizontal movement
-    if (inputState.keys['ArrowLeft'] || inputState.keys['a'] || inputState.keys['A'] || inputState.leftButtonPressed) {
+    // Update player horizontal movement (gamepad only)
+    if (inputState.leftPressed) {
         player.velocityX = -player.moveSpeed;
-    } else if (inputState.keys['ArrowRight'] || inputState.keys['d'] || inputState.keys['D'] || inputState.rightButtonPressed) {
+    } else if (inputState.rightPressed) {
         player.velocityX = player.moveSpeed;
-    } else if (inputState.isTouching) {
-        const touchDelta = inputState.touchCurrentX - inputState.touchStartX;
-        player.velocityX = touchDelta * 0.2;
     } else {
         player.velocityX *= Math.pow(0.85, deltaTime); // Friction with delta time
     }
@@ -343,7 +315,7 @@ export function update(deltaTime = 1) {
             // Calculate points based on streak
             const pointsAwarded = flower.isFinch ? 10 : gameState.comboStreak;
             gameState.score += pointsAwarded;
-            document.getElementById('score').textContent = 'Score: ' + gameState.score;
+            // Score is drawn on canvas in renderer.js
 
             // Spawn particles based on flower type
             const particleColor = flower.isFinch ? FINCH_COLOR : FLOWER_COLORS[flower.type];
@@ -370,7 +342,6 @@ export function update(deltaTime = 1) {
             // Update high score if needed
             if (gameState.score > gameState.highScore) {
                 saveHighScore(gameState.score);
-                document.getElementById('highScore').textContent = 'High Score: ' + gameState.highScore;
             }
         }
 

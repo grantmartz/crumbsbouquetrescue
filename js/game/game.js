@@ -1,14 +1,16 @@
 /* ============================================
    MAIN GAME ENTRY POINT
-   Game loop, event handlers, initialization
+   Game loop, initialization - Kiosk Mode
    ============================================ */
 
-import { gameState, inputState, resetGameState, loadHighScore } from './state.js';
+import { gameState, inputState, resetGameState, resetAttractMode, loadHighScore } from './state.js';
 import { player, flowers, eaters, particles, initClouds, initPineTrees, initPlayer } from './entities.js';
-import { update } from './physics.js';
+import { update, spawnFlower } from './physics.js';
 import { canvas, draw } from './renderer.js';
-import { database, loadLeaderboard, isTopTen, submitScore } from '../shared/firebase.js';
-import { spawnFlower } from './physics.js';
+import { initGamepad, pollGamepad, isButtonJustPressed } from './gamepad.js';
+import { updateAttractMode, drawAttractOverlay, resetAttractMode as resetAttract } from './attract.js';
+import { updateNameEntry, drawNameEntry } from './nameentry.js';
+import { loadLeaderboard, isTopTen } from '../shared/leaderboard.js';
 
 // ============================================
 // TIMING
@@ -16,6 +18,9 @@ import { spawnFlower } from './physics.js';
 
 let lastFrameTime = performance.now();
 const targetFrameTime = 1000 / 60; // 60 FPS
+
+// Game over timeout (7 seconds = 420 frames at 60fps)
+const GAME_OVER_TIMEOUT = 420;
 
 // ============================================
 // GAME LOOP
@@ -29,6 +34,43 @@ function gameLoop(currentTime) {
     const deltaTime = Math.min((currentTime - lastFrameTime) / targetFrameTime, 3);
     lastFrameTime = currentTime;
 
+    // Poll gamepad input each frame
+    pollGamepad();
+
+    // Handle attract mode
+    if (gameState.attractMode) {
+        updateAttractMode(deltaTime);
+        draw();
+        drawAttractOverlay();
+
+        // Start game when button pressed
+        if (isButtonJustPressed()) {
+            startGame();
+        }
+
+        requestAnimationFrame(gameLoop);
+        return;
+    }
+
+    // Handle name entry mode
+    if (gameState.gameOverPhase === 'nameentry' && gameState.showNameEntry) {
+        draw();
+        drawNameEntry();
+        updateNameEntry(deltaTime);
+        requestAnimationFrame(gameLoop);
+        return;
+    }
+
+    // Handle game over timeout
+    if (gameState.gameOverPhase === 'gameover') {
+        gameState.gameOverTimer += deltaTime;
+
+        // Return to attract mode after timeout or button press
+        if (gameState.gameOverTimer >= GAME_OVER_TIMEOUT || isButtonJustPressed()) {
+            returnToAttract();
+        }
+    }
+
     // Only update if delta time is reasonable (prevents updates during long pauses)
     if (deltaTime < 5) {
         const result = update(deltaTime);
@@ -37,6 +79,7 @@ function gameLoop(currentTime) {
             gameOver();
         }
     }
+
     draw();
     requestAnimationFrame(gameLoop);
 }
@@ -48,14 +91,12 @@ function gameLoop(currentTime) {
 /**
  * Start a new game
  */
-function startGame() {
+export function startGame() {
     // Reset game state
     resetGameState();
-    gameState.gameStarted = true; // Mark that game has been started
-    gameState.countdown = 3; // Start countdown from 3
-
-    // Hide start button
-    document.getElementById('startButton').style.display = 'none';
+    gameState.gameStarted = true;
+    gameState.countdown = 3;
+    gameState.attractMode = false;
 
     // Reset player
     player.x = canvas.width / 2;
@@ -68,12 +109,8 @@ function startGame() {
     eaters.length = 0;
     particles.length = 0;
 
-    // Update UI
-    document.getElementById('score').textContent = 'Score: 0';
-    document.getElementById('highScore').textContent = 'High Score: ' + gameState.highScore;
-
     // Spawn initial flowers immediately at different heights
-    spawnFlower(); // First flower at bottom
+    spawnFlower();
 
     // Add a second flower already partway up
     const flower2 = {
@@ -108,18 +145,14 @@ function startGame() {
 function gameOver() {
     if (gameState.gameOverShown) return;
     gameState.gameActive = false;
-    player.velocityY = 0; // Stop velocity immediately
+    player.velocityY = 0;
     player.velocityX = 0;
 
     // Clear any in-progress eaters from normal gameplay
     eaters.length = 0;
 
-    // Check if score makes top 10
-    if (database && isTopTen(gameState.score, gameState.topScores)) {
-        gameState.isTopTenScore = true;
-    } else {
-        gameState.isTopTenScore = false;
-    }
+    // Check if score makes top 10 (using local leaderboard)
+    gameState.isTopTenScore = isTopTen(gameState.score);
 
     // Start eating phase
     gameState.gameOverPhase = 'eating';
@@ -127,216 +160,34 @@ function gameOver() {
     gameState.gameOverShown = true;
 }
 
-// ============================================
-// EVENT LISTENERS
-// ============================================
+/**
+ * Return to attract mode
+ */
+function returnToAttract() {
+    resetAttract();
 
-// Keyboard events
-document.addEventListener('keydown', (e) => {
-    // Handle name entry
-    if (gameState.showNameEntry && gameState.gameOverPhase === 'nameentry') {
-        if (e.key === 'Enter') {
-            if (gameState.playerName.trim().length > 0) {
-                // Submit score if name provided
-                submitScore(gameState.playerName, gameState.score,
-                    () => {
-                        gameState.showNameEntry = false;
-                        gameState.playerName = '';
-                        gameState.gameOverPhase = 'gameover';
-                    },
-                    (error) => {
-                        console.error("Score submission error:", error);
-                        gameState.showNameEntry = false;
-                        gameState.playerName = '';
-                        gameState.gameOverPhase = 'gameover';
-                    }
-                );
-            } else {
-                // Skip leaderboard submission if name is blank
-                gameState.showNameEntry = false;
-                gameState.playerName = '';
-                gameState.gameOverPhase = 'gameover';
-            }
-        } else if (e.key === 'Backspace') {
-            e.preventDefault();
-            gameState.playerName = gameState.playerName.slice(0, -1);
-        } else if (e.key.length === 1 && gameState.playerName.length < 15) {
-            // Only allow letters, numbers, and spaces
-            if (/[a-zA-Z0-9 ]/.test(e.key)) {
-                gameState.playerName += e.key;
-            }
-        }
-        return; // Don't process other keys during name entry
-    }
-
-    inputState.keys[e.key] = true;
-
-    // Spacebar for page control only
-    if (e.key === ' ' || e.key === 'Spacebar') {
-        e.preventDefault(); // Prevent page scroll
-        return;
-    }
-});
-
-document.addEventListener('keyup', (e) => {
-    inputState.keys[e.key] = false;
-});
-
-// Start button click handler (both mouse and touch)
-document.getElementById('startButton').addEventListener('click', function(e) {
-    e.stopPropagation(); // Prevent touch event from bubbling
-    startGame();
-});
-
-document.getElementById('startButton').addEventListener('touchend', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    startGame();
-});
-
-// Restart button click handler
-document.getElementById('restartButton').addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    document.getElementById('restartButton').style.display = 'none';
-    startGame();
-});
-
-document.getElementById('restartButton').addEventListener('touchend', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    document.getElementById('restartButton').style.display = 'none';
-    startGame();
-});
-
-// Left button controls with tap-and-hold
-document.getElementById('leftButton').addEventListener('mousedown', function(e) {
-    e.preventDefault();
-    inputState.leftButtonPressed = true;
-});
-
-document.getElementById('leftButton').addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    inputState.leftButtonPressed = true;
-});
-
-document.getElementById('leftButton').addEventListener('mouseup', function(e) {
-    e.preventDefault();
-    inputState.leftButtonPressed = false;
-});
-
-document.getElementById('leftButton').addEventListener('touchend', function(e) {
-    e.preventDefault();
-    inputState.leftButtonPressed = false;
-});
-
-document.getElementById('leftButton').addEventListener('mouseleave', function(e) {
-    inputState.leftButtonPressed = false;
-});
-
-// Right button controls
-document.getElementById('rightButton').addEventListener('mousedown', function(e) {
-    e.preventDefault();
-    inputState.rightButtonPressed = true;
-});
-
-document.getElementById('rightButton').addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    inputState.rightButtonPressed = true;
-});
-
-document.getElementById('rightButton').addEventListener('mouseup', function(e) {
-    e.preventDefault();
-    inputState.rightButtonPressed = false;
-});
-
-document.getElementById('rightButton').addEventListener('touchend', function(e) {
-    e.preventDefault();
-    inputState.rightButtonPressed = false;
-});
-
-document.getElementById('rightButton').addEventListener('mouseleave', function(e) {
-    inputState.rightButtonPressed = false;
-});
-
-// Touch controls - ONLY on canvas
-canvas.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-
-    // Don't handle touch movement if game hasn't started yet or is over
-    if (!gameState.gameActive) {
-        return;
-    }
-
-    const touch = e.touches[0];
-    const rect = canvas.getBoundingClientRect();
-    // Map screen touch to canvas coordinates
-    inputState.touchStartX = ((touch.clientX - rect.left) / rect.width) * canvas.width;
-    inputState.touchCurrentX = inputState.touchStartX;
-    inputState.isTouching = true;
-});
-
-canvas.addEventListener('touchmove', (e) => {
-    e.preventDefault();
-    if (inputState.isTouching) {
-        const touch = e.touches[0];
-        const rect = canvas.getBoundingClientRect();
-        // Map screen touch to canvas coordinates
-        const canvasX = ((touch.clientX - rect.left) / rect.width) * canvas.width;
-        inputState.touchCurrentX = inputState.touchStartX + (canvasX - inputState.touchStartX);
-    }
-});
-
-canvas.addEventListener('touchend', (e) => {
-    e.preventDefault();
-    inputState.isTouching = false;
-    inputState.touchStartX = 0;
-    inputState.touchCurrentX = 0;
-});
-
-// Mouse controls (for desktop)
-canvas.addEventListener('mousedown', (e) => {
-    // Don't handle mouse movement if game hasn't started yet or is over
-    if (!gameState.gameActive) {
-        return;
-    }
-
-    const rect = canvas.getBoundingClientRect();
-    inputState.touchStartX = e.clientX - rect.left;
-    inputState.touchCurrentX = inputState.touchStartX;
-    inputState.isTouching = true;
-});
-
-canvas.addEventListener('mousemove', (e) => {
-    if (inputState.isTouching) {
-        const rect = canvas.getBoundingClientRect();
-        inputState.touchCurrentX = e.clientX - rect.left;
-    }
-});
-
-canvas.addEventListener('mouseup', () => {
-    inputState.isTouching = false;
-});
+    // Reload leaderboard for attract screen display
+    gameState.topScores = loadLeaderboard();
+}
 
 // ============================================
 // INITIALIZATION
 // ============================================
+
+// Initialize gamepad
+initGamepad();
 
 // Initialize clouds and trees
 initClouds(canvas.width, canvas.height);
 initPineTrees(canvas.width);
 initPlayer(canvas.width);
 
-// Load high score from localStorage
+// Load high score and leaderboard from localStorage
 loadHighScore();
-document.getElementById('highScore').textContent = 'High Score: ' + gameState.highScore;
+gameState.topScores = loadLeaderboard();
 
-// Load leaderboard from Firebase
-if (database) {
-    loadLeaderboard((scores) => {
-        gameState.topScores = scores;
-    });
-}
+// Start in attract mode
+gameState.attractMode = true;
 
 // Start game loop
 lastFrameTime = performance.now();
