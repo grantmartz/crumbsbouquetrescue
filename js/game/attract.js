@@ -56,12 +56,14 @@ export function updateAttractMode(deltaTime) {
     if (gameState.topScores.length > 0) {
         gameState.leaderboardScrollY += SCROLL_SPEED * deltaTime;
 
-        // Reset scroll when all scores and Cricket have scrolled past the top
-        // Need to scroll: scrollHeight (to move first score from bottom to top) + all scores + Cricket
-        const scrollAreaHeight = 280; // Approximate scroll area height
-        const totalHeight = scrollAreaHeight + (gameState.topScores.length * 36) + 100; // Scroll area + Scores + Cricket
-        if (gameState.leaderboardScrollY > totalHeight) {
-            gameState.leaderboardScrollY = 0; // Reset to bottom
+        // Use modular arithmetic for seamless looping
+        // Both sets must scroll fully off top
+        const scrollHeight = 280; // Approximate scroll area height
+        const contentSize = (gameState.topScores.length * 36) + 40 + 66;
+        const drawOffset = contentSize + 40;
+        const loopHeight = scrollHeight + drawOffset + contentSize;
+        if (gameState.leaderboardScrollY > loopHeight) {
+            gameState.leaderboardScrollY -= loopHeight;
         }
     }
 
@@ -282,49 +284,60 @@ function drawScrollingLeaderboard() {
     ctx.rect(boxX + 6, scrollStartY, boxWidth - 12, scrollHeight);
     ctx.clip();
 
-    // Draw scrolling scores (start from bottom, scroll up)
-    ctx.font = 'bold 20px Rockwell, Georgia, serif';
-    gameState.topScores.forEach((entry, index) => {
-        const y = scrollStartY + scrollHeight - 25 + (index * 36) - gameState.leaderboardScrollY;
+    // Calculate heights for seamless wrapping
+    const contentSize = (gameState.topScores.length * 36) + 40 + 66; // scores + gap + cricket
+    const drawOffset = contentSize + 40; // Tighter spacing between sets (same gap as Cricket has from scores)
+    const loopHeight = scrollHeight + drawOffset + contentSize; // Both sets must scroll off
 
-        // Only draw if visible in clipping region
-        if (y > scrollStartY - 30 && y < scrollStartY + scrollHeight + 30) {
-            // Medal for top 3
-            let medal = '';
-            if (index === 0) medal = '\u{1F947}'; // Gold medal
-            else if (index === 1) medal = '\u{1F948}'; // Silver medal
-            else if (index === 2) medal = '\u{1F949}'; // Bronze medal
+    // Helper function to draw scores and Cricket at a given offset
+    function drawScoresAtOffset(offset) {
+        ctx.font = 'bold 20px Rockwell, Georgia, serif';
+        gameState.topScores.forEach((entry, index) => {
+            const y = scrollStartY + scrollHeight - 25 + (index * 36) - gameState.leaderboardScrollY + offset;
 
-            // Rank
-            ctx.textAlign = 'right';
-            ctx.fillStyle = '#d44e3a';
-            ctx.fillText(`${index + 1}.`, boxX + 45, y);
+            // Only draw if visible in clipping region
+            if (y > scrollStartY - 30 && y < scrollStartY + scrollHeight + 30) {
+                // Medal for top 3
+                let medal = '';
+                if (index === 0) medal = '\u{1F947}'; // Gold medal
+                else if (index === 1) medal = '\u{1F948}'; // Silver medal
+                else if (index === 2) medal = '\u{1F949}'; // Bronze medal
 
-            // Medal (if top 3)
-            if (medal) {
+                // Rank
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#d44e3a';
+                ctx.fillText(`${index + 1}.`, boxX + 45, y);
+
+                // Medal (if top 3)
+                if (medal) {
+                    ctx.textAlign = 'left';
+                    ctx.font = '18px sans-serif';
+                    ctx.fillText(medal, boxX + 50, y);
+                    ctx.font = 'bold 20px Rockwell, Georgia, serif';
+                }
+
+                // Name
                 ctx.textAlign = 'left';
-                ctx.font = '18px sans-serif';
-                ctx.fillText(medal, boxX + 50, y);
-                ctx.font = 'bold 20px Rockwell, Georgia, serif';
+                ctx.fillStyle = '#3a2a1a';
+                ctx.fillText(entry.name, boxX + (medal ? 78 : 55), y);
+
+                // Score
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#d44e3a';
+                ctx.fillText(entry.score.toString(), boxX + boxWidth - 20, y);
             }
+        });
 
-            // Name
-            ctx.textAlign = 'left';
-            ctx.fillStyle = '#3a2a1a';
-            ctx.fillText(entry.name, boxX + (medal ? 78 : 55), y);
-
-            // Score
-            ctx.textAlign = 'right';
-            ctx.fillStyle = '#d44e3a';
-            ctx.fillText(entry.score.toString(), boxX + boxWidth - 20, y);
+        // Draw Cricket at bottom of list
+        const cricketY = scrollStartY + scrollHeight - 25 + (gameState.topScores.length * 36) + 40 - gameState.leaderboardScrollY + offset;
+        if (cricketY > scrollStartY - 40 && cricketY < scrollStartY + scrollHeight + 40) {
+            drawCricketInLeaderboard(canvas.width / 2, cricketY, 66);
         }
-    });
-
-    // Draw Cricket at bottom of list
-    const cricketY = scrollStartY + scrollHeight - 25 + (gameState.topScores.length * 36) + 40 - gameState.leaderboardScrollY;
-    if (cricketY > scrollStartY - 40 && cricketY < scrollStartY + scrollHeight + 40) {
-        drawCricketInLeaderboard(canvas.width / 2, cricketY, 66);
     }
+
+    // Draw scores twice for seamless looping
+    drawScoresAtOffset(0);
+    drawScoresAtOffset(drawOffset);
 
     ctx.restore();
 }
