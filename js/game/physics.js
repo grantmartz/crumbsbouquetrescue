@@ -201,8 +201,8 @@ export function update(deltaTime = 1) {
     } else if (gameState.gameOverPhase === 'scolding') {
         gameState.gameOverTimer += deltaTime;
 
-        // Show scolding for 180 frames (3 seconds: 1s for "No, Cricket!", 2s after "Bad!")
-        if (gameState.gameOverTimer >= 180) {
+        // Show scolding for 150 frames (2.5 seconds: 1s for "No, Cricket!", 1.5s after "Bad!")
+        if (gameState.gameOverTimer >= 150) {
             // Check if we should show name entry for top 10
             if (gameState.isTopTenScore) {
                 gameState.gameOverPhase = 'nameentry';

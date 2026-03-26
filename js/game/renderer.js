@@ -286,7 +286,7 @@ export function drawEater(eater) {
  */
 export function draw() {
     // Clear canvas
-    ctx.fillStyle = '#fef9f0';  // Cream background matching homepage
+    ctx.fillStyle = '#f7e5dc';  // Off-white pinkish cream background
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw clouds
