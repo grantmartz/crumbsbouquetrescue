@@ -89,11 +89,11 @@ export function drawAttractOverlay() {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
         ctx.fillText(START_TEXT, canvas.width / 2 + 2, canvas.height - 58);
 
-        ctx.strokeStyle = '#d44e3a';
+        ctx.strokeStyle = '#e8321a';
         ctx.lineWidth = 3;
         ctx.strokeText(START_TEXT, canvas.width / 2, canvas.height - 60);
 
-        ctx.fillStyle = '#e8b84d';
+        ctx.fillStyle = '#f5c020';
         ctx.fillText(START_TEXT, canvas.width / 2, canvas.height - 60);
     }
 }
@@ -137,11 +137,11 @@ function drawTitleScreen() {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
         ctx.fillText(word, x + 4, y + 4);
 
-        ctx.strokeStyle = '#e8b84d';
+        ctx.strokeStyle = '#f5c020';
         ctx.lineWidth = 8;
         ctx.strokeText(word, x, y);
 
-        ctx.fillStyle = '#d44e3a';
+        ctx.fillStyle = '#e8321a';
         ctx.fillText(word, x, y);
     });
 }
@@ -163,10 +163,10 @@ function drawStaticLeaderboard() {
     ctx.textAlign = 'center';
     ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
     ctx.fillText("CRUMB'S BOUQUET BOUNCE!", canvas.width / 2 + 3, startY - 18);
-    ctx.strokeStyle = '#e8b84d';
+    ctx.strokeStyle = '#f5c020';
     ctx.lineWidth = 6;
     ctx.strokeText("CRUMB'S BOUQUET BOUNCE!", canvas.width / 2, startY - 21);
-    ctx.fillStyle = '#d44e3a';
+    ctx.fillStyle = '#e8321a';
     ctx.fillText("CRUMB'S BOUQUET BOUNCE!", canvas.width / 2, startY - 21);
 
     // Background
@@ -176,19 +176,19 @@ function drawStaticLeaderboard() {
     ctx.fill();
 
     // Border
-    ctx.strokeStyle = '#d44e3a';
+    ctx.strokeStyle = '#e8321a';
     ctx.lineWidth = 6;
     ctx.beginPath();
     ctx.roundRect(boxX, startY, boxWidth, leaderboardHeight, 12);
     ctx.stroke();
 
     // Header
-    ctx.fillStyle = '#d44e3a';
+    ctx.fillStyle = '#e8321a';
     ctx.font = 'bold 28px Arvo, Rockwell, Georgia, serif';
     ctx.textAlign = 'center';
     ctx.fillText('HIGH SCORES', canvas.width / 2, startY + 35);
 
-    ctx.strokeStyle = '#d44e3a';
+    ctx.strokeStyle = '#e8321a';
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(boxX + 30, startY + 50);
@@ -205,33 +205,30 @@ function drawStaticLeaderboard() {
         const entry = gameState.topScores[index];
         const y = contentStartY + index * rowHeight + rowHeight * 0.75;
 
-        let medal = '';
-        if (index === 0) medal = '\u{1F947}';
-        else if (index === 1) medal = '\u{1F948}';
-        else if (index === 2) medal = '\u{1F949}';
+        // Gold / silver / bronze row highlight
+        const podiumColors = ['#ffd700', '#d0d0d0', '#e8c49a'];
+        if (index < 3 && entry) {
+            ctx.fillStyle = podiumColors[index];
+            const rowY = contentStartY + index * rowHeight;
+            ctx.beginPath();
+            ctx.roundRect(boxX + 4, rowY + 2, boxWidth - 8, rowHeight - 4, 4);
+            ctx.fill();
+        }
 
         // Rank
         ctx.textAlign = 'right';
-        ctx.fillStyle = entry ? '#d44e3a' : '#999';
+        ctx.fillStyle = entry ? '#e8321a' : '#999';
         ctx.fillText(`${index + 1}.`, boxX + 45, y);
 
         if (entry) {
-            // Medal
-            if (medal) {
-                ctx.textAlign = 'left';
-                ctx.font = '18px sans-serif';
-                ctx.fillText(medal, boxX + 50, y);
-                ctx.font = 'bold 20px Arvo, Rockwell, Georgia, serif';
-            }
-
             // Name
             ctx.textAlign = 'left';
             ctx.fillStyle = '#3a2a1a';
-            ctx.fillText(entry.name, boxX + (medal ? 78 : 55), y);
+            ctx.fillText(entry.name, boxX + 55, y);
 
             // Score
             ctx.textAlign = 'right';
-            ctx.fillStyle = '#d44e3a';
+            ctx.fillStyle = '#e8321a';
             ctx.fillText(entry.score.toString(), boxX + boxWidth - 20, y);
         } else {
             // Empty slot

@@ -110,7 +110,7 @@ export function drawNameEntry() {
     const centerY = canvas.height / 2;
 
     // Title
-    ctx.fillStyle = '#e8b84d';
+    ctx.fillStyle = '#f5c020';
     ctx.font = 'bold 42px Arvo, Rockwell, Georgia, serif';
     ctx.textAlign = 'center';
     ctx.fillText('NEW HIGH SCORE!', centerX, centerY - 120);
@@ -134,11 +134,11 @@ export function drawNameEntry() {
         const isSelected = gameState.nameEntryCursor === i;
 
         // Box background
-        ctx.fillStyle = isSelected ? '#e8b84d' : 'rgba(254, 249, 240, 0.9)';
+        ctx.fillStyle = isSelected ? '#f5c020' : 'rgba(254, 249, 240, 0.9)';
         ctx.fillRect(boxX - CHAR_WIDTH/2, boxY - 25, CHAR_WIDTH, 50);
 
         // Box border
-        ctx.strokeStyle = isSelected ? '#d44e3a' : '#888';
+        ctx.strokeStyle = isSelected ? '#e8321a' : '#888';
         ctx.lineWidth = isSelected ? 4 : 2;
         ctx.strokeRect(boxX - CHAR_WIDTH/2, boxY - 25, CHAR_WIDTH, 50);
 
@@ -150,7 +150,7 @@ export function drawNameEntry() {
 
         // Up/down arrows for selected position
         if (isSelected) {
-            ctx.fillStyle = '#d44e3a';
+            ctx.fillStyle = '#e8321a';
             ctx.font = '20px sans-serif';
             ctx.fillText('\u25B2', boxX, boxY - 35); // Up triangle
             ctx.fillText('\u25BC', boxX, boxY + 45); // Down triangle

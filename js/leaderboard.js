@@ -65,11 +65,9 @@ function displayLeaderboard(scores) {
     scores.forEach((entry, index) => {
         const rank = index + 1;
         const rankClass = rank <= 3 ? `rank-${rank}` : '';
-        const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
-
         html += `
             <div class="score-entry ${rankClass}">
-                <div class="rank">${medal || rank + '.'}</div>
+                <div class="rank">${rank}.</div>
                 <div class="name">${escapeHtml(entry.name)}</div>
                 <div class="score">${entry.score}</div>
             </div>

@@ -346,7 +346,7 @@ export function draw() {
 
     // Draw score on canvas (upper right corner) - only during active game
     if (!gameState.attractMode) {
-        ctx.fillStyle = '#d44e3a';
+        ctx.fillStyle = '#e8321a';
         ctx.font = 'bold 28px Arvo, Rockwell, Georgia, serif';
         ctx.textAlign = 'right';
         ctx.fillText('Score: ' + gameState.score, canvas.width - 20, 40);
@@ -367,10 +367,10 @@ export function draw() {
     if (gameState.countdown > 0) {
         ctx.font = 'bold 80px Arvo, Rockwell, Georgia, serif';
         ctx.textAlign = 'center';
-        ctx.strokeStyle = '#d44e3a';
+        ctx.strokeStyle = '#e8321a';
         ctx.lineWidth = 4;
         ctx.strokeText(gameState.countdown.toString(), canvas.width/2, canvas.height/2);
-        ctx.fillStyle = '#e8b84d';  // Sunshine yellow
+        ctx.fillStyle = '#f5c020';  // Sunshine yellow
         ctx.fillText(gameState.countdown.toString(), canvas.width/2, canvas.height/2);
     }
 
@@ -380,12 +380,12 @@ export function draw() {
         ctx.textAlign = 'center';
 
         // Yellow outline
-        ctx.strokeStyle = '#e8b84d';
+        ctx.strokeStyle = '#f5c020';
         ctx.lineWidth = 4;
         ctx.strokeText('No, Cricket!', canvas.width/2, canvas.height/2 - 40);
 
         // Red fill
-        ctx.fillStyle = '#d44e3a';
+        ctx.fillStyle = '#e8321a';
         ctx.fillText('No, Cricket!', canvas.width/2, canvas.height/2 - 40);
 
         // Show "Bad!" after a full second (60 frames)
@@ -406,10 +406,10 @@ export function draw() {
         // "GAME OVER" header
         ctx.font = 'bold 52px Arvo, Rockwell, Georgia, serif';
         ctx.textAlign = 'center';
-        ctx.strokeStyle = '#e8b84d';
+        ctx.strokeStyle = '#f5c020';
         ctx.lineWidth = 4;
         ctx.strokeText('GAME OVER', cx, 70);
-        ctx.fillStyle = '#d44e3a';
+        ctx.fillStyle = '#e8321a';
         ctx.fillText('GAME OVER', cx, 70);
 
         // Current score
@@ -418,12 +418,12 @@ export function draw() {
         ctx.fillText('Score: ' + gameState.score, cx, 108);
 
         // Leaderboard title
-        ctx.fillStyle = '#e8b84d';
+        ctx.fillStyle = '#f5c020';
         ctx.font = 'bold 22px Arvo, Rockwell, Georgia, serif';
         ctx.fillText('HIGH SCORES', cx, 148);
 
         // Divider line
-        ctx.strokeStyle = '#e8b84d';
+        ctx.strokeStyle = '#f5c020';
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(cx - 160, 158);
@@ -454,13 +454,13 @@ export function draw() {
             if (entry) {
                 // Rank
                 ctx.textAlign = 'right';
-                ctx.fillStyle = isPlayerScore ? '#e8b84d' : '#aaa';
+                ctx.fillStyle = isPlayerScore ? '#f5c020' : '#aaa';
                 ctx.font = 'bold 20px Arvo, Rockwell, Georgia, serif';
                 ctx.fillText(i + 1 + '.', cx - 120, rowY);
 
                 // Name
                 ctx.textAlign = 'left';
-                ctx.fillStyle = isPlayerScore ? '#e8b84d' : '#fef9f0';
+                ctx.fillStyle = isPlayerScore ? '#f5c020' : '#fef9f0';
                 ctx.font = 'bold 22px Arvo, Rockwell, Georgia, serif';
                 ctx.fillText(entry.name, cx - 100, rowY);
 
@@ -485,7 +485,7 @@ export function draw() {
 
         // "Press Start to Continue"
         ctx.textAlign = 'center';
-        ctx.fillStyle = '#e8b84d';
+        ctx.fillStyle = '#f5c020';
         ctx.font = 'bold 22px Arvo, Rockwell, Georgia, serif';
         ctx.fillText('Press Start to Continue', cx, startY + maxRows * rowHeight + 18);
     }
