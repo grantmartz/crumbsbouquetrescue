@@ -19,6 +19,7 @@ import {
 } from './entities.js';
 
 import { gameState } from './state.js';
+import { loadLeaderboard } from '../shared/leaderboard.js';
 
 import {
     SPRITE_COLOR,
@@ -393,24 +394,99 @@ export function draw() {
         }
     }
 
-    // Draw game over text
+    // Draw game over text + leaderboard
     if (gameState.gameOverPhase === 'gameover') {
-        ctx.font = 'bold 48px Rockwell, Georgia, serif';
-        ctx.textAlign = 'center';
+        // Dark overlay
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.72)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Yellow outline/border
+        const cx = canvas.width / 2;
+
+        // "GAME OVER" header
+        ctx.font = 'bold 52px Rockwell, Georgia, serif';
+        ctx.textAlign = 'center';
         ctx.strokeStyle = '#e8b84d';
         ctx.lineWidth = 4;
-        ctx.strokeText('GAME OVER', canvas.width/2, canvas.height/2 - 20);
-
-        // Red fill
+        ctx.strokeText('GAME OVER', cx, 70);
         ctx.fillStyle = '#d44e3a';
-        ctx.fillText('GAME OVER', canvas.width/2, canvas.height/2 - 20);
+        ctx.fillText('GAME OVER', cx, 70);
 
-        // Show "Press Start to Continue" (gamepad will handle restart)
+        // Current score
+        ctx.fillStyle = '#f5a3b5';
+        ctx.font = 'bold 28px Rockwell, Georgia, serif';
+        ctx.fillText('Score: ' + gameState.score, cx, 108);
+
+        // Leaderboard title
         ctx.fillStyle = '#e8b84d';
-        ctx.font = 'bold 24px Rockwell, Georgia, serif';
-        ctx.fillText('Press Start to Continue', canvas.width/2, canvas.height/2 + 30);
+        ctx.font = 'bold 22px Rockwell, Georgia, serif';
+        ctx.fillText('HIGH SCORES', cx, 148);
+
+        // Divider line
+        ctx.strokeStyle = '#e8b84d';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(cx - 160, 158);
+        ctx.lineTo(cx + 160, 158);
+        ctx.stroke();
+
+        // Leaderboard rows
+        const scores = loadLeaderboard();
+        const rowHeight = 38;
+        const startY = 186;
+        const maxRows = 10;
+
+        for (let i = 0; i < maxRows; i++) {
+            const entry = scores[i];
+            const rowY = startY + i * rowHeight;
+
+            // Highlight if this is the player's just-submitted score
+            const isPlayerScore = entry &&
+                entry.score === gameState.score &&
+                gameState.nameEntryChars &&
+                entry.name === gameState.nameEntryChars.join('');
+
+            if (isPlayerScore) {
+                ctx.fillStyle = 'rgba(232, 184, 77, 0.25)';
+                ctx.fillRect(cx - 170, rowY - 22, 340, rowHeight);
+            }
+
+            if (entry) {
+                // Rank
+                ctx.textAlign = 'right';
+                ctx.fillStyle = isPlayerScore ? '#e8b84d' : '#aaa';
+                ctx.font = 'bold 20px Rockwell, Georgia, serif';
+                ctx.fillText(i + 1 + '.', cx - 120, rowY);
+
+                // Name
+                ctx.textAlign = 'left';
+                ctx.fillStyle = isPlayerScore ? '#e8b84d' : '#fef9f0';
+                ctx.font = 'bold 22px Rockwell, Georgia, serif';
+                ctx.fillText(entry.name, cx - 100, rowY);
+
+                // Score
+                ctx.textAlign = 'right';
+                ctx.fillStyle = isPlayerScore ? '#f5a3b5' : '#fef9f0';
+                ctx.fillText(entry.score, cx + 170, rowY);
+            } else {
+                // Empty slot
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#555';
+                ctx.font = 'bold 20px Rockwell, Georgia, serif';
+                ctx.fillText(i + 1 + '.', cx - 120, rowY);
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#555';
+                ctx.font = '20px Rockwell, Georgia, serif';
+                ctx.fillText('---', cx - 100, rowY);
+                ctx.textAlign = 'right';
+                ctx.fillText('---', cx + 170, rowY);
+            }
+        }
+
+        // "Press Start to Continue"
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#e8b84d';
+        ctx.font = 'bold 22px Rockwell, Georgia, serif';
+        ctx.fillText('Press Start to Continue', cx, startY + maxRows * rowHeight + 18);
     }
 
     // Name entry screen is now handled by nameentry.js
