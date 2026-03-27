@@ -128,24 +128,32 @@ export function playBounce(comboStreak) {
     if (isMuted || !ctx) return;
     const t = ctx.currentTime;
     const count = Math.min(comboStreak || 1, COMBO_CHORD.length);
-    const gainPerNote = 0.20 / count; // keep total volume consistent
+    const gainPerNote = 0.20 / Math.sqrt(count); // softer rolloff — chords stay audible
     for (let i = 0; i < count; i++) {
         makeOsc('square', COMBO_CHORD[i], gainPerNote, t, 0.10);
     }
 }
 
-/** Finch/bird bonus — ascending chirp arpeggio, gains a note each 10-bird combo */
+/** Finch/bird bonus — bird 1: 1 arpeggio, bird 2: all 3, bird 3+: all 4 */
 export function playFinchHit(birdCombo = 1) {
     initAudio();
     if (isMuted || !ctx) return;
-    const baseNotes = [659.25, 783.99, 1046.50]; // E5 G5 C6
-    const bonusNotes = [1174.66, 1318.51];        // D6 E6 — added at combo 10, 20
-    const extraCount = Math.min(Math.floor((birdCombo - 1) / 10), bonusNotes.length);
-    const notes = [...baseNotes, ...bonusNotes.slice(0, extraCount)];
+    const arpeggios = [
+        [659.25, 783.99, 1046.50], // E5 G5 C6
+        [698.46, 880.00, 1174.66], // F5 A5 D6
+        [783.99, 987.77, 1318.51], // G5 B5 E6
+        [880.00, 1046.50, 1396.91], // A5 C6 F6
+    ];
+    const count = birdCombo >= 3 ? 4 : birdCombo === 2 ? 3 : 1;
+    const noteSpacing = 0.09;
     const t = ctx.currentTime;
-    notes.forEach((freq, i) => {
-        makeOsc('sine', freq, 0.25, t + i * 0.06, 0.12);
-    });
+    let noteIndex = 0;
+    for (let b = 0; b < count; b++) {
+        arpeggios[b].forEach(freq => {
+            makeOsc('sine', freq, 0.22, t + noteIndex * noteSpacing, 0.14);
+            noteIndex++;
+        });
+    }
 }
 
 /** Cricket chomp — soft low sawtooth + gentle noise, debounced */
@@ -195,11 +203,15 @@ export function playChomp() {
 export function playCountdownBeep(number) {
     initAudio();
     if (isMuted || !ctx) return;
-    const pitches = { 3: 220, 2: 440, 1: 880 };
-    const freq = pitches[number] || 440;
+    const chords = {
+        3: [523.25, 659.25], // C5 E5
+        2: [659.25, 783.99], // E5 G5
+        1: [587.33, 698.46], // D5 F5
+    };
     const t = ctx.currentTime;
-    makeOsc('square', freq, 0.22, t, 0.24);
-    makeOsc('square', freq * 1.003, 0.08, t, 0.24); // slight chorus
+    (chords[number] || chords[2]).forEach(freq => {
+        makeOsc('square', freq, 0.15, t, 0.24);
+    });
 }
 
 /** Game over — descending 5-note jingle with pitch droop */

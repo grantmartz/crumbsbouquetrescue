@@ -72,6 +72,12 @@ function gameLoop(currentTime) {
         }
     }
 
+    // Start music the first frame gameplay becomes active (after countdown)
+    if (gameState.gameActive && !gameState.musicStarted) {
+        gameState.musicStarted = true;
+        startMusic();
+    }
+
     // Only update if delta time is reasonable (prevents updates during long pauses)
     if (deltaTime < 5) {
         const result = update(deltaTime);
@@ -110,9 +116,8 @@ export function startGame() {
     eaters.length = 0;
     particles.length = 0;
 
-    // Start music and first countdown beep
+    // First countdown beep (music starts after countdown ends)
     initAudio();
-    startMusic();
     playCountdownBeep(3);
 
     // Spawn initial flowers immediately at different heights
