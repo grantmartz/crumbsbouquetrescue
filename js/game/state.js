@@ -35,10 +35,13 @@ export const gameState = {
 
     // Attract mode
     attractMode: true,
+    attractScreen: 1,       // 1 = title screen, 2 = score screen
+    attractTitleTimer: 0,   // drives Screen 1 word-slide + flash animation
     attractFlashTimer: 0,
     leaderboardScrollY: 0, // Start at top for scroll effect
     cricketChompTimer: 0,  // Animation timer for Cricket in leaderboard
     cricketMouthOpen: false, // Toggle for chomp animation
+    attractScreen2Timer: 0, // frames elapsed on Screen 2
 
     // Arcade name entry (3-letter picker)
     nameEntryChars: ['A', 'A', 'A'],
@@ -111,10 +114,13 @@ export function resetGameState() {
  */
 export function resetAttractMode() {
     gameState.attractMode = true;
+    gameState.attractScreen = 1;
+    gameState.attractTitleTimer = 0;
     gameState.attractFlashTimer = 0;
     gameState.leaderboardScrollY = 0;
     gameState.cricketChompTimer = 0;
     gameState.cricketMouthOpen = false;
+    gameState.attractScreen2Timer = 0;
     gameState.gameStarted = false;
     gameState.gameActive = false;
     gameState.gameOverPhase = '';

@@ -4,74 +4,68 @@
    ============================================ */
 
 import { gameState } from './state.js';
-import { flowers, eaters, particles, clouds, eaterMouthOpen, eaterMouthClosed } from './entities.js';
+import { flowers, eaters, particles } from './entities.js';
 import { spawnFlower, updateClouds } from './physics.js';
 import { canvas, ctx } from './renderer.js';
-import { EATER_COLOR } from '../shared/config.js';
 
 // ============================================
 // ATTRACT MODE CONSTANTS
 // ============================================
 
-const TITLE_TEXT = "CRUMB'S BOUQUET RESCUE!";
 const START_TEXT = "PRESS START";
-const FLASH_INTERVAL = 30;  // Frames between flash toggles
-const SCROLL_SPEED = 0.5;   // Pixels per frame
-const ATTRACT_SPAWN_INTERVAL = 80; // Slower spawn rate
+const FLASH_INTERVAL = 30;         // Frames between flash toggles
+const ATTRACT_SPAWN_INTERVAL = 80; // Slower spawn rate for bg flowers
+
+// Screen 1 — title slide + flash
+const TITLE_LINES = ["CRUMB'S", "BOUQUET", "RESCUE!"];
+const S1_WORD_INTERVAL = 50;     // frames between each word start
+const S1_WORD_SLIDE_DUR = 40;    // frames for a word to slide in
+const S1_FLASH_START = 160;      // timer value when flashing begins (all words settled by 140)
+const S1_FLASH_HALF = 20;        // frames per half-flash
+const S1_FLASH_CYCLES = 3;       // on/off cycles
+const S1_TRANSITION = 550;       // timer value to switch to Screen 2 (4s hold after flash)
+
+// Screen 2 — static high score board
+const S2_DISPLAY_FRAMES = 480;   // 8 seconds on Screen 2
+
+// Leaderboard box geometry
+const BOX_START_Y = 160;
+const BOX_END_Y = 514; // canvas.height(614) - 100
 
 // ============================================
 // ATTRACT MODE UPDATE
 // ============================================
 
-/**
- * Update attract mode state
- * @param {number} deltaTime - Frame delta
- */
 export function updateAttractMode(deltaTime) {
-    // Update flash timer
     gameState.attractFlashTimer += deltaTime;
 
-    // Spawn flowers continuously for demo
+    // Background flowers
     gameState.flowerSpawnTimer += deltaTime;
     if (gameState.flowerSpawnTimer >= ATTRACT_SPAWN_INTERVAL) {
         spawnFlower();
         gameState.flowerSpawnTimer = 0;
     }
-
-    // Move flowers up (they just rise and disappear)
     for (let i = flowers.length - 1; i >= 0; i--) {
         const flower = flowers[i];
         flower.y -= flower.riseSpeed * deltaTime;
-
-        // Remove flowers that went off top
-        if (flower.y < -50) {
-            flowers.splice(i, 1);
-        }
+        if (flower.y < -50) flowers.splice(i, 1);
     }
 
-    // Update clouds
     updateClouds();
 
-    // Scroll leaderboard
-    if (gameState.topScores.length > 0) {
-        gameState.leaderboardScrollY += SCROLL_SPEED * deltaTime;
-
-        // Use modular arithmetic for seamless looping
-        // Both sets must scroll fully off top
-        const scrollHeight = 280; // Approximate scroll area height
-        const contentSize = (gameState.topScores.length * 36) + 40 + 66;
-        const drawOffset = contentSize + 40;
-        const loopHeight = scrollHeight + drawOffset + contentSize;
-        if (gameState.leaderboardScrollY > loopHeight) {
-            gameState.leaderboardScrollY -= loopHeight;
+    if (gameState.attractScreen === 1) {
+        gameState.attractTitleTimer += deltaTime;
+        if (gameState.attractTitleTimer >= S1_TRANSITION) {
+            gameState.attractScreen = 2;
+            gameState.attractTitleTimer = 0;
+            gameState.attractScreen2Timer = 0;
         }
-    }
-
-    // Update Cricket chomp animation
-    gameState.cricketChompTimer += deltaTime;
-    if (gameState.cricketChompTimer >= 15) { // Toggle every 15 frames
-        gameState.cricketMouthOpen = !gameState.cricketMouthOpen;
-        gameState.cricketChompTimer = 0;
+    } else {
+        gameState.attractScreen2Timer += deltaTime;
+        if (gameState.attractScreen2Timer >= S2_DISPLAY_FRAMES) {
+            gameState.attractScreen = 1;
+            gameState.attractTitleTimer = 0;
+        }
     }
 }
 
@@ -79,183 +73,121 @@ export function updateAttractMode(deltaTime) {
 // ATTRACT MODE DRAWING
 // ============================================
 
-/**
- * Draw attract mode overlay
- */
 export function drawAttractOverlay() {
-    // Draw title with shadow/outline effect
-    ctx.font = 'bold 56px Rockwell, Georgia, serif';
-    ctx.textAlign = 'center';
+    if (gameState.attractScreen === 1) {
+        drawTitleScreen();
+    } else {
+        drawStaticLeaderboard();
+    }
 
-    // Shadow
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-    ctx.fillText(TITLE_TEXT, canvas.width / 2 + 3, 113);
-
-    // Outline (yellow border)
-    ctx.strokeStyle = '#e8b84d';
-    ctx.lineWidth = 6;
-    ctx.strokeText(TITLE_TEXT, canvas.width / 2, 110);
-
-    // Fill
-    ctx.fillStyle = '#d44e3a';
-    ctx.fillText(TITLE_TEXT, canvas.width / 2, 110);
-
-    // Draw scrolling leaderboard
-    drawScrollingLeaderboard();
-
-    // Draw "PRESS START" with flash effect
+    // "PRESS START" on both screens
     const showStartText = Math.floor(gameState.attractFlashTimer / FLASH_INTERVAL) % 2 === 0;
     if (showStartText) {
         ctx.font = 'bold 36px Rockwell, Georgia, serif';
         ctx.textAlign = 'center';
 
-        // Shadow (increased opacity)
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
         ctx.fillText(START_TEXT, canvas.width / 2 + 2, canvas.height - 58);
 
-        // Red outline for better visibility
         ctx.strokeStyle = '#d44e3a';
         ctx.lineWidth = 3;
         ctx.strokeText(START_TEXT, canvas.width / 2, canvas.height - 60);
 
-        // Main text (bright yellow, full opacity)
         ctx.fillStyle = '#e8b84d';
         ctx.fillText(START_TEXT, canvas.width / 2, canvas.height - 60);
     }
 }
 
-/**
- * Draw scalloped border around rectangle
- */
-function drawScallopedBorder(x, y, width, height, scallopRadius) {
-    ctx.fillStyle = '#d44e3a';
+// ============================================
+// SCREEN 1 — TITLE ANIMATION
+// ============================================
 
-    // Top edge scallops
-    const topScallops = Math.floor(width / (scallopRadius * 2));
-    const topSpacing = width / topScallops;
-    for (let i = 0; i < topScallops; i++) {
-        ctx.beginPath();
-        ctx.arc(x + topSpacing * i + topSpacing / 2, y, scallopRadius, 0, Math.PI * 2);
-        ctx.fill();
+function drawTitleScreen() {
+    const t = gameState.attractTitleTimer;
+    const flashTimer = t - S1_FLASH_START;
+    const totalFlashFrames = S1_FLASH_CYCLES * S1_FLASH_HALF * 2;
+
+    let flashVisible = true;
+    if (flashTimer >= 0 && flashTimer < totalFlashFrames) {
+        flashVisible = Math.floor(flashTimer / S1_FLASH_HALF) % 2 === 0;
     }
 
-    // Bottom edge scallops
-    for (let i = 0; i < topScallops; i++) {
-        ctx.beginPath();
-        ctx.arc(x + topSpacing * i + topSpacing / 2, y + height, scallopRadius, 0, Math.PI * 2);
-        ctx.fill();
-    }
+    ctx.font = 'bold 72px Rockwell, Georgia, serif';
+    ctx.textAlign = 'center';
 
-    // Left edge scallops
-    const sideScallops = Math.floor(height / (scallopRadius * 2));
-    const sideSpacing = height / sideScallops;
-    for (let i = 0; i < sideScallops; i++) {
-        ctx.beginPath();
-        ctx.arc(x, y + sideSpacing * i + sideSpacing / 2, scallopRadius, 0, Math.PI * 2);
-        ctx.fill();
-    }
+    TITLE_LINES.forEach((word, i) => {
+        const wordTimer = t - i * S1_WORD_INTERVAL;
 
-    // Right edge scallops
-    for (let i = 0; i < sideScallops; i++) {
-        ctx.beginPath();
-        ctx.arc(x + width, y + sideSpacing * i + sideSpacing / 2, scallopRadius, 0, Math.PI * 2);
-        ctx.fill();
-    }
+        if (wordTimer < 0) return;
+
+        let x;
+        if (wordTimer < S1_WORD_SLIDE_DUR) {
+            const progress = wordTimer / S1_WORD_SLIDE_DUR;
+            const eased = 1 - Math.pow(1 - progress, 2);
+            x = (canvas.width + 300) + (canvas.width / 2 - (canvas.width + 300)) * eased;
+        } else {
+            x = canvas.width / 2;
+        }
+
+        const y = 120 + i * 140;
+
+        const wordSettled = wordTimer >= S1_WORD_SLIDE_DUR;
+        if (wordSettled && !flashVisible) return;
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.fillText(word, x + 4, y + 4);
+
+        ctx.strokeStyle = '#e8b84d';
+        ctx.lineWidth = 8;
+        ctx.strokeText(word, x, y);
+
+        ctx.fillStyle = '#d44e3a';
+        ctx.fillText(word, x, y);
+    });
 }
 
-/**
- * Draw Cricket sprite for leaderboard
- */
-function drawCricketInLeaderboard(x, y, size) {
-    const mouthOpen = gameState.cricketMouthOpen;
+// ============================================
+// SCREEN 2 — STATIC HIGH SCORE BOARD
+// ============================================
 
-    // Use custom images if provided
-    if (mouthOpen && eaterMouthOpen && eaterMouthOpen.complete) {
-        ctx.drawImage(eaterMouthOpen, x - size/2, y - size/2, size, size);
-        return;
-    } else if (!mouthOpen && eaterMouthClosed && eaterMouthClosed.complete) {
-        ctx.drawImage(eaterMouthClosed, x - size/2, y - size/2, size, size);
-        return;
-    }
-
-    // Fallback to placeholder drawing
-    ctx.fillStyle = EATER_COLOR;
-
-    // Head (main circle)
-    ctx.beginPath();
-    ctx.arc(x, y, size/2.5, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Left ear
-    ctx.beginPath();
-    ctx.ellipse(x - size/4, y - size/5, size/6, size/4, -0.3, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Right ear
-    ctx.beginPath();
-    ctx.ellipse(x + size/4, y - size/5, size/6, size/4, 0.3, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Snout
-    ctx.beginPath();
-    ctx.ellipse(x, y + size/5, size/5, size/4, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Mouth (if open)
-    if (mouthOpen) {
-        ctx.fillStyle = '#1a0a0a';
-        ctx.beginPath();
-        ctx.arc(x, y + size/3, size/8, 0, Math.PI);
-        ctx.fill();
-    }
-
-    // Nose
-    ctx.fillStyle = '#3a2a1a';
-    ctx.beginPath();
-    ctx.arc(x, y + size/2.5, size/12, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Eyes
-    ctx.beginPath();
-    ctx.arc(x - size/6, y, size/14, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(x + size/6, y, size/14, 0, Math.PI * 2);
-    ctx.fill();
-}
-
-/**
- * Draw scrolling leaderboard in center of screen
- */
-function drawScrollingLeaderboard() {
-    // Leaderboard area (center of screen)
+function drawStaticLeaderboard() {
     const boxX = canvas.width / 2 - 180;
     const boxWidth = 360;
-    const startY = 160;
-    const endY = canvas.height - 100;
+    const startY = BOX_START_Y;
+    const endY = BOX_END_Y;
     const leaderboardHeight = endY - startY;
-    const headerHeight = 55; // Space for static header
+    const headerHeight = 55;
 
-    // Semi-transparent light pink background with rounded corners
+    // Title above the box
+    ctx.font = 'bold 44px Rockwell, Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx.fillText("CRUMB'S BOUQUET RESCUE!", canvas.width / 2 + 3, startY - 18);
+    ctx.strokeStyle = '#e8b84d';
+    ctx.lineWidth = 6;
+    ctx.strokeText("CRUMB'S BOUQUET RESCUE!", canvas.width / 2, startY - 21);
+    ctx.fillStyle = '#d44e3a';
+    ctx.fillText("CRUMB'S BOUQUET RESCUE!", canvas.width / 2, startY - 21);
+
+    // Background
     ctx.fillStyle = 'rgba(245, 163, 181, 0.7)';
     ctx.beginPath();
     ctx.roundRect(boxX, startY, boxWidth, leaderboardHeight, 12);
     ctx.fill();
 
-    // Thick red border with rounded corners
+    // Border
     ctx.strokeStyle = '#d44e3a';
     ctx.lineWidth = 6;
     ctx.beginPath();
     ctx.roundRect(boxX, startY, boxWidth, leaderboardHeight, 12);
     ctx.stroke();
 
-    // Draw static header (outside clipping)
+    // Header
     ctx.fillStyle = '#d44e3a';
     ctx.font = 'bold 28px Rockwell, Georgia, serif';
     ctx.textAlign = 'center';
     ctx.fillText('HIGH SCORES', canvas.width / 2, startY + 35);
 
-    // Draw static underline
     ctx.strokeStyle = '#d44e3a';
     ctx.lineWidth = 3;
     ctx.beginPath();
@@ -264,90 +196,63 @@ function drawScrollingLeaderboard() {
     ctx.stroke();
 
     if (gameState.topScores.length === 0) {
-        // Show "No scores yet" if empty
         ctx.fillStyle = '#3a2a1a';
         ctx.font = '20px Rockwell, Georgia, serif';
         ctx.textAlign = 'center';
         ctx.fillText('No scores yet!', canvas.width / 2, startY + headerHeight + 60);
-
-        // Still draw Cricket (20% larger)
-        drawCricketInLeaderboard(canvas.width / 2, startY + headerHeight + 140, 72);
         return;
     }
 
-    // Create clipping region for scrolling content (below header)
-    const scrollStartY = startY + headerHeight + 5;
-    const scrollHeight = leaderboardHeight - headerHeight - 10;
+    const contentStartY = startY + headerHeight + 10;
+    const contentHeight = leaderboardHeight - headerHeight - 20;
+    const rowHeight = Math.min(28, contentHeight / gameState.topScores.length);
 
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(boxX + 6, scrollStartY, boxWidth - 12, scrollHeight);
-    ctx.clip();
+    ctx.font = 'bold 20px Rockwell, Georgia, serif';
+    gameState.topScores.forEach((entry, index) => {
+        const y = contentStartY + index * rowHeight + rowHeight * 0.75;
 
-    // Calculate heights for seamless wrapping
-    const contentSize = (gameState.topScores.length * 36) + 40 + 66; // scores + gap + cricket
-    const drawOffset = contentSize + 40; // Tighter spacing between sets (same gap as Cricket has from scores)
-    const loopHeight = scrollHeight + drawOffset + contentSize; // Both sets must scroll off
+        let medal = '';
+        if (index === 0) medal = '\u{1F947}';
+        else if (index === 1) medal = '\u{1F948}';
+        else if (index === 2) medal = '\u{1F949}';
 
-    // Helper function to draw scores and Cricket at a given offset
-    function drawScoresAtOffset(offset) {
-        ctx.font = 'bold 20px Rockwell, Georgia, serif';
-        gameState.topScores.forEach((entry, index) => {
-            const y = scrollStartY + scrollHeight - 25 + (index * 36) - gameState.leaderboardScrollY + offset;
+        // Rank
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#d44e3a';
+        ctx.fillText(`${index + 1}.`, boxX + 45, y);
 
-            // Only draw if visible in clipping region
-            if (y > scrollStartY - 30 && y < scrollStartY + scrollHeight + 30) {
-                // Medal for top 3
-                let medal = '';
-                if (index === 0) medal = '\u{1F947}'; // Gold medal
-                else if (index === 1) medal = '\u{1F948}'; // Silver medal
-                else if (index === 2) medal = '\u{1F949}'; // Bronze medal
-
-                // Rank
-                ctx.textAlign = 'right';
-                ctx.fillStyle = '#d44e3a';
-                ctx.fillText(`${index + 1}.`, boxX + 45, y);
-
-                // Medal (if top 3)
-                if (medal) {
-                    ctx.textAlign = 'left';
-                    ctx.font = '18px sans-serif';
-                    ctx.fillText(medal, boxX + 50, y);
-                    ctx.font = 'bold 20px Rockwell, Georgia, serif';
-                }
-
-                // Name
-                ctx.textAlign = 'left';
-                ctx.fillStyle = '#3a2a1a';
-                ctx.fillText(entry.name, boxX + (medal ? 78 : 55), y);
-
-                // Score
-                ctx.textAlign = 'right';
-                ctx.fillStyle = '#d44e3a';
-                ctx.fillText(entry.score.toString(), boxX + boxWidth - 20, y);
-            }
-        });
-
-        // Draw Cricket at bottom of list
-        const cricketY = scrollStartY + scrollHeight - 25 + (gameState.topScores.length * 36) + 40 - gameState.leaderboardScrollY + offset;
-        if (cricketY > scrollStartY - 40 && cricketY < scrollStartY + scrollHeight + 40) {
-            drawCricketInLeaderboard(canvas.width / 2, cricketY, 66);
+        // Medal
+        if (medal) {
+            ctx.textAlign = 'left';
+            ctx.font = '18px sans-serif';
+            ctx.fillText(medal, boxX + 50, y);
+            ctx.font = 'bold 20px Rockwell, Georgia, serif';
         }
-    }
 
-    // Draw scores twice for seamless looping
-    drawScoresAtOffset(0);
-    drawScoresAtOffset(drawOffset);
+        // Name
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#3a2a1a';
+        ctx.fillText(entry.name, boxX + (medal ? 78 : 55), y);
 
-    ctx.restore();
+        // Score
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#d44e3a';
+        ctx.fillText(entry.score.toString(), boxX + boxWidth - 20, y);
+    });
 }
 
-/**
- * Reset attract mode for re-entry
- */
+// ============================================
+// RESET
+// ============================================
+
 export function resetAttractMode() {
     gameState.attractMode = true;
+    gameState.attractScreen = 1;
+    gameState.attractTitleTimer = 0;
     gameState.attractFlashTimer = 0;
+    gameState.attractScreen2Timer = 0;
+    gameState.cricketChompTimer = 0;
+    gameState.cricketMouthOpen = false;
     gameState.leaderboardScrollY = 0;
     gameState.gameStarted = false;
     gameState.gameActive = false;
