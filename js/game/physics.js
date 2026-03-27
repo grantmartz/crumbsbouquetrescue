@@ -14,6 +14,7 @@ import {
 } from './entities.js';
 import { canvas } from './renderer.js';
 import { FLOWER_COLORS, FINCH_COLOR } from '../shared/config.js';
+import { playBounce, playFinchHit, playChomp, playCountdownBeep } from './audio.js';
 
 // ============================================
 // CLOUD PHYSICS
@@ -45,15 +46,17 @@ export function checkCollision(flower) {
     const playerBottom = player.y + player.height/2;
     const flowerTop = flower.y - flower.height/2;
 
-    // Wider hitbox - add 10px padding on each side
-    const hitboxPadding = 10;
+    const playerLeft  = player.x - player.width/2;
+    const playerRight = player.x + player.width/2;
+    const flowerLeft  = flower.x - flower.width/2;
+    const flowerRight = flower.x + flower.width/2;
 
-    // Check if player is moving downward and overlapping with flower
+    // Check if player is moving downward and feet overlap flower top
     if (player.velocityY > 0 &&
         playerBottom >= flowerTop &&
         playerBottom <= flowerTop + 20 &&
-        player.x > flower.x - flower.width/2 - hitboxPadding &&
-        player.x < flower.x + flower.width/2 + hitboxPadding) {
+        playerRight > flowerLeft &&
+        playerLeft  < flowerRight) {
         return true;
     }
     return false;
@@ -129,6 +132,8 @@ export function update(deltaTime = 1) {
             gameState.countdownTimer = 0;
             if (gameState.countdown === 0) {
                 gameState.gameActive = true; // Start game after countdown
+            } else {
+                playCountdownBeep(gameState.countdown);
             }
         }
         return; // Don't update game during countdown
@@ -159,6 +164,7 @@ export function update(deltaTime = 1) {
                 animationFrame: 0,
                 phase: 'chomp1_open'
             };
+            playChomp();
 
             // Remove the flower
             flowers.splice(topIndex, 1);
@@ -178,6 +184,7 @@ export function update(deltaTime = 1) {
                 if (gameState.currentEatingFlower.animationFrame >= chompDuration) {
                     gameState.currentEatingFlower.phase = 'chomp2_open';
                     gameState.currentEatingFlower.animationFrame = 0;
+                    playChomp();
                 }
             } else if (gameState.currentEatingFlower.phase === 'chomp2_open') {
                 if (gameState.currentEatingFlower.animationFrame >= chompDuration) {
@@ -343,6 +350,13 @@ export function update(deltaTime = 1) {
             if (gameState.score > gameState.highScore) {
                 saveHighScore(gameState.score);
             }
+
+            // Play bounce sound
+            if (flower.isFinch) {
+                playFinchHit();
+            } else {
+                playBounce(gameState.comboStreak);
+            }
         }
 
         // Spawn eater if flower reaches top without being bounced
@@ -385,6 +399,7 @@ export function update(deltaTime = 1) {
             if (eater.y >= eater.targetY) {
                 eater.phase = 'chomp1_open';
                 eater.animationFrame = 0;
+                playChomp();
             }
         } else if (eater.phase === 'chomp1_open') {
             if (eater.animationFrame >= chompDuration) {
@@ -395,6 +410,7 @@ export function update(deltaTime = 1) {
             if (eater.animationFrame >= chompDuration) {
                 eater.phase = 'chomp2_open';
                 eater.animationFrame = 0;
+                playChomp();
             }
         } else if (eater.phase === 'chomp2_open') {
             if (eater.animationFrame >= chompDuration) {

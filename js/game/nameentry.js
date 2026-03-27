@@ -7,6 +7,7 @@ import { gameState, NAME_ENTRY_CHARS } from './state.js';
 import { canvas, ctx } from './renderer.js';
 import { isButtonJustPressed, shouldTriggerUp, shouldTriggerDown, shouldTriggerLeft, shouldTriggerRight } from './gamepad.js';
 import { saveScore } from '../shared/leaderboard.js';
+import { playMenuBlip, playCursorMove, playConfirm } from './audio.js';
 
 // ============================================
 // NAME ENTRY CONSTANTS
@@ -33,10 +34,12 @@ export function updateNameEntry(deltaTime) {
             // Move to next character
             gameState.nameEntryCharIndex = (gameState.nameEntryCharIndex + 1) % NAME_ENTRY_CHARS.length;
             gameState.nameEntryChars[gameState.nameEntryCursor] = NAME_ENTRY_CHARS[gameState.nameEntryCharIndex];
+            playMenuBlip();
         } else if (shouldTriggerDown()) {
             // Move to previous character
             gameState.nameEntryCharIndex = (gameState.nameEntryCharIndex - 1 + NAME_ENTRY_CHARS.length) % NAME_ENTRY_CHARS.length;
             gameState.nameEntryChars[gameState.nameEntryCursor] = NAME_ENTRY_CHARS[gameState.nameEntryCharIndex];
+            playMenuBlip();
         }
     }
 
@@ -50,6 +53,7 @@ export function updateNameEntry(deltaTime) {
                 gameState.nameEntryCharIndex = NAME_ENTRY_CHARS.indexOf(currentChar);
                 if (gameState.nameEntryCharIndex === -1) gameState.nameEntryCharIndex = 0;
             }
+            playCursorMove();
         }
     } else if (shouldTriggerLeft()) {
         if (gameState.nameEntryCursor > 0) {
@@ -58,6 +62,7 @@ export function updateNameEntry(deltaTime) {
             const currentChar = gameState.nameEntryChars[gameState.nameEntryCursor];
             gameState.nameEntryCharIndex = NAME_ENTRY_CHARS.indexOf(currentChar);
             if (gameState.nameEntryCharIndex === -1) gameState.nameEntryCharIndex = 0;
+            playCursorMove();
         }
     }
 
@@ -65,6 +70,7 @@ export function updateNameEntry(deltaTime) {
     if (isButtonJustPressed()) {
         if (gameState.nameEntryCursor === 3) {
             // END selected - submit the name
+            playConfirm();
             const name = gameState.nameEntryChars.join('');
             saveScore(name, gameState.score);
 
@@ -75,6 +81,7 @@ export function updateNameEntry(deltaTime) {
             return true;
         } else {
             // Move to next position
+            playConfirm();
             gameState.nameEntryCursor++;
             if (gameState.nameEntryCursor < 3) {
                 const currentChar = gameState.nameEntryChars[gameState.nameEntryCursor];

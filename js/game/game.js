@@ -4,6 +4,7 @@
    ============================================ */
 
 import { gameState, inputState, resetGameState, resetAttractMode, loadHighScore } from './state.js';
+import { initAudio, toggleMute, startMusic, stopMusic, playCountdownBeep, playGameOver } from './audio.js';
 import { player, flowers, eaters, particles, initClouds, initPineTrees, initPlayer } from './entities.js';
 import { update, spawnFlower } from './physics.js';
 import { canvas, draw } from './renderer.js';
@@ -109,6 +110,11 @@ export function startGame() {
     eaters.length = 0;
     particles.length = 0;
 
+    // Start music and first countdown beep
+    initAudio();
+    startMusic();
+    playCountdownBeep(3);
+
     // Spawn initial flowers immediately at different heights
     spawnFlower();
 
@@ -144,6 +150,8 @@ export function startGame() {
  */
 function gameOver() {
     if (gameState.gameOverShown) return;
+    stopMusic();
+    playGameOver();
     gameState.gameActive = false;
     player.velocityY = 0;
     player.velocityX = 0;
@@ -188,6 +196,14 @@ gameState.topScores = loadLeaderboard();
 
 // Start in attract mode
 gameState.attractMode = true;
+
+// Keyboard: unlock AudioContext on any key, toggle mute with M
+document.addEventListener('keydown', (e) => {
+    initAudio();
+    if (e.key === 'm' || e.key === 'M') {
+        toggleMute();
+    }
+});
 
 // Start game loop
 lastFrameTime = performance.now();

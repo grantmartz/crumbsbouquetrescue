@@ -20,6 +20,7 @@ import {
 
 import { gameState } from './state.js';
 import { loadLeaderboard } from '../shared/leaderboard.js';
+import { drawMuteIndicator } from './audio.js';
 
 import {
     SPRITE_COLOR,
@@ -495,4 +496,7 @@ export function draw() {
     if (!gameState.gameActive && !gameState.gameOverShown && gameState.countdown === 0 && !gameState.gameStarted) {
         // Don't draw anything - START GAME button handles this
     }
+
+    // Mute indicator — small red dot when muted
+    drawMuteIndicator(ctx);
 }

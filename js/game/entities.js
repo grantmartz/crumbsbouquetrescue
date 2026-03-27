@@ -25,8 +25,8 @@ import {
 export const player = {
     x: CANVAS_WIDTH / 2,
     y: 100,
-    width: 60,
-    height: 50,
+    width: 75,
+    height: 65,
     velocityY: 0,
     velocityX: 0,
     gravity: 0.2,  // Reduced for slower falling
