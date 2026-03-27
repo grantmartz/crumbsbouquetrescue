@@ -347,7 +347,7 @@ export function draw() {
     // Draw score on canvas (upper right corner) - only during active game
     if (!gameState.attractMode) {
         ctx.fillStyle = '#d44e3a';
-        ctx.font = 'bold 28px Rockwell, Georgia, serif';
+        ctx.font = 'bold 28px Arvo, Rockwell, Georgia, serif';
         ctx.textAlign = 'right';
         ctx.fillText('Score: ' + gameState.score, canvas.width - 20, 40);
     }
@@ -355,7 +355,7 @@ export function draw() {
     // Draw bonus text
     if (gameState.bonusText) {
         ctx.fillStyle = '#4a9eff';
-        ctx.font = 'bold 24px Rockwell, Georgia, serif';
+        ctx.font = 'bold 24px Arvo, Rockwell, Georgia, serif';
         ctx.textAlign = 'center';
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 3;
@@ -365,7 +365,7 @@ export function draw() {
 
     // Draw countdown if active
     if (gameState.countdown > 0) {
-        ctx.font = 'bold 80px Rockwell, Georgia, serif';
+        ctx.font = 'bold 80px Arvo, Rockwell, Georgia, serif';
         ctx.textAlign = 'center';
         ctx.strokeStyle = '#d44e3a';
         ctx.lineWidth = 4;
@@ -376,7 +376,7 @@ export function draw() {
 
     // Draw scolding text during game over
     if (gameState.gameOverPhase === 'scolding') {
-        ctx.font = 'bold 64px Rockwell, Georgia, serif';
+        ctx.font = 'bold 64px Arvo, Rockwell, Georgia, serif';
         ctx.textAlign = 'center';
 
         // Yellow outline
@@ -404,7 +404,7 @@ export function draw() {
         const cx = canvas.width / 2;
 
         // "GAME OVER" header
-        ctx.font = 'bold 52px Rockwell, Georgia, serif';
+        ctx.font = 'bold 52px Arvo, Rockwell, Georgia, serif';
         ctx.textAlign = 'center';
         ctx.strokeStyle = '#e8b84d';
         ctx.lineWidth = 4;
@@ -414,12 +414,12 @@ export function draw() {
 
         // Current score
         ctx.fillStyle = '#f5a3b5';
-        ctx.font = 'bold 28px Rockwell, Georgia, serif';
+        ctx.font = 'bold 28px Arvo, Rockwell, Georgia, serif';
         ctx.fillText('Score: ' + gameState.score, cx, 108);
 
         // Leaderboard title
         ctx.fillStyle = '#e8b84d';
-        ctx.font = 'bold 22px Rockwell, Georgia, serif';
+        ctx.font = 'bold 22px Arvo, Rockwell, Georgia, serif';
         ctx.fillText('HIGH SCORES', cx, 148);
 
         // Divider line
@@ -455,13 +455,13 @@ export function draw() {
                 // Rank
                 ctx.textAlign = 'right';
                 ctx.fillStyle = isPlayerScore ? '#e8b84d' : '#aaa';
-                ctx.font = 'bold 20px Rockwell, Georgia, serif';
+                ctx.font = 'bold 20px Arvo, Rockwell, Georgia, serif';
                 ctx.fillText(i + 1 + '.', cx - 120, rowY);
 
                 // Name
                 ctx.textAlign = 'left';
                 ctx.fillStyle = isPlayerScore ? '#e8b84d' : '#fef9f0';
-                ctx.font = 'bold 22px Rockwell, Georgia, serif';
+                ctx.font = 'bold 22px Arvo, Rockwell, Georgia, serif';
                 ctx.fillText(entry.name, cx - 100, rowY);
 
                 // Score
@@ -472,11 +472,11 @@ export function draw() {
                 // Empty slot
                 ctx.textAlign = 'right';
                 ctx.fillStyle = '#555';
-                ctx.font = 'bold 20px Rockwell, Georgia, serif';
+                ctx.font = 'bold 20px Arvo, Rockwell, Georgia, serif';
                 ctx.fillText(i + 1 + '.', cx - 120, rowY);
                 ctx.textAlign = 'left';
                 ctx.fillStyle = '#555';
-                ctx.font = '20px Rockwell, Georgia, serif';
+                ctx.font = '20px Arvo, Rockwell, Georgia, serif';
                 ctx.fillText('---', cx - 100, rowY);
                 ctx.textAlign = 'right';
                 ctx.fillText('---', cx + 170, rowY);
@@ -486,7 +486,7 @@ export function draw() {
         // "Press Start to Continue"
         ctx.textAlign = 'center';
         ctx.fillStyle = '#e8b84d';
-        ctx.font = 'bold 22px Rockwell, Georgia, serif';
+        ctx.font = 'bold 22px Arvo, Rockwell, Georgia, serif';
         ctx.fillText('Press Start to Continue', cx, startY + maxRows * rowHeight + 18);
     }
 

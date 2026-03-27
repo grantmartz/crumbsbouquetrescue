@@ -83,7 +83,7 @@ export function drawAttractOverlay() {
     // "PRESS START" on both screens
     const showStartText = Math.floor(gameState.attractFlashTimer / FLASH_INTERVAL) % 2 === 0;
     if (showStartText) {
-        ctx.font = 'bold 36px Rockwell, Georgia, serif';
+        ctx.font = 'bold 36px Arvo, Rockwell, Georgia, serif';
         ctx.textAlign = 'center';
 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
@@ -112,7 +112,7 @@ function drawTitleScreen() {
         flashVisible = Math.floor(flashTimer / S1_FLASH_HALF) % 2 === 0;
     }
 
-    ctx.font = 'bold 72px Rockwell, Georgia, serif';
+    ctx.font = 'bold 72px Arvo, Rockwell, Georgia, serif';
     ctx.textAlign = 'center';
 
     TITLE_LINES.forEach((word, i) => {
@@ -159,7 +159,7 @@ function drawStaticLeaderboard() {
     const headerHeight = 55;
 
     // Title above the box
-    ctx.font = 'bold 44px Rockwell, Georgia, serif';
+    ctx.font = 'bold 44px Arvo, Rockwell, Georgia, serif';
     ctx.textAlign = 'center';
     ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
     ctx.fillText("CRUMB'S BOUQUET BOUNCE!", canvas.width / 2 + 3, startY - 18);
@@ -184,7 +184,7 @@ function drawStaticLeaderboard() {
 
     // Header
     ctx.fillStyle = '#d44e3a';
-    ctx.font = 'bold 28px Rockwell, Georgia, serif';
+    ctx.font = 'bold 28px Arvo, Rockwell, Georgia, serif';
     ctx.textAlign = 'center';
     ctx.fillText('HIGH SCORES', canvas.width / 2, startY + 35);
 
@@ -200,7 +200,7 @@ function drawStaticLeaderboard() {
     const contentHeight = leaderboardHeight - headerHeight - 20;
     const rowHeight = contentHeight / MAX_ROWS;
 
-    ctx.font = 'bold 20px Rockwell, Georgia, serif';
+    ctx.font = 'bold 20px Arvo, Rockwell, Georgia, serif';
     for (let index = 0; index < MAX_ROWS; index++) {
         const entry = gameState.topScores[index];
         const y = contentStartY + index * rowHeight + rowHeight * 0.75;
@@ -221,7 +221,7 @@ function drawStaticLeaderboard() {
                 ctx.textAlign = 'left';
                 ctx.font = '18px sans-serif';
                 ctx.fillText(medal, boxX + 50, y);
-                ctx.font = 'bold 20px Rockwell, Georgia, serif';
+                ctx.font = 'bold 20px Arvo, Rockwell, Georgia, serif';
             }
 
             // Name
@@ -237,11 +237,11 @@ function drawStaticLeaderboard() {
             // Empty slot
             ctx.textAlign = 'left';
             ctx.fillStyle = '#bbb';
-            ctx.font = '18px Rockwell, Georgia, serif';
+            ctx.font = '18px Arvo, Rockwell, Georgia, serif';
             ctx.fillText('---', boxX + 55, y);
             ctx.textAlign = 'right';
             ctx.fillText('---', boxX + boxWidth - 20, y);
-            ctx.font = 'bold 20px Rockwell, Georgia, serif';
+            ctx.font = 'bold 20px Arvo, Rockwell, Georgia, serif';
         }
     }
 }

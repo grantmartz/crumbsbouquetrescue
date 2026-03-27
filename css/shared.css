@@ -2,12 +2,26 @@
    SHARED STYLES - Crumb's Bouquet Rescue
    ============================================ */
 
+/* Bundled font — works offline on Pi kiosk */
+@font-face {
+    font-family: 'Arvo';
+    src: url('../assets/fonts/arvo-regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Arvo';
+    src: url('../assets/fonts/arvo-bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
 /* CSS Custom Properties for consistent theming */
 :root {
     --color-primary: #d44e3a;      /* Red-orange */
     --color-secondary: #e8b84d;    /* Sunshine yellow */
     --color-background: #fef9f0;   /* Cream */
-    --font-family: 'Rockwell', 'Georgia', serif;
+    --font-family: 'Arvo', 'Rockwell', 'Georgia', serif;
 }
 
 /* Universal reset */

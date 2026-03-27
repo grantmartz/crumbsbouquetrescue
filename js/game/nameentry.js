@@ -111,18 +111,18 @@ export function drawNameEntry() {
 
     // Title
     ctx.fillStyle = '#e8b84d';
-    ctx.font = 'bold 42px Rockwell, Georgia, serif';
+    ctx.font = 'bold 42px Arvo, Rockwell, Georgia, serif';
     ctx.textAlign = 'center';
     ctx.fillText('NEW HIGH SCORE!', centerX, centerY - 120);
 
     // Score
     ctx.fillStyle = '#f5a3b5';
-    ctx.font = 'bold 32px Rockwell, Georgia, serif';
+    ctx.font = 'bold 32px Arvo, Rockwell, Georgia, serif';
     ctx.fillText('Score: ' + gameState.score, centerX, centerY - 70);
 
     // Enter name prompt
     ctx.fillStyle = '#fef9f0';
-    ctx.font = '22px Rockwell, Georgia, serif';
+    ctx.font = '22px Arvo, Rockwell, Georgia, serif';
     ctx.fillText('Enter your initials:', centerX, centerY - 25);
 
     // Draw letter boxes
@@ -144,7 +144,7 @@ export function drawNameEntry() {
 
         // Letter
         ctx.fillStyle = '#3a2a1a';
-        ctx.font = 'bold 36px Rockwell, Georgia, serif';
+        ctx.font = 'bold 36px Arvo, Rockwell, Georgia, serif';
         ctx.textAlign = 'center';
         ctx.fillText(gameState.nameEntryChars[i], boxX, boxY + 12);
 
@@ -173,12 +173,12 @@ export function drawNameEntry() {
 
     // ENTER text
     ctx.fillStyle = isEndSelected ? '#fff' : '#3a2a1a';
-    ctx.font = 'bold 22px Rockwell, Georgia, serif';
+    ctx.font = 'bold 22px Arvo, Rockwell, Georgia, serif';
     ctx.textAlign = 'center';
     ctx.fillText('ENTER', endX, endY + 10);
 
     // Instructions
     ctx.fillStyle = '#f5d5c8';
-    ctx.font = '16px Rockwell, Georgia, serif';
+    ctx.font = '16px Arvo, Rockwell, Georgia, serif';
     ctx.fillText('\u2190 \u2192 Move   \u2191 \u2193 Change Letter   Button: Select', centerX, centerY + 130);
 }
