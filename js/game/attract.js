@@ -17,7 +17,7 @@ const FLASH_INTERVAL = 30;         // Frames between flash toggles
 const ATTRACT_SPAWN_INTERVAL = 80; // Slower spawn rate for bg flowers
 
 // Screen 1 — title slide + flash
-const TITLE_LINES = ["CRUMB'S", "BOUQUET", "RESCUE!"];
+const TITLE_LINES = ["CRUMB'S", "BOUQUET", "BOUNCE!"];
 const S1_WORD_INTERVAL = 50;     // frames between each word start
 const S1_WORD_SLIDE_DUR = 40;    // frames for a word to slide in
 const S1_FLASH_START = 160;      // timer value when flashing begins (all words settled by 140)
@@ -162,12 +162,12 @@ function drawStaticLeaderboard() {
     ctx.font = 'bold 44px Rockwell, Georgia, serif';
     ctx.textAlign = 'center';
     ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-    ctx.fillText("CRUMB'S BOUQUET RESCUE!", canvas.width / 2 + 3, startY - 18);
+    ctx.fillText("CRUMB'S BOUQUET BOUNCE!", canvas.width / 2 + 3, startY - 18);
     ctx.strokeStyle = '#e8b84d';
     ctx.lineWidth = 6;
-    ctx.strokeText("CRUMB'S BOUQUET RESCUE!", canvas.width / 2, startY - 21);
+    ctx.strokeText("CRUMB'S BOUQUET BOUNCE!", canvas.width / 2, startY - 21);
     ctx.fillStyle = '#d44e3a';
-    ctx.fillText("CRUMB'S BOUQUET RESCUE!", canvas.width / 2, startY - 21);
+    ctx.fillText("CRUMB'S BOUQUET BOUNCE!", canvas.width / 2, startY - 21);
 
     // Background
     ctx.fillStyle = 'rgba(245, 163, 181, 0.7)';
@@ -195,20 +195,14 @@ function drawStaticLeaderboard() {
     ctx.lineTo(boxX + boxWidth - 30, startY + 50);
     ctx.stroke();
 
-    if (gameState.topScores.length === 0) {
-        ctx.fillStyle = '#3a2a1a';
-        ctx.font = '20px Rockwell, Georgia, serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('No scores yet!', canvas.width / 2, startY + headerHeight + 60);
-        return;
-    }
-
+    const MAX_ROWS = 10;
     const contentStartY = startY + headerHeight + 10;
     const contentHeight = leaderboardHeight - headerHeight - 20;
-    const rowHeight = Math.min(28, contentHeight / gameState.topScores.length);
+    const rowHeight = contentHeight / MAX_ROWS;
 
     ctx.font = 'bold 20px Rockwell, Georgia, serif';
-    gameState.topScores.forEach((entry, index) => {
+    for (let index = 0; index < MAX_ROWS; index++) {
+        const entry = gameState.topScores[index];
         const y = contentStartY + index * rowHeight + rowHeight * 0.75;
 
         let medal = '';
@@ -218,27 +212,38 @@ function drawStaticLeaderboard() {
 
         // Rank
         ctx.textAlign = 'right';
-        ctx.fillStyle = '#d44e3a';
+        ctx.fillStyle = entry ? '#d44e3a' : '#999';
         ctx.fillText(`${index + 1}.`, boxX + 45, y);
 
-        // Medal
-        if (medal) {
+        if (entry) {
+            // Medal
+            if (medal) {
+                ctx.textAlign = 'left';
+                ctx.font = '18px sans-serif';
+                ctx.fillText(medal, boxX + 50, y);
+                ctx.font = 'bold 20px Rockwell, Georgia, serif';
+            }
+
+            // Name
             ctx.textAlign = 'left';
-            ctx.font = '18px sans-serif';
-            ctx.fillText(medal, boxX + 50, y);
+            ctx.fillStyle = '#3a2a1a';
+            ctx.fillText(entry.name, boxX + (medal ? 78 : 55), y);
+
+            // Score
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#d44e3a';
+            ctx.fillText(entry.score.toString(), boxX + boxWidth - 20, y);
+        } else {
+            // Empty slot
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#bbb';
+            ctx.font = '18px Rockwell, Georgia, serif';
+            ctx.fillText('---', boxX + 55, y);
+            ctx.textAlign = 'right';
+            ctx.fillText('---', boxX + boxWidth - 20, y);
             ctx.font = 'bold 20px Rockwell, Georgia, serif';
         }
-
-        // Name
-        ctx.textAlign = 'left';
-        ctx.fillStyle = '#3a2a1a';
-        ctx.fillText(entry.name, boxX + (medal ? 78 : 55), y);
-
-        // Score
-        ctx.textAlign = 'right';
-        ctx.fillStyle = '#d44e3a';
-        ctx.fillText(entry.score.toString(), boxX + boxWidth - 20, y);
-    });
+    }
 }
 
 // ============================================
