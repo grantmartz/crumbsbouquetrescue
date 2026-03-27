@@ -23,6 +23,7 @@ export const gameState = {
     // Combo system
     lastFlowerColor: null, // Track last bounced flower color
     comboStreak: 0, // Current streak count
+    birdCombo: 0, // Consecutive finches hit (resets on any non-finch hit)
 
     // Leaderboard state
     topScores: [], // Array of {name: string, score: number, timestamp: number}
@@ -97,6 +98,7 @@ export function resetGameState() {
     gameState.bonusText = null;
     gameState.lastFlowerColor = null;
     gameState.comboStreak = 0;
+    gameState.birdCombo = 0;
     gameState.showNameEntry = false;
     gameState.isTopTenScore = false;
     gameState.flowerSpawnTimer = 0;

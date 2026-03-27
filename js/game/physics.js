@@ -316,11 +316,15 @@ export function update(deltaTime = 1) {
                 }
                 // Update last color (only for regular flowers, not birds)
                 gameState.lastFlowerColor = flower.type;
+                // Reset bird combo on any non-finch hit
+                gameState.birdCombo = 0;
+            } else {
+                // Finch — increment bird combo, don't touch flower combo
+                gameState.birdCombo++;
             }
-            // If it's a finch, don't update lastFlowerColor or comboStreak
 
             // Calculate points based on streak
-            const pointsAwarded = flower.isFinch ? 10 : gameState.comboStreak;
+            const pointsAwarded = flower.isFinch ? 10 * gameState.birdCombo : gameState.comboStreak;
             gameState.score += pointsAwarded;
             // Score is drawn on canvas in renderer.js
 
@@ -330,8 +334,11 @@ export function update(deltaTime = 1) {
 
             // Show bonus text
             if (flower.isFinch) {
+                const birdText = gameState.birdCombo > 1
+                    ? 'Bird x' + gameState.birdCombo + '! +' + pointsAwarded + '!'
+                    : 'Bird! +10!';
                 gameState.bonusText = {
-                    text: 'Bird! +10!',
+                    text: birdText,
                     x: flower.x,
                     y: flower.y - 30,
                     timer: 0
@@ -353,7 +360,7 @@ export function update(deltaTime = 1) {
 
             // Play bounce sound
             if (flower.isFinch) {
-                playFinchHit();
+                playFinchHit(gameState.birdCombo);
             } else {
                 playBounce(gameState.comboStreak);
             }

@@ -12,7 +12,9 @@ let ctx = null;
 let masterGain = null;
 let isMuted = false;
 let lastChompTime = -1;
-let bgm = null;
+let bgmSource = null;
+let bgmBuffer = null;
+let bgmGain = null;
 
 // ============================================
 // AUDIO CONTEXT INIT (lazy — call on gesture)
@@ -35,12 +37,8 @@ export function initAudio() {
 
 export function toggleMute() {
     isMuted = !isMuted;
-    if (masterGain) {
-        masterGain.gain.value = isMuted ? 0 : 0.4;
-    }
-    if (bgm) {
-        bgm.volume = isMuted ? 0 : 0.5;
-    }
+    if (masterGain) masterGain.gain.value = isMuted ? 0 : 0.4;
+    if (bgmGain) bgmGain.gain.value = isMuted ? 0 : 0.25;
     return isMuted;
 }
 
@@ -49,24 +47,46 @@ export function getMuted() {
 }
 
 // ============================================
-// BGM (user-supplied audio file)
+// BGM (AudioBuffer — sample-accurate looping)
 // ============================================
 
-export function startMusic() {
-    if (!bgm) {
-        bgm = new Audio('assets/CrumbSong_Loop.ogg');
-        bgm.loop = true;
-        bgm.volume = isMuted ? 0 : 0.5;
+async function loadBgm() {
+    if (bgmBuffer) return;
+    try {
+        const response = await fetch('assets/CrumbSong_Loop.ogg');
+        const arrayBuffer = await response.arrayBuffer();
+        bgmBuffer = await ctx.decodeAudioData(arrayBuffer);
+    } catch (e) {
+        console.warn('BGM load failed:', e);
     }
-    bgm.currentTime = 0;
-    bgm.play().catch(() => {});
+}
+
+function playBgmBuffer() {
+    if (!bgmBuffer || !ctx) return;
+    bgmGain = ctx.createGain();
+    bgmGain.gain.value = isMuted ? 0 : 0.25;
+    bgmGain.connect(ctx.destination);
+
+    bgmSource = ctx.createBufferSource();
+    bgmSource.buffer = bgmBuffer;
+    bgmSource.loop = true;
+    bgmSource.connect(bgmGain);
+    bgmSource.start(0);
+}
+
+export async function startMusic() {
+    initAudio();
+    stopMusic();
+    await loadBgm();
+    playBgmBuffer();
 }
 
 export function stopMusic() {
-    if (bgm) {
-        bgm.pause();
-        bgm.currentTime = 0;
+    if (bgmSource) {
+        try { bgmSource.stop(); } catch (e) {}
+        bgmSource = null;
     }
+    bgmGain = null;
 }
 
 // ============================================
@@ -114,11 +134,14 @@ export function playBounce(comboStreak) {
     }
 }
 
-/** Finch/bird bonus — 3-note ascending chirp arpeggio */
-export function playFinchHit() {
+/** Finch/bird bonus — ascending chirp arpeggio, gains a note each 10-bird combo */
+export function playFinchHit(birdCombo = 1) {
     initAudio();
     if (isMuted || !ctx) return;
-    const notes = [659.25, 783.99, 1046.50]; // E5 G5 C6
+    const baseNotes = [659.25, 783.99, 1046.50]; // E5 G5 C6
+    const bonusNotes = [1174.66, 1318.51];        // D6 E6 — added at combo 10, 20
+    const extraCount = Math.min(Math.floor((birdCombo - 1) / 10), bonusNotes.length);
+    const notes = [...baseNotes, ...bonusNotes.slice(0, extraCount)];
     const t = ctx.currentTime;
     notes.forEach((freq, i) => {
         makeOsc('sine', freq, 0.25, t + i * 0.06, 0.12);
