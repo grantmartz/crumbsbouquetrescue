@@ -18,8 +18,8 @@
 
 /* CSS Custom Properties for consistent theming */
 :root {
-    --color-primary: #d44e3a;      /* Red-orange */
-    --color-secondary: #e8b84d;    /* Sunshine yellow */
+    --color-primary: #e8321a;      /* Red-orange */
+    --color-secondary: #f5c020;    /* Sunshine yellow */
     --color-background: #fef9f0;   /* Cream */
     --font-family: 'Arvo', 'Rockwell', 'Georgia', serif;
 }
