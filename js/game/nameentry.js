@@ -13,8 +13,8 @@ import { playMenuBlip, playCursorMove, playConfirm } from './audio.js';
 // NAME ENTRY CONSTANTS
 // ============================================
 
-const CHAR_WIDTH = 50;
-const CHAR_SPACING = 60;
+const CHAR_WIDTH = 62;
+const CHAR_SPACING = 76;
 const CURSOR_POSITIONS = 4; // 0, 1, 2 for letters, 3 for END
 
 // ============================================
@@ -116,74 +116,74 @@ export function drawNameEntry() {
 
     // Title
     ctx.fillStyle = '#f5c020';
-    ctx.font = 'bold 42px Arvo, Rockwell, Georgia, serif';
+    ctx.font = 'bold 52px Arvo, Rockwell, Georgia, serif';
     ctx.textAlign = 'center';
-    ctx.fillText(gameState.isOopsRecord ? 'OOPS RECORD!' : 'NEW HIGH SCORE!', centerX, centerY - 120);
+    ctx.fillText(gameState.isOopsRecord ? 'OOPS RECORD!' : 'NEW HIGH SCORE!', centerX, centerY - 132);
 
     // Score
     ctx.fillStyle = '#f5a3b5';
-    ctx.font = 'bold 32px Arvo, Rockwell, Georgia, serif';
-    ctx.fillText('Score: ' + gameState.score, centerX, centerY - 70);
+    ctx.font = 'bold 38px Arvo, Rockwell, Georgia, serif';
+    ctx.fillText('Score: ' + gameState.score, centerX, centerY - 76);
 
     // Enter name prompt
     ctx.fillStyle = '#fef9f0';
-    ctx.font = '22px Arvo, Rockwell, Georgia, serif';
-    ctx.fillText('Enter your initials:', centerX, centerY - 25);
+    ctx.font = '26px Arvo, Rockwell, Georgia, serif';
+    ctx.fillText('Enter your initials:', centerX, centerY - 22);
 
     // Draw letter boxes
     const startX = centerX - (CHAR_SPACING * 1.5);
 
     for (let i = 0; i < 3; i++) {
         const boxX = startX + (i * CHAR_SPACING);
-        const boxY = centerY + 40;
+        const boxY = centerY + 48;
         const isSelected = gameState.nameEntryCursor === i;
 
         // Box background
         ctx.fillStyle = isSelected ? '#f5c020' : 'rgba(254, 249, 240, 0.9)';
-        ctx.fillRect(boxX - CHAR_WIDTH/2, boxY - 25, CHAR_WIDTH, 50);
+        ctx.fillRect(boxX - CHAR_WIDTH/2, boxY - 31, CHAR_WIDTH, 62);
 
         // Box border
         ctx.strokeStyle = isSelected ? '#e8321a' : '#888';
-        ctx.lineWidth = isSelected ? 4 : 2;
-        ctx.strokeRect(boxX - CHAR_WIDTH/2, boxY - 25, CHAR_WIDTH, 50);
+        ctx.lineWidth = isSelected ? 5 : 2;
+        ctx.strokeRect(boxX - CHAR_WIDTH/2, boxY - 31, CHAR_WIDTH, 62);
 
         // Letter
         ctx.fillStyle = '#3a2a1a';
-        ctx.font = 'bold 36px Arvo, Rockwell, Georgia, serif';
+        ctx.font = 'bold 44px Arvo, Rockwell, Georgia, serif';
         ctx.textAlign = 'center';
-        ctx.fillText(gameState.nameEntryChars[i], boxX, boxY + 12);
+        ctx.fillText(gameState.nameEntryChars[i], boxX, boxY + 15);
 
         // Up/down arrows for selected position
         if (isSelected) {
             ctx.fillStyle = '#e8321a';
-            ctx.font = '20px sans-serif';
-            ctx.fillText('\u25B2', boxX, boxY - 35); // Up triangle
-            ctx.fillText('\u25BC', boxX, boxY + 45); // Down triangle
+            ctx.font = '24px sans-serif';
+            ctx.fillText('\u25B2', boxX, boxY - 44); // Up triangle
+            ctx.fillText('\u25BC', boxX, boxY + 58); // Down triangle
         }
     }
 
     // Draw ENTER button (moved right with more spacing)
-    const endX = startX + (3 * CHAR_SPACING) + 20;
+    const endX = startX + (3 * CHAR_SPACING) + 28;
     const endY = centerY + 40;
     const isEndSelected = gameState.nameEntryCursor === 3;
 
     // ENTER box background
     ctx.fillStyle = isEndSelected ? '#4CAF50' : 'rgba(254, 249, 240, 0.9)';
-    ctx.fillRect(endX - 45, endY - 25, 90, 50);
+    ctx.fillRect(endX - 56, endY - 31, 112, 62);
 
     // ENTER box border
     ctx.strokeStyle = isEndSelected ? '#2E7D32' : '#888';
-    ctx.lineWidth = isEndSelected ? 4 : 2;
-    ctx.strokeRect(endX - 45, endY - 25, 90, 50);
+    ctx.lineWidth = isEndSelected ? 5 : 2;
+    ctx.strokeRect(endX - 56, endY - 31, 112, 62);
 
     // ENTER text
     ctx.fillStyle = isEndSelected ? '#fff' : '#3a2a1a';
-    ctx.font = 'bold 22px Arvo, Rockwell, Georgia, serif';
+    ctx.font = 'bold 26px Arvo, Rockwell, Georgia, serif';
     ctx.textAlign = 'center';
-    ctx.fillText('ENTER', endX, endY + 10);
+    ctx.fillText('ENTER', endX, endY + 13);
 
     // Instructions
     ctx.fillStyle = '#f5d5c8';
-    ctx.font = '16px Arvo, Rockwell, Georgia, serif';
-    ctx.fillText('\u2190 \u2192 Move   \u2191 \u2193 Change Letter   Button: Select', centerX, centerY + 130);
+    ctx.font = '18px Arvo, Rockwell, Georgia, serif';
+    ctx.fillText('\u2190 \u2192 Move   \u2191 \u2193 Change Letter   Button: Select', centerX, centerY + 140);
 }
