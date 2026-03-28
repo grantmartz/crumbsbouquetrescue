@@ -184,6 +184,6 @@ export function drawNameEntry() {
 
     // Instructions
     ctx.fillStyle = '#f5d5c8';
-    ctx.font = '18px Arvo, Rockwell, Georgia, serif';
+    ctx.font = '23px Arvo, Rockwell, Georgia, serif';
     ctx.fillText('\u2190 \u2192 Move   \u2191 \u2193 Change Letter   Button: Select', centerX, centerY + 140);
 }
