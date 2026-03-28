@@ -470,13 +470,13 @@ export function draw() {
                 // Rank
                 ctx.textAlign = 'right';
                 ctx.fillStyle = isPlayerScore ? '#f5c020' : '#aaa';
-                ctx.font = 'bold 22px Arvo, Rockwell, Georgia, serif';
+                ctx.font = 'bold 26px Arvo, Rockwell, Georgia, serif';
                 ctx.fillText(i + 1 + '.', cx - 130, rowY);
 
                 // Name
                 ctx.textAlign = 'left';
                 ctx.fillStyle = isPlayerScore ? '#f5c020' : '#fef9f0';
-                ctx.font = 'bold 24px Arvo, Rockwell, Georgia, serif';
+                ctx.font = 'bold 28px Arvo, Rockwell, Georgia, serif';
                 ctx.fillText(entry.name, cx - 110, rowY);
 
                 // Score
@@ -487,11 +487,11 @@ export function draw() {
                 // Empty slot
                 ctx.textAlign = 'right';
                 ctx.fillStyle = '#555';
-                ctx.font = 'bold 22px Arvo, Rockwell, Georgia, serif';
+                ctx.font = 'bold 26px Arvo, Rockwell, Georgia, serif';
                 ctx.fillText(i + 1 + '.', cx - 130, rowY);
                 ctx.textAlign = 'left';
                 ctx.fillStyle = '#555';
-                ctx.font = '22px Arvo, Rockwell, Georgia, serif';
+                ctx.font = '26px Arvo, Rockwell, Georgia, serif';
                 ctx.fillText('---', cx - 110, rowY);
                 ctx.textAlign = 'right';
                 ctx.fillText('---', cx + 185, rowY);

@@ -32,7 +32,7 @@ const S1_TRANSITION = 550;       // timer value to switch to Screen 2 (4s hold a
 const S2_DISPLAY_FRAMES = 480;   // 8 seconds on Screen 2
 
 // Leaderboard box geometry
-const BOX_START_Y = 160;
+const BOX_START_Y = 125;
 const BOX_END_Y = 524; // canvas.height(614) - 90
 
 // ============================================
@@ -96,26 +96,26 @@ export function drawAttractOverlay() {
         if (finchWingsImage && finchWingsImage.complete) {
             ctx.drawImage(finchWingsImage, oopsBirdX - birdSize / 2, birdY - birdSize / 2, birdSize, birdSize);
         }
-        ctx.font = 'bold 22px Arvo, Rockwell, Georgia, serif';
+        ctx.font = 'bold 30px Arvo, Rockwell, Georgia, serif';
         ctx.textAlign = 'left';
         const bannerText = `${gameState.oopsRecord.name}  ${gameState.oopsRecord.score}`;
-        const textX = oopsBirdX + birdSize / 2 + 20;
+        const textX = oopsBirdX + birdSize / 2 + 27;
         const textMetrics = ctx.measureText(bannerText);
-        const bannerPad = 8;
+        const bannerPad = 11;
         ctx.fillStyle = '#ff85a1';
-        ctx.fillRect(textX - bannerPad, birdY - 20, textMetrics.width + bannerPad * 2, 28);
+        ctx.fillRect(textX - bannerPad, birdY - 27, textMetrics.width + bannerPad * 2, 38);
         // Yellow triangle tab on the left edge of the banner pointing toward the bird
         ctx.fillStyle = '#f5c020';
         ctx.beginPath();
-        ctx.moveTo(textX - bannerPad - 14, birdY - 6);  // tip pointing left
-        ctx.lineTo(textX - bannerPad, birdY - 20);       // top-right corner
-        ctx.lineTo(textX - bannerPad, birdY + 8);        // bottom-right corner
+        ctx.moveTo(textX - bannerPad - 19, birdY - 8);  // tip pointing left
+        ctx.lineTo(textX - bannerPad, birdY - 27);       // top-right corner
+        ctx.lineTo(textX - bannerPad, birdY + 11);       // bottom-right corner
         ctx.closePath();
         ctx.fill();
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.fillText(bannerText, textX + 2, birdY + 4);
+        ctx.fillText(bannerText, textX + 2, birdY + 5);
         ctx.fillStyle = '#f5c020';
-        ctx.fillText(bannerText, textX, birdY + 2);
+        ctx.fillText(bannerText, textX, birdY + 3);
     }
 
     // "PRESS START" on both screens
@@ -125,14 +125,14 @@ export function drawAttractOverlay() {
         ctx.textAlign = 'center';
 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-        ctx.fillText(START_TEXT, canvas.width / 2 + 2, canvas.height - 60);
+        ctx.fillText(START_TEXT, canvas.width / 2 + 2, canvas.height - 28);
 
         ctx.strokeStyle = '#e8321a';
         ctx.lineWidth = 3;
-        ctx.strokeText(START_TEXT, canvas.width / 2, canvas.height - 62);
+        ctx.strokeText(START_TEXT, canvas.width / 2, canvas.height - 30);
 
         ctx.fillStyle = '#f5c020';
-        ctx.fillText(START_TEXT, canvas.width / 2, canvas.height - 62);
+        ctx.fillText(START_TEXT, canvas.width / 2, canvas.height - 30);
     }
 }
 
@@ -150,7 +150,7 @@ function drawTitleScreen() {
         flashVisible = Math.floor(flashTimer / S1_FLASH_HALF) % 2 === 0;
     }
 
-    ctx.font = 'bold 90px Arvo, Rockwell, Georgia, serif';
+    ctx.font = 'bold 100px Arvo, Rockwell, Georgia, serif';
     ctx.textAlign = 'center';
 
     TITLE_LINES.forEach((word, i) => {
@@ -167,7 +167,7 @@ function drawTitleScreen() {
             x = canvas.width / 2;
         }
 
-        const y = 130 + i * 150;
+        const y = 190 + i * 130;
 
         const wordSettled = wordTimer >= S1_WORD_SLIDE_DUR;
         if (wordSettled && !flashVisible) return;
@@ -238,7 +238,7 @@ function drawStaticLeaderboard() {
     const contentHeight = leaderboardHeight - headerHeight - 20;
     const rowHeight = contentHeight / MAX_ROWS;
 
-    ctx.font = 'bold 24px Arvo, Rockwell, Georgia, serif';
+    ctx.font = 'bold 28px Arvo, Rockwell, Georgia, serif';
     for (let index = 0; index < MAX_ROWS; index++) {
         const entry = gameState.topScores[index];
         const y = contentStartY + index * rowHeight + rowHeight * 0.75;
@@ -272,11 +272,11 @@ function drawStaticLeaderboard() {
             // Empty slot
             ctx.textAlign = 'left';
             ctx.fillStyle = '#bbb';
-            ctx.font = '22px Arvo, Rockwell, Georgia, serif';
+            ctx.font = '26px Arvo, Rockwell, Georgia, serif';
             ctx.fillText('---', boxX + 62, y);
             ctx.textAlign = 'right';
             ctx.fillText('---', boxX + boxWidth - 20, y);
-            ctx.font = 'bold 24px Arvo, Rockwell, Georgia, serif';
+            ctx.font = 'bold 28px Arvo, Rockwell, Georgia, serif';
         }
     }
 }
