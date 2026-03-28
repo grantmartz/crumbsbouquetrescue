@@ -27,7 +27,7 @@ export function updateClouds() {
     clouds.forEach(cloud => {
         cloud.x += cloud.speed;
         if (cloud.x - cloud.width/2 > canvas.width) {
-            cloud.x = -cloud.width/2;
+            cloud.x = -cloud.width/2 - Math.random() * 300;
             cloud.y = Math.random() * (canvas.height * 0.4);
         }
     });
@@ -70,13 +70,16 @@ export function checkCollision(flower) {
  * Spawn a new flower (or finch!)
  */
 export function spawnFlower() {
-    // 1 in 50 chance to spawn a finch instead
-    const isFinch = Math.random() < 0.02;
+    // 1 in 50 chance to spawn a finch instead (always finch in oops mode)
+    const isFinch = gameState.oopsAllFinches || Math.random() < 0.02;
 
     // Progressive difficulty - flowers rise faster as score increases
+    // In oops mode, dampen score for difficulty so fast scoring doesn't spike speed
+    const difficultyScore = gameState.oopsAllFinches ? gameState.score * 0.25 : gameState.score;
     const baseRiseSpeed = 2;
-    const speedIncrease = Math.floor(gameState.score / 20) * 0.3; // +0.3 speed every 20 points
-    const riseSpeed = Math.min(baseRiseSpeed + speedIncrease, 4); // Cap at 4
+    const speedIncrease = Math.floor(difficultyScore / 20) * 0.3; // +0.3 speed every 20 points up to 150
+    const bonusSpeed = difficultyScore > 150 ? (difficultyScore - 150) * 0.003 : 0; // slow creep after 150
+    const riseSpeed = Math.min(baseRiseSpeed + speedIncrease + bonusSpeed, 8); // hard cap at 8
 
     const flower = {
         x: Math.random() * (canvas.width - 80) + 40,
@@ -211,7 +214,7 @@ export function update(deltaTime = 1) {
         // Show scolding for 150 frames (2.5 seconds: 1s for "No, Cricket!", 1.5s after "Bad!")
         if (gameState.gameOverTimer >= 150) {
             // Check if we should show name entry for top 10
-            if (gameState.isTopTenScore) {
+            if (gameState.isTopTenScore || gameState.isOopsRecord) {
                 gameState.gameOverPhase = 'nameentry';
                 gameState.showNameEntry = true;
                 gameState.gameOverTimer = 0;
@@ -279,8 +282,10 @@ export function update(deltaTime = 1) {
     // Spawn flowers continuously (faster as score increases)
     gameState.flowerSpawnTimer += deltaTime;
     const baseSpawnInterval = 60;
-    const spawnSpeedUp = Math.floor(gameState.score / 30) * 5; // -5 frames every 30 points
-    const currentSpawnInterval = Math.max(baseSpawnInterval - spawnSpeedUp, 35); // Min 35 frames
+    const difficultyScore = gameState.oopsAllFinches ? gameState.score * 0.25 : gameState.score;
+    const spawnSpeedUp = Math.floor(difficultyScore / 30) * 5; // -5 frames every 30 points up to 150
+    const bonusSpeedUp = difficultyScore > 150 ? (difficultyScore - 150) * 0.05 : 0; // slow creep after 150
+    const currentSpawnInterval = Math.max(baseSpawnInterval - spawnSpeedUp - bonusSpeedUp, 15); // hard floor at 15 frames
 
     if (gameState.flowerSpawnTimer >= currentSpawnInterval) {
         spawnFlower();
@@ -353,8 +358,8 @@ export function update(deltaTime = 1) {
                 };
             }
 
-            // Update high score if needed
-            if (gameState.score > gameState.highScore) {
+            // Update high score if needed (oops mode scores don't count)
+            if (!gameState.oopsAllFinches && gameState.score > gameState.highScore) {
                 saveHighScore(gameState.score);
             }
 
@@ -367,7 +372,7 @@ export function update(deltaTime = 1) {
         }
 
         // Spawn eater if flower reaches top without being bounced
-        if (!flower.bounced && !flower.eaterSpawned && flower.y < 50) {
+        if (!flower.bounced && !flower.eaterSpawned && flower.y < 50 && !gameState.oopsAllFinches) {
             // Spawn an eater at the top to "eat" this flower
             const eater = {
                 x: flower.x,

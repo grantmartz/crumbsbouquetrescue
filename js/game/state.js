@@ -12,6 +12,10 @@ export const gameState = {
     gameActive: false,
     gameStarted: false, // Track if game has been started at all
     musicStarted: false,
+    oopsAllFinches: false,
+    oopsScreen: false,
+    isOopsRecord: false,
+    oopsRecord: null,
     score: 0,
     gameOverShown: false,
     countdown: 0, // 0 = no countdown, 3, 2, 1 = counting down
@@ -106,6 +110,9 @@ export function resetGameState() {
     gameState.currentEatingFlower = null;
     gameState.attractMode = false;
     gameState.musicStarted = false;
+    gameState.oopsAllFinches = false;
+    gameState.oopsScreen = false;
+    gameState.isOopsRecord = false;
 
     // Reset name entry state
     gameState.nameEntryChars = ['A', 'A', 'A'];
@@ -127,6 +134,7 @@ export function resetAttractMode() {
     gameState.attractScreen2Timer = 0;
     gameState.gameStarted = false;
     gameState.gameActive = false;
+    gameState.oopsAllFinches = false;
     gameState.musicStarted = false;
     gameState.gameOverPhase = '';
     gameState.gameOverShown = false;

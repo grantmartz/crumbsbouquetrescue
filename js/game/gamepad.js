@@ -3,7 +3,7 @@
    USB Joystick support for kiosk mode
    ============================================ */
 
-import { inputState } from './state.js';
+import { inputState, gameState } from './state.js';
 
 // ============================================
 // JOYSTICK CONFIGURATION
@@ -17,6 +17,34 @@ const AXIS_VERTICAL = 0;
 const AXIS_HORIZONTAL = 1;
 const BUTTON_ACTION = 0;
 const DEAD_ZONE = 0.3;
+
+// ============================================
+// SECRET REFRESH COMBO
+// ============================================
+
+const REFRESH_SEQUENCE = ['up','up','up','down','down','down','down','up','up'];
+const OOPS_SEQUENCE   = ['up','up','down','down','left','right','left','right'];
+const COMBO_TIMEOUT = 3000; // ms — reset buffer if no input within this window
+const MAX_COMBO_LEN = Math.max(REFRESH_SEQUENCE.length, OOPS_SEQUENCE.length);
+let comboBuffer = [];
+let lastComboInputTime = 0;
+let prevUp = false, prevDown = false, prevLeft = false, prevRight = false;
+
+function checkCombo(input) {
+    const now = performance.now();
+    if (now - lastComboInputTime > COMBO_TIMEOUT) comboBuffer = [];
+    lastComboInputTime = now;
+    comboBuffer.push(input);
+    if (comboBuffer.length > MAX_COMBO_LEN) comboBuffer.shift();
+    const joined = comboBuffer.join(',');
+    if (joined.endsWith(REFRESH_SEQUENCE.join(','))) {
+        window.location.reload();
+    } else if (joined.endsWith(OOPS_SEQUENCE.join(','))) {
+        gameState.oopsAllFinches = true;
+        gameState.oopsScreen = true;
+        comboBuffer = [];
+    }
+}
 
 // Input repeat timing for name entry
 let lastUpTime = 0;
@@ -116,6 +144,17 @@ export function pollGamepad() {
     if (gamepad.buttons[BUTTON_ACTION]?.pressed) {
         inputState.buttonPressed = true;
     }
+
+    // Secret combo edge detection
+    if (inputState.upPressed && !prevUp)                                   checkCombo('up');
+    if (inputState.downPressed && !prevDown)                               checkCombo('down');
+    if (inputState.leftPressed && !prevLeft)                               checkCombo('left');
+    if (inputState.rightPressed && !prevRight)                             checkCombo('right');
+    if (inputState.buttonPressed && !inputState.previousButtonPressed)     checkCombo('button');
+    prevUp    = inputState.upPressed;
+    prevDown  = inputState.downPressed;
+    prevLeft  = inputState.leftPressed;
+    prevRight = inputState.rightPressed;
 }
 
 /**

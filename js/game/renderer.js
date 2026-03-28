@@ -119,6 +119,21 @@ export function drawPlayer() {
     const visualWidth = player.width * visualScale;
     const visualHeight = player.height * visualScale;
 
+    // Oops mode: draw Cricket as the player
+    if (gameState.oopsAllFinches) {
+        const mouthOpen = player.velocityY < 0; // falling = mouth open
+        const img = mouthOpen ? eaterMouthOpen : eaterMouthClosed;
+        if (img && img.complete) {
+            ctx.drawImage(img, player.x - visualWidth/2, player.y - visualHeight/2, visualWidth, visualHeight);
+        } else {
+            ctx.fillStyle = EATER_COLOR;
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, visualWidth/2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        return;
+    }
+
     if (player.image && player.image.complete) {
         ctx.drawImage(player.image, player.x - visualWidth/2, player.y - visualHeight/2, visualWidth, visualHeight);
     } else {
@@ -215,8 +230,8 @@ export function drawFlower(flower) {
  * Draw eater sprite (dog's head facing downward, with chomping animation)
  * Visual size is 10% larger than hitbox
  */
-export function drawEater(eater) {
-    const visualScale = 1.1;
+export function drawEater(eater, sizeMultiplier = 1) {
+    const visualScale = 1.1 * sizeMultiplier;
     const visualWidth = eater.width * visualScale;
     const visualHeight = eater.height * visualScale;
 
@@ -322,11 +337,11 @@ export function draw() {
     flowers.forEach(drawFlower);
 
     // Draw eaters
-    eaters.forEach(drawEater);
+    eaters.forEach(e => drawEater(e));
 
-    // Draw current eating flower (during game over)
+    // Draw current eating flower (during game over) — 2x size
     if (gameState.currentEatingFlower) {
-        drawEater(gameState.currentEatingFlower);
+        drawEater(gameState.currentEatingFlower, 1.5);
     }
 
     // Draw player (only when not in attract mode)
@@ -499,4 +514,36 @@ export function draw() {
 
     // Mute indicator — small red dot when muted
     drawMuteIndicator(ctx);
+}
+
+/**
+ * "Oops, All Finches" announcement screen
+ */
+export function drawOopsScreen() {
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+
+    // Dark overlay
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.82)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // "OOPS,"
+    ctx.textAlign = 'center';
+    ctx.font = 'bold 72px Arvo, Rockwell, Georgia, serif';
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 6;
+    ctx.strokeText('OOPS,', cx, cy - 60);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('OOPS,', cx, cy - 60);
+
+    // "ALL FINCHES"
+    ctx.font = 'bold 96px Arvo, Rockwell, Georgia, serif';
+    ctx.strokeText('ALL FINCHES', cx, cy + 50);
+    ctx.fillStyle = '#f5c020';
+    ctx.fillText('ALL FINCHES', cx, cy + 50);
+
+    // Subtitle
+    ctx.font = 'bold 24px Arvo, Rockwell, Georgia, serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('Press button to start', cx, cy + 110);
 }

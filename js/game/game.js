@@ -7,11 +7,11 @@ import { gameState, inputState, resetGameState, resetAttractMode, loadHighScore 
 import { initAudio, toggleMute, startMusic, stopMusic, playCountdownBeep, playGameOver } from './audio.js';
 import { player, flowers, eaters, particles, initClouds, initPineTrees, initPlayer } from './entities.js';
 import { update, spawnFlower } from './physics.js';
-import { canvas, draw } from './renderer.js';
+import { canvas, draw, drawOopsScreen } from './renderer.js';
 import { initGamepad, pollGamepad, isButtonJustPressed } from './gamepad.js';
 import { updateAttractMode, drawAttractOverlay, resetAttractMode as resetAttract } from './attract.js';
 import { updateNameEntry, drawNameEntry } from './nameentry.js';
-import { loadLeaderboard, isTopTen } from '../shared/leaderboard.js';
+import { loadLeaderboard, isTopTen, loadOopsRecord, isNewOopsRecord } from '../shared/leaderboard.js';
 
 // ============================================
 // TIMING
@@ -37,6 +37,24 @@ function gameLoop(currentTime) {
 
     // Poll gamepad input each frame
     pollGamepad();
+
+    // Handle oops mode announcement screen
+    if (gameState.oopsScreen) {
+        draw();
+        drawOopsScreen();
+        if (isButtonJustPressed()) {
+            gameState.oopsScreen = false;
+            startGame();
+            gameState.oopsAllFinches = true; // restore after resetGameState clears it
+            // re-spawn initial flowers now that oopsAllFinches is set
+            flowers.length = 0;
+            spawnFlower(); spawnFlower(); spawnFlower();
+            flowers[flowers.length - 2].y = canvas.height - 150;
+            flowers[flowers.length - 1].y = canvas.height - 300;
+        }
+        requestAnimationFrame(gameLoop);
+        return;
+    }
 
     // Handle attract mode
     if (gameState.attractMode) {
@@ -120,34 +138,13 @@ export function startGame() {
     initAudio();
     playCountdownBeep(3);
 
-    // Spawn initial flowers immediately at different heights
+    // Spawn 3 initial flowers at staggered heights
     spawnFlower();
-
-    // Add a second flower already partway up
-    const flower2 = {
-        x: Math.random() * (canvas.width - 80) + 40,
-        y: canvas.height - 150,
-        width: 50,
-        height: 50,
-        riseSpeed: 2,
-        bounced: false,
-        type: Math.floor(Math.random() * 4),
-        isFinch: false
-    };
-    flowers.push(flower2);
-
-    // Add a third flower even higher
-    const flower3 = {
-        x: Math.random() * (canvas.width - 80) + 40,
-        y: canvas.height - 300,
-        width: 50,
-        height: 50,
-        riseSpeed: 2,
-        bounced: false,
-        type: Math.floor(Math.random() * 4),
-        isFinch: false
-    };
-    flowers.push(flower3);
+    spawnFlower();
+    spawnFlower();
+    // Spread them vertically so they don't all start at the bottom
+    flowers[flowers.length - 2].y = canvas.height - 150;
+    flowers[flowers.length - 1].y = canvas.height - 300;
 }
 
 /**
@@ -164,8 +161,9 @@ function gameOver() {
     // Clear any in-progress eaters from normal gameplay
     eaters.length = 0;
 
-    // Check if score makes top 10 (using local leaderboard)
-    gameState.isTopTenScore = isTopTen(gameState.score);
+    // Check if score makes top 10 (oops mode scores don't count)
+    gameState.isTopTenScore = !gameState.oopsAllFinches && isTopTen(gameState.score);
+    gameState.isOopsRecord = gameState.oopsAllFinches && isNewOopsRecord(gameState.score);
 
     // Start eating phase
     gameState.gameOverPhase = 'eating';
@@ -179,8 +177,9 @@ function gameOver() {
 function returnToAttract() {
     resetAttract();
 
-    // Reload leaderboard for attract screen display
+    // Reload leaderboard and oops record for attract screen display
     gameState.topScores = loadLeaderboard();
+    gameState.oopsRecord = loadOopsRecord();
 }
 
 // ============================================
@@ -195,9 +194,10 @@ initClouds(canvas.width, canvas.height);
 initPineTrees(canvas.width);
 initPlayer(canvas.width);
 
-// Load high score and leaderboard from localStorage
+// Load high score, leaderboard, and oops record from localStorage
 loadHighScore();
 gameState.topScores = loadLeaderboard();
+gameState.oopsRecord = loadOopsRecord();
 
 // Start in attract mode
 gameState.attractMode = true;

@@ -4,13 +4,16 @@
    ============================================ */
 
 import { gameState } from './state.js';
-import { flowers, eaters, particles } from './entities.js';
+import { flowers, eaters, particles, finchWingsImage } from './entities.js';
 import { spawnFlower, updateClouds } from './physics.js';
 import { canvas, ctx } from './renderer.js';
 
 // ============================================
 // ATTRACT MODE CONSTANTS
 // ============================================
+
+// Flying oops bird state (moves right to left, starts off right edge)
+let oopsBirdX = canvas.width + 80;
 
 const START_TEXT = "PRESS START";
 const FLASH_INTERVAL = 30;         // Frames between flash toggles
@@ -53,6 +56,12 @@ export function updateAttractMode(deltaTime) {
 
     updateClouds();
 
+    // Advance oops bird if record exists
+    if (gameState.oopsRecord) {
+        oopsBirdX -= 1.2 * deltaTime;
+        if (oopsBirdX < -1200) oopsBirdX = canvas.width + 80;
+    }
+
     if (gameState.attractScreen === 1) {
         gameState.attractTitleTimer += deltaTime;
         if (gameState.attractTitleTimer >= S1_TRANSITION) {
@@ -78,6 +87,35 @@ export function drawAttractOverlay() {
         drawTitleScreen();
     } else {
         drawStaticLeaderboard();
+    }
+
+    // Flying oops bird with record holder trailing behind it
+    if (gameState.oopsRecord) {
+        const birdY = 40;
+        const birdSize = 44;
+        if (finchWingsImage && finchWingsImage.complete) {
+            ctx.drawImage(finchWingsImage, oopsBirdX - birdSize / 2, birdY - birdSize / 2, birdSize, birdSize);
+        }
+        ctx.font = 'bold 18px Arvo, Rockwell, Georgia, serif';
+        ctx.textAlign = 'left';
+        const bannerText = `${gameState.oopsRecord.name}  ${gameState.oopsRecord.score}`;
+        const textX = oopsBirdX + birdSize / 2 + 20;
+        const textMetrics = ctx.measureText(bannerText);
+        const bannerPad = 6;
+        ctx.fillStyle = '#ff85a1';
+        ctx.fillRect(textX - bannerPad, birdY - 16, textMetrics.width + bannerPad * 2, 22);
+        // Yellow triangle tab on the left edge of the banner pointing toward the bird
+        ctx.fillStyle = '#f5c020';
+        ctx.beginPath();
+        ctx.moveTo(textX - bannerPad - 12, birdY - 5);  // tip pointing left
+        ctx.lineTo(textX - bannerPad, birdY - 16);       // top-right corner
+        ctx.lineTo(textX - bannerPad, birdY + 6);        // bottom-right corner
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillText(bannerText, textX + 2, birdY + 2);
+        ctx.fillStyle = '#f5c020';
+        ctx.fillText(bannerText, textX, birdY);
     }
 
     // "PRESS START" on both screens

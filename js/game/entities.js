@@ -13,6 +13,7 @@ import {
     EATER_MOUTH_CLOSED,
     CLOUD_IMAGE,
     FINCH_IMAGE,
+    FINCH_WINGS_IMAGE,
     TREE_IMAGE,
     CANVAS_WIDTH,
     CANVAS_HEIGHT
@@ -88,6 +89,13 @@ export let finchImage = null;
 if (FINCH_IMAGE) {
     finchImage = new Image();
     finchImage.src = FINCH_IMAGE;
+}
+
+// Winged finch image (oops record bird)
+export let finchWingsImage = null;
+if (FINCH_WINGS_IMAGE) {
+    finchWingsImage = new Image();
+    finchWingsImage.src = FINCH_WINGS_IMAGE;
 }
 
 // Tree image (tiled)

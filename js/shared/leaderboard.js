@@ -84,3 +84,27 @@ export function isTopTen(score) {
 export function clearLeaderboard() {
     localStorage.removeItem(STORAGE_KEY);
 }
+
+// ============================================
+// OOPS ALL FINCHES RECORD
+// ============================================
+
+const OOPS_KEY = 'crumbs_oops_record';
+
+export function loadOopsRecord() {
+    try { return JSON.parse(localStorage.getItem(OOPS_KEY)) || null; }
+    catch (e) { return null; }
+}
+
+export function saveOopsRecord(name, score) {
+    localStorage.setItem(OOPS_KEY, JSON.stringify({
+        name: name.toUpperCase().slice(0, 3),
+        score
+    }));
+}
+
+export function isNewOopsRecord(score) {
+    if (score <= 0) return false;
+    const r = loadOopsRecord();
+    return !r || score > r.score;
+}

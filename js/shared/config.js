@@ -18,6 +18,7 @@ export const EATER_MOUTH_OPEN = 'assets/CRICKET_open_SMALL.png'; // Dog head pro
 export const EATER_MOUTH_CLOSED = 'assets/CRICKET_closed_SMALL.png'; // Dog head profile with mouth closed
 export const CLOUD_IMAGE = 'assets/CLOUD_Small.png'; // Cloud image for background
 export const FINCH_IMAGE = 'assets/FINCH_Small.png'; // Special finch sprite (1 in 50 chance)
+export const FINCH_WINGS_IMAGE = 'assets/FINCH_Wings.png'; // Winged finch for oops record bird
 export const TREE_IMAGE = 'assets/TREE_Small.png'; // Single tree image (tiled across bottom with size variations)
 
 // ============================================

@@ -6,7 +6,7 @@
 import { gameState, NAME_ENTRY_CHARS } from './state.js';
 import { canvas, ctx } from './renderer.js';
 import { isButtonJustPressed, shouldTriggerUp, shouldTriggerDown, shouldTriggerLeft, shouldTriggerRight } from './gamepad.js';
-import { saveScore } from '../shared/leaderboard.js';
+import { saveScore, saveOopsRecord } from '../shared/leaderboard.js';
 import { playMenuBlip, playCursorMove, playConfirm } from './audio.js';
 
 // ============================================
@@ -72,7 +72,12 @@ export function updateNameEntry(deltaTime) {
             // END selected - submit the name
             playConfirm();
             const name = gameState.nameEntryChars.join('');
-            saveScore(name, gameState.score);
+            if (gameState.isOopsRecord) {
+                saveOopsRecord(name, gameState.score);
+                gameState.oopsRecord = { name, score: gameState.score };
+            } else {
+                saveScore(name, gameState.score);
+            }
 
             // Transition to game over
             gameState.showNameEntry = false;
@@ -113,7 +118,7 @@ export function drawNameEntry() {
     ctx.fillStyle = '#f5c020';
     ctx.font = 'bold 42px Arvo, Rockwell, Georgia, serif';
     ctx.textAlign = 'center';
-    ctx.fillText('NEW HIGH SCORE!', centerX, centerY - 120);
+    ctx.fillText(gameState.isOopsRecord ? 'OOPS RECORD!' : 'NEW HIGH SCORE!', centerX, centerY - 120);
 
     // Score
     ctx.fillStyle = '#f5a3b5';
