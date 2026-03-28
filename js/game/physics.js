@@ -75,15 +75,24 @@ export function spawnFlower() {
 
     // Progressive difficulty - flowers rise faster as score increases
     // In oops mode, dampen score for difficulty so fast scoring doesn't spike speed
-    const difficultyScore = gameState.oopsAllFinches ? gameState.score * 0.25 : gameState.score;
+    const difficultyScore = gameState.oopsAllFinches ? gameState.score * 0.1 : gameState.score;
     const baseRiseSpeed = 2;
     const speedIncrease = Math.floor(difficultyScore / 20) * 0.3; // +0.3 speed every 20 points up to 150
     const bonusSpeed = difficultyScore > 150 ? (difficultyScore - 150) * 0.003 : 0; // slow creep after 150
     const riseSpeed = Math.min(baseRiseSpeed + speedIncrease + bonusSpeed, 8); // hard cap at 8
 
+    // Pick X with minimum horizontal separation from existing unbounced flowers
+    const minSeparation = 90;
+    let x;
+    let attempts = 0;
+    do {
+        x = Math.random() * (canvas.width - 80) + 40;
+        attempts++;
+    } while (attempts < 10 && flowers.some(f => !f.bounced && Math.abs(f.x - x) < minSeparation));
+
     const flower = {
-        x: Math.random() * (canvas.width - 80) + 40,
-        y: canvas.height,
+        x,
+        y: canvas.height + Math.random() * 40, // Stagger entry so back-to-back spawns don't overlap vertically
         width: isFinch ? 60 : 50,  // Finches are wider
         height: isFinch ? 50 : 50,
         riseSpeed: riseSpeed,
@@ -285,7 +294,7 @@ export function update(deltaTime = 1) {
     // Spawn flowers continuously (faster as score increases)
     gameState.flowerSpawnTimer += deltaTime;
     const baseSpawnInterval = 60;
-    const difficultyScore = gameState.oopsAllFinches ? gameState.score * 0.25 : gameState.score;
+    const difficultyScore = gameState.oopsAllFinches ? gameState.score * 0.1 : gameState.score;
     const spawnSpeedUp = Math.floor(difficultyScore / 30) * 5; // -5 frames every 30 points up to 150
     const bonusSpeedUp = difficultyScore > 150 ? (difficultyScore - 150) * 0.05 : 0; // slow creep after 150
     const currentSpawnInterval = Math.max(baseSpawnInterval - spawnSpeedUp - bonusSpeedUp, 15); // hard floor at 15 frames
