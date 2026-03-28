@@ -81,7 +81,7 @@ function gameLoop(currentTime) {
     }
 
     // Handle game over timeout
-    if (gameState.gameOverPhase === 'gameover') {
+    if (gameState.gameOverPhase === 'gameover' || gameState.gameOverPhase === 'birdword') {
         gameState.gameOverTimer += deltaTime;
 
         // Return to attract mode after timeout or button press

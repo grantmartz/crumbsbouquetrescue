@@ -505,6 +505,32 @@ export function draw() {
         ctx.fillText('Press Start to Continue', cx, startY + maxRows * rowHeight + 20);
     }
 
+    // "Bird is the Word" screen — shown after oops all finches when no new record
+    if (gameState.gameOverPhase === 'birdword') {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.72)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        const lines = ['BIRD IS THE WORD', '&', 'FINCH IS THE BIRD'];
+        const spacing = 90;
+
+        ctx.textAlign = 'center';
+        ctx.lineWidth = 4;
+        lines.forEach((line, i) => {
+            const y = cy - spacing + i * spacing;
+            ctx.font = i === 1 ? 'bold 72px Arvo, Rockwell, Georgia, serif' : 'bold 52px Arvo, Rockwell, Georgia, serif';
+            ctx.strokeStyle = '#f5c020';
+            ctx.strokeText(line, cx, y);
+            ctx.fillStyle = '#e8321a';
+            ctx.fillText(line, cx, y);
+        });
+
+        ctx.font = 'bold 26px Arvo, Rockwell, Georgia, serif';
+        ctx.fillStyle = '#f5c020';
+        ctx.fillText('Press Start to Continue', cx, cy + spacing * 1.8);
+    }
+
     // Name entry screen is now handled by nameentry.js
 
     // Draw "Click to Start" on initial screen

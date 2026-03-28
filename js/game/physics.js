@@ -222,6 +222,9 @@ export function update(deltaTime = 1) {
                 gameState.nameEntryChars = ['A', 'A', 'A'];
                 gameState.nameEntryCursor = 0;
                 gameState.nameEntryCharIndex = 0;
+            } else if (gameState.oopsAllFinches) {
+                gameState.gameOverPhase = 'birdword';
+                gameState.gameOverTimer = 0;
             } else {
                 gameState.gameOverPhase = 'gameover';
                 gameState.gameOverTimer = 0;
