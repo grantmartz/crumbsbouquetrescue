@@ -30,12 +30,12 @@ export function updateNameEntry(deltaTime) {
     // Handle up/down for character selection
     if (gameState.nameEntryCursor < 3) {
         // Cycling through letters
-        if (shouldTriggerUp()) {
+        if (shouldTriggerDown()) {
             // Move to next character
             gameState.nameEntryCharIndex = (gameState.nameEntryCharIndex + 1) % NAME_ENTRY_CHARS.length;
             gameState.nameEntryChars[gameState.nameEntryCursor] = NAME_ENTRY_CHARS[gameState.nameEntryCharIndex];
             playMenuBlip();
-        } else if (shouldTriggerDown()) {
+        } else if (shouldTriggerUp()) {
             // Move to previous character
             gameState.nameEntryCharIndex = (gameState.nameEntryCharIndex - 1 + NAME_ENTRY_CHARS.length) % NAME_ENTRY_CHARS.length;
             gameState.nameEntryChars[gameState.nameEntryCursor] = NAME_ENTRY_CHARS[gameState.nameEntryCharIndex];
