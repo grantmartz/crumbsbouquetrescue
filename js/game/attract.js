@@ -102,14 +102,32 @@ export function drawAttractOverlay() {
         const textX = oopsBirdX + birdSize / 2 + 27;
         const textMetrics = ctx.measureText(bannerText);
         const bannerPad = 11;
-        ctx.fillStyle = '#ff85a1';
-        ctx.fillRect(textX - bannerPad, birdY - 27, textMetrics.width + bannerPad * 2, 38);
-        // Yellow triangle tab on the left edge of the banner pointing toward the bird
+        const bannerLeft = textX - bannerPad;
+        const bannerRight = bannerLeft + textMetrics.width + bannerPad * 2;
+        const bannerTop = birdY - 27;
+        const bannerBot = birdY + 11;
+        const bannerMid = (bannerTop + bannerBot) / 2;
+        const pointExtend = 14;
+
+        // Banner body with two swallowtail points on the right
+        ctx.fillStyle = '#d94d72';
+        ctx.beginPath();
+        ctx.moveTo(bannerLeft, bannerTop);
+        ctx.lineTo(bannerRight, bannerTop);
+        ctx.lineTo(bannerRight + pointExtend, bannerMid - 7);  // top point
+        ctx.lineTo(bannerRight, bannerMid);                    // notch
+        ctx.lineTo(bannerRight + pointExtend, bannerMid + 7);  // bottom point
+        ctx.lineTo(bannerRight, bannerBot);
+        ctx.lineTo(bannerLeft, bannerBot);
+        ctx.closePath();
+        ctx.fill();
+
+        // Yellow triangle tab on the left edge pointing toward the bird
         ctx.fillStyle = '#f5c020';
         ctx.beginPath();
-        ctx.moveTo(textX - bannerPad - 19, birdY - 8);  // tip pointing left
-        ctx.lineTo(textX - bannerPad, birdY - 27);       // top-right corner
-        ctx.lineTo(textX - bannerPad, birdY + 11);       // bottom-right corner
+        ctx.moveTo(bannerLeft - 19, bannerMid);  // tip pointing left
+        ctx.lineTo(bannerLeft, bannerTop);        // top-right corner
+        ctx.lineTo(bannerLeft, bannerBot);        // bottom-right corner
         ctx.closePath();
         ctx.fill();
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
