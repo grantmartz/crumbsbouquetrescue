@@ -134,19 +134,57 @@ export function playBounce(comboStreak) {
     }
 }
 
-/** Finch/bird bonus — bird 1: 1 arpeggio, bird 2: all 3, bird 3+: all 4 */
+/** Finch/bird bonus — bird 1: 1 arpeggio, bird 2: all 3, bird 3-4: all 4, bird 5+: random phrase from curated library */
 export function playFinchHit(birdCombo = 1) {
     initAudio();
     if (isMuted || !ctx) return;
+    const t = ctx.currentTime;
+    const noteSpacing = 0.09;
+
+    if (birdCombo >= 4) {
+        // Pick a random phrase from the curated library and play it
+        const phrases = [
+            // -- Chord arpeggios (diatonic chords of C major, up then back down) --
+            [349.23, 440.00, 587.33, 698.46, 880.00, 1174.66, 1396.91, 1174.66], // Dm: F4 A4 D5 F5 A5 D6 F6 D6
+            [392.00, 493.88, 659.25, 783.99, 987.77, 1318.51, 987.77, 783.99],   // Em: G4 B4 E5 G5 B5 E6 B5 G5
+            [349.23, 440.00, 523.25, 698.46, 880.00, 1046.50, 880.00, 698.46],   // F:  F4 A4 C5 F5 A5 C6 A5 F5
+            [392.00, 493.88, 587.33, 783.99, 987.77, 1174.66, 987.77, 783.99],   // G:  G4 B4 D5 G5 B5 D6 B5 G5
+            [440.00, 523.25, 659.25, 880.00, 1046.50, 1318.51, 1046.50, 880.00], // Am: A4 C5 E5 A5 C6 E6 C6 A5
+            [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98, 1318.51, 1046.50], // C: C5 E5 G5 C6 E6 G6 E6 C6
+            // -- Scale runs --
+            [523.25, 587.33, 659.25, 698.46, 783.99, 880.00, 987.77, 1046.50], // C major C5–C6
+            [392.00, 440.00, 493.88, 523.25, 587.33, 659.25, 698.46, 783.99],  // C major G4–G5
+            [783.99, 880.00, 987.77, 1046.50, 1174.66, 1318.51, 1396.91, 1567.98], // C major G5–G6
+            [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1318.51, 1567.98], // C pentatonic C5–G6
+            // -- Fanfare figures --
+            [523.25, 659.25, 783.99, 659.25, 783.99, 1046.50, 783.99, 1046.50], // C bounce fanfare
+            [392.00, 523.25, 659.25, 783.99, 1046.50, 1318.51, 1046.50, 783.99], // leaping fourths
+            // -- Melodies (with repeated notes) --
+            [659.25, 783.99, 880.00, 783.99, 659.25, 523.25, 587.33, 659.25],   // playful bounce E5–E5
+            [523.25, 587.33, 659.25, 783.99, 880.00, 783.99, 659.25, 523.25],   // rise and fall C5–C5
+            [523.25, 587.33, 659.25, 698.46, 783.99, 659.25, 1046.50, 783.99],  // stepwise with leap
+            [523.25, 659.25, 587.33, 783.99, 698.46, 880.00, 783.99, 1046.50],  // weaving up C5–C6
+            [783.99, 880.00, 987.77, 880.00, 783.99, 659.25, 587.33, 523.25],   // high descent G5–C5
+            [523.25, 659.25, 783.99, 1046.50, 987.77, 783.99, 659.25, 523.25],  // call and response
+            [392.00, 440.00, 493.88, 523.25, 659.25, 783.99, 659.25, 523.25],   // gentle climb G4–C5
+            [523.25, 659.25, 783.99, 987.77, 1046.50, 987.77, 783.99, 659.25],  // Cmaj7 arch
+            [659.25, 783.99, 1046.50, 987.77, 880.00, 783.99, 698.46, 659.25],  // peak and step down
+            [523.25, 783.99, 659.25, 523.25, 783.99, 1046.50, 1318.51, 1046.50], // skipping up
+        ];
+        const phrase = phrases[Math.floor(Math.random() * phrases.length)];
+        phrase.forEach((freq, i) => {
+            makeOsc('sine', freq, 0.22, t + i * noteSpacing, 0.14);
+        });
+        return;
+    }
+
     const arpeggios = [
         [659.25, 783.99, 1046.50], // E5 G5 C6
         [698.46, 880.00, 1174.66], // F5 A5 D6
         [783.99, 987.77, 1318.51], // G5 B5 E6
         [880.00, 1046.50, 1396.91], // A5 C6 F6
     ];
-    const count = birdCombo >= 3 ? 4 : birdCombo === 2 ? 3 : 1;
-    const noteSpacing = 0.09;
-    const t = ctx.currentTime;
+    const count = birdCombo === 3 ? 4 : birdCombo === 2 ? 3 : 1;
     let noteIndex = 0;
     for (let b = 0; b < count; b++) {
         arpeggios[b].forEach(freq => {

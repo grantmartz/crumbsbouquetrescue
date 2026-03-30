@@ -51,12 +51,20 @@ export function checkCollision(flower) {
     const flowerLeft  = flower.x - flower.width/2;
     const flowerRight = flower.x + flower.width/2;
 
-    // Check if player is moving downward and feet overlap flower top
+    const hOverlap = playerRight > flowerLeft && playerLeft < flowerRight;
+
+    // Oops mode: eat flowers whether falling onto them or rising into them
+    if (gameState.oopsAllFinches) {
+        return hOverlap &&
+               playerBottom >= flowerTop - 15 &&
+               playerBottom <= flowerTop + 25;
+    }
+
+    // Normal mode: must be falling
     if (player.velocityY > 0 &&
         playerBottom >= flowerTop &&
         playerBottom <= flowerTop + 20 &&
-        playerRight > flowerLeft &&
-        playerLeft  < flowerRight) {
+        hOverlap) {
         return true;
     }
     return false;
