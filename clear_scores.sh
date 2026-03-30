@@ -7,7 +7,7 @@ if [ -z "$TAB_ID" ]; then
     exit 1
 fi
 
-curl -s -X POST "http://localhost:9222/json/runtime/evaluate/$TAB_ID" \
+curl -s -X POST "http://localhost:9222/devtools/page/$TAB_ID/runtime/evaluate" \
     -H "Content-Type: application/json" \
     -d '{"expression":"localStorage.removeItem(\"crumbs_leaderboard\");localStorage.removeItem(\"crumbs_oops_record\");"}' \
     > /dev/null
