@@ -12,6 +12,15 @@
         <canvas id="gameCanvas" width="920" height="614"></canvas>
     </div>
 
+    <!-- Clear leaderboard if ?reset=1 is in the URL -->
+    <script>
+        if (new URLSearchParams(window.location.search).get('reset') === '1') {
+            localStorage.removeItem('crumbs_leaderboard');
+            localStorage.removeItem('crumbs_oops_record');
+            window.location.replace(window.location.pathname);
+        }
+    </script>
+
     <!-- Game module entry point -->
     <script type="module" src="js/game/game.js"></script>
 </body>
