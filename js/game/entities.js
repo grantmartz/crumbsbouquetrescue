@@ -16,7 +16,8 @@ import {
     FINCH_WINGS_IMAGE,
     TREE_IMAGE,
     CANVAS_WIDTH,
-    CANVAS_HEIGHT
+    CANVAS_HEIGHT,
+    S
 } from '../shared/config.js';
 
 // ============================================
@@ -25,14 +26,14 @@ import {
 
 export const player = {
     x: CANVAS_WIDTH / 2,
-    y: 100,
-    width: 75,
-    height: 65,
+    y: Math.round(100 * S),
+    width: Math.round(75 * S),
+    height: Math.round(65 * S),
     velocityY: 0,
     velocityX: 0,
-    gravity: 0.2,  // Reduced for slower falling
-    bounceStrength: -8,  // Reduced from -15 to prevent bouncing off screen
-    moveSpeed: 11,  // Increased from 7 for wider 920px playing field
+    gravity: 0.2 * S,
+    bounceStrength: -8 * S,
+    moveSpeed: 11 * S,
     image: null
 };
 
@@ -135,7 +136,7 @@ export function incrementFlowerTypeCounter() {
  */
 export function initPlayer(canvasWidth) {
     player.x = canvasWidth / 2;
-    player.y = 100;
+    player.y = Math.round(100 * S);
 }
 
 /**
@@ -149,9 +150,9 @@ export function initClouds(canvasWidth, canvasHeight) {
         clouds.push({
             x: Math.random() * canvasWidth,
             y: Math.random() * (canvasHeight * 0.4),
-            width: 100 + Math.random() * 60,
-            height: 35 + Math.random() * 25,
-            speed: 0.3 + Math.random() * 0.5
+            width: (100 + Math.random() * 60) * S,
+            height: (35 + Math.random() * 25) * S,
+            speed: (0.3 + Math.random() * 0.5) * S
         });
     }
 }
@@ -162,19 +163,19 @@ export function initClouds(canvasWidth, canvasHeight) {
  */
 export function initPineTrees(canvasWidth) {
     pineTrees.length = 0; // Clear array
-    const treeSpacing = 30;  // Reduced from 60 to double tree count
+    const treeSpacing = Math.round(30 * S);
     const treeCount = Math.ceil(canvasWidth / treeSpacing) + 1;
 
     // Base dimensions for tree image
-    const baseHeight = 70;
-    const baseWidth = 50;
+    const baseHeight = Math.round(70 * S);
+    const baseWidth = Math.round(50 * S);
 
     for (let i = 0; i < treeCount; i++) {
         // Random scale between 0.85 and 1.15 (±15% variation)
         const scale = 0.85 + Math.random() * 0.3;
 
         pineTrees.push({
-            x: i * treeSpacing - 30,
+            x: i * treeSpacing - Math.round(30 * S),
             baseHeight: baseHeight,
             baseWidth: baseWidth,
             scale: scale,

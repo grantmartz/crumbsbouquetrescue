@@ -4,6 +4,8 @@
    Crumb's Bouquet Rescue
    ============================================ */
 
+import { S as _S } from '../shared/config.js';
+
 // ============================================
 // STATE
 // ============================================
@@ -309,7 +311,7 @@ export function drawMuteIndicator(ctx2d) {
     if (!isMuted) return;
     ctx2d.save();
     ctx2d.beginPath();
-    ctx2d.arc(16, 16, 8, 0, Math.PI * 2);
+    ctx2d.arc(Math.round(16 * _S), Math.round(16 * _S), Math.round(8 * _S), 0, Math.PI * 2);
     ctx2d.fillStyle = '#e03030';
     ctx2d.fill();
     ctx2d.restore();

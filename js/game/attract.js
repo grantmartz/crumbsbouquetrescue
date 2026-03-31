@@ -7,13 +7,15 @@ import { gameState } from './state.js';
 import { flowers, eaters, particles, finchWingsImage } from './entities.js';
 import { spawnFlower, updateClouds } from './physics.js';
 import { canvas, ctx } from './renderer.js';
+import { S, CANVAS_WIDTH } from '../shared/config.js';
 
 // ============================================
 // ATTRACT MODE CONSTANTS
 // ============================================
 
 // Flying oops bird state (moves right to left, starts off right edge)
-let oopsBirdX = canvas.width + 80;
+// Use CANVAS_WIDTH from config since canvas element may not be resized yet at module load time
+let oopsBirdX = CANVAS_WIDTH + Math.round(80 * S);
 
 const START_TEXT = "PRESS START";
 const FLASH_INTERVAL = 30;         // Frames between flash toggles
@@ -32,8 +34,8 @@ const S1_TRANSITION = 550;       // timer value to switch to Screen 2 (4s hold a
 const S2_DISPLAY_FRAMES = 480;   // 8 seconds on Screen 2
 
 // Leaderboard box geometry
-const BOX_START_Y = 125;
-const BOX_END_Y = 524; // canvas.height(614) - 90
+const BOX_START_Y = Math.round(125 * S);
+const BOX_END_Y = Math.round(524 * S); // scales proportionally with canvas height
 
 // ============================================
 // ATTRACT MODE UPDATE
@@ -58,8 +60,8 @@ export function updateAttractMode(deltaTime) {
 
     // Advance oops bird if record exists
     if (gameState.oopsRecord) {
-        oopsBirdX -= 1.2 * deltaTime;
-        if (oopsBirdX < -1200) oopsBirdX = canvas.width + 80;
+        oopsBirdX -= 1.2 * S * deltaTime;
+        if (oopsBirdX < -Math.round(1200 * S)) oopsBirdX = canvas.width + Math.round(80 * S);
     }
 
     if (gameState.attractScreen === 1) {
@@ -91,32 +93,32 @@ export function drawAttractOverlay() {
 
     // Flying oops bird with record holder trailing behind it
     if (gameState.oopsRecord) {
-        const birdY = 40;
-        const birdSize = 54;
+        const birdY = Math.round(40 * S);
+        const birdSize = Math.round(54 * S);
         if (finchWingsImage && finchWingsImage.complete) {
             ctx.drawImage(finchWingsImage, oopsBirdX - birdSize / 2, birdY - birdSize / 2, birdSize, birdSize);
         }
-        ctx.font = 'bold 30px Arvo, Rockwell, Georgia, serif';
+        ctx.font = `bold ${Math.round(30 * S)}px Arvo, Rockwell, Georgia, serif`;
         ctx.textAlign = 'left';
         const bannerText = `${gameState.oopsRecord.name}  ${gameState.oopsRecord.score}`;
-        const textX = oopsBirdX + birdSize / 2 + 27;
+        const textX = oopsBirdX + birdSize / 2 + Math.round(27 * S);
         const textMetrics = ctx.measureText(bannerText);
-        const bannerPad = 11;
+        const bannerPad = Math.round(11 * S);
         const bannerLeft = textX - bannerPad;
         const bannerRight = bannerLeft + textMetrics.width + bannerPad * 2;
-        const bannerTop = birdY - 27;
-        const bannerBot = birdY + 11;
+        const bannerTop = birdY - Math.round(27 * S);
+        const bannerBot = birdY + Math.round(11 * S);
         const bannerMid = (bannerTop + bannerBot) / 2;
-        const pointExtend = 14;
+        const pointExtend = Math.round(14 * S);
 
         // Banner body with two swallowtail points on the right
         ctx.fillStyle = '#d94d72';
         ctx.beginPath();
         ctx.moveTo(bannerLeft, bannerTop);
         ctx.lineTo(bannerRight, bannerTop);
-        ctx.lineTo(bannerRight + pointExtend, bannerMid - 7);  // top point
-        ctx.lineTo(bannerRight, bannerMid);                    // notch
-        ctx.lineTo(bannerRight + pointExtend, bannerMid + 7);  // bottom point
+        ctx.lineTo(bannerRight + pointExtend, bannerMid - Math.round(7 * S));  // top point
+        ctx.lineTo(bannerRight, bannerMid);                                     // notch
+        ctx.lineTo(bannerRight + pointExtend, bannerMid + Math.round(7 * S));  // bottom point
         ctx.lineTo(bannerRight, bannerBot);
         ctx.lineTo(bannerLeft, bannerBot);
         ctx.closePath();
@@ -125,32 +127,32 @@ export function drawAttractOverlay() {
         // Yellow triangle tab on the left edge pointing toward the bird
         ctx.fillStyle = '#f5c020';
         ctx.beginPath();
-        ctx.moveTo(bannerLeft - 19, bannerMid);  // tip pointing left
-        ctx.lineTo(bannerLeft, bannerTop);        // top-right corner
-        ctx.lineTo(bannerLeft, bannerBot);        // bottom-right corner
+        ctx.moveTo(bannerLeft - Math.round(19 * S), bannerMid);  // tip pointing left
+        ctx.lineTo(bannerLeft, bannerTop);                        // top-right corner
+        ctx.lineTo(bannerLeft, bannerBot);                        // bottom-right corner
         ctx.closePath();
         ctx.fill();
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.fillText(bannerText, textX + 2, birdY + 5);
+        ctx.fillText(bannerText, textX + Math.round(2 * S), birdY + Math.round(5 * S));
         ctx.fillStyle = '#f5c020';
-        ctx.fillText(bannerText, textX, birdY + 3);
+        ctx.fillText(bannerText, textX, birdY + Math.round(3 * S));
     }
 
     // "PRESS START" on both screens
     const showStartText = Math.floor(gameState.attractFlashTimer / FLASH_INTERVAL) % 2 === 0;
     if (showStartText) {
-        ctx.font = 'bold 44px Arvo, Rockwell, Georgia, serif';
+        ctx.font = `bold ${Math.round(44 * S)}px Arvo, Rockwell, Georgia, serif`;
         ctx.textAlign = 'center';
 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-        ctx.fillText(START_TEXT, canvas.width / 2 + 2, canvas.height - 28);
+        ctx.fillText(START_TEXT, canvas.width / 2 + Math.round(2 * S), canvas.height - Math.round(28 * S));
 
         ctx.strokeStyle = '#e8321a';
-        ctx.lineWidth = 3;
-        ctx.strokeText(START_TEXT, canvas.width / 2, canvas.height - 30);
+        ctx.lineWidth = Math.round(3 * S);
+        ctx.strokeText(START_TEXT, canvas.width / 2, canvas.height - Math.round(30 * S));
 
         ctx.fillStyle = '#f5c020';
-        ctx.fillText(START_TEXT, canvas.width / 2, canvas.height - 30);
+        ctx.fillText(START_TEXT, canvas.width / 2, canvas.height - Math.round(30 * S));
     }
 }
 
@@ -168,7 +170,7 @@ function drawTitleScreen() {
         flashVisible = Math.floor(flashTimer / S1_FLASH_HALF) % 2 === 0;
     }
 
-    ctx.font = 'bold 100px Arvo, Rockwell, Georgia, serif';
+    ctx.font = `bold ${Math.round(100 * S)}px Arvo, Rockwell, Georgia, serif`;
     ctx.textAlign = 'center';
 
     TITLE_LINES.forEach((word, i) => {
@@ -180,21 +182,21 @@ function drawTitleScreen() {
         if (wordTimer < S1_WORD_SLIDE_DUR) {
             const progress = wordTimer / S1_WORD_SLIDE_DUR;
             const eased = 1 - Math.pow(1 - progress, 2);
-            x = (canvas.width + 300) + (canvas.width / 2 - (canvas.width + 300)) * eased;
+            x = (canvas.width + Math.round(300 * S)) + (canvas.width / 2 - (canvas.width + Math.round(300 * S))) * eased;
         } else {
             x = canvas.width / 2;
         }
 
-        const y = 190 + i * 130;
+        const y = Math.round(190 * S) + i * Math.round(130 * S);
 
         const wordSettled = wordTimer >= S1_WORD_SLIDE_DUR;
         if (wordSettled && !flashVisible) return;
 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-        ctx.fillText(word, x + 4, y + 4);
+        ctx.fillText(word, x + Math.round(4 * S), y + Math.round(4 * S));
 
         ctx.strokeStyle = '#f5c020';
-        ctx.lineWidth = 10;
+        ctx.lineWidth = Math.round(10 * S);
         ctx.strokeText(word, x, y);
 
         ctx.fillStyle = '#e8321a';
@@ -207,56 +209,56 @@ function drawTitleScreen() {
 // ============================================
 
 function drawStaticLeaderboard() {
-    const boxX = canvas.width / 2 - 180;
-    const boxWidth = 360;
+    const boxX = canvas.width / 2 - Math.round(180 * S);
+    const boxWidth = Math.round(360 * S);
     const startY = BOX_START_Y;
     const endY = BOX_END_Y;
     const leaderboardHeight = endY - startY;
-    const headerHeight = 55;
+    const headerHeight = Math.round(55 * S);
 
     // Title above the box
-    ctx.font = 'bold 54px Arvo, Rockwell, Georgia, serif';
+    ctx.font = `bold ${Math.round(54 * S)}px Arvo, Rockwell, Georgia, serif`;
     ctx.textAlign = 'center';
     ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-    ctx.fillText("CRUMB'S BOUQUET BOUNCE!", canvas.width / 2 + 3, startY - 20);
+    ctx.fillText("CRUMB'S BOUQUET BOUNCE!", canvas.width / 2 + Math.round(3 * S), startY - Math.round(20 * S));
     ctx.strokeStyle = '#f5c020';
-    ctx.lineWidth = 7;
-    ctx.strokeText("CRUMB'S BOUQUET BOUNCE!", canvas.width / 2, startY - 24);
+    ctx.lineWidth = Math.round(7 * S);
+    ctx.strokeText("CRUMB'S BOUQUET BOUNCE!", canvas.width / 2, startY - Math.round(24 * S));
     ctx.fillStyle = '#e8321a';
-    ctx.fillText("CRUMB'S BOUQUET BOUNCE!", canvas.width / 2, startY - 24);
+    ctx.fillText("CRUMB'S BOUQUET BOUNCE!", canvas.width / 2, startY - Math.round(24 * S));
 
     // Background
     ctx.fillStyle = 'rgba(245, 163, 181, 0.7)';
     ctx.beginPath();
-    ctx.roundRect(boxX, startY, boxWidth, leaderboardHeight, 12);
+    ctx.roundRect(boxX, startY, boxWidth, leaderboardHeight, Math.round(12 * S));
     ctx.fill();
 
     // Border
     ctx.strokeStyle = '#e8321a';
-    ctx.lineWidth = 6;
+    ctx.lineWidth = Math.round(6 * S);
     ctx.beginPath();
-    ctx.roundRect(boxX, startY, boxWidth, leaderboardHeight, 12);
+    ctx.roundRect(boxX, startY, boxWidth, leaderboardHeight, Math.round(12 * S));
     ctx.stroke();
 
     // Header
     ctx.fillStyle = '#e8321a';
-    ctx.font = 'bold 34px Arvo, Rockwell, Georgia, serif';
+    ctx.font = `bold ${Math.round(34 * S)}px Arvo, Rockwell, Georgia, serif`;
     ctx.textAlign = 'center';
-    ctx.fillText('HIGH SCORES', canvas.width / 2, startY + 40);
+    ctx.fillText('HIGH SCORES', canvas.width / 2, startY + Math.round(40 * S));
 
     ctx.strokeStyle = '#e8321a';
-    ctx.lineWidth = 3;
+    ctx.lineWidth = Math.round(3 * S);
     ctx.beginPath();
-    ctx.moveTo(boxX + 30, startY + 56);
-    ctx.lineTo(boxX + boxWidth - 30, startY + 56);
+    ctx.moveTo(boxX + Math.round(30 * S), startY + Math.round(56 * S));
+    ctx.lineTo(boxX + boxWidth - Math.round(30 * S), startY + Math.round(56 * S));
     ctx.stroke();
 
     const MAX_ROWS = 10;
-    const contentStartY = startY + headerHeight + 10;
-    const contentHeight = leaderboardHeight - headerHeight - 20;
+    const contentStartY = startY + headerHeight + Math.round(10 * S);
+    const contentHeight = leaderboardHeight - headerHeight - Math.round(20 * S);
     const rowHeight = contentHeight / MAX_ROWS;
 
-    ctx.font = 'bold 28px Arvo, Rockwell, Georgia, serif';
+    ctx.font = `bold ${Math.round(28 * S)}px Arvo, Rockwell, Georgia, serif`;
     for (let index = 0; index < MAX_ROWS; index++) {
         const entry = gameState.topScores[index];
         const y = contentStartY + index * rowHeight + rowHeight * 0.75;
@@ -267,34 +269,34 @@ function drawStaticLeaderboard() {
             ctx.fillStyle = podiumColors[index];
             const rowY = contentStartY + index * rowHeight;
             ctx.beginPath();
-            ctx.roundRect(boxX + 4, rowY + 2, boxWidth - 8, rowHeight - 4, 4);
+            ctx.roundRect(boxX + Math.round(4 * S), rowY + Math.round(2 * S), boxWidth - Math.round(8 * S), rowHeight - Math.round(4 * S), Math.round(4 * S));
             ctx.fill();
         }
 
         // Rank
         ctx.textAlign = 'right';
         ctx.fillStyle = entry ? '#e8321a' : '#999';
-        ctx.fillText(`${index + 1}.`, boxX + 48, y);
+        ctx.fillText(`${index + 1}.`, boxX + Math.round(48 * S), y);
 
         if (entry) {
             // Name
             ctx.textAlign = 'left';
             ctx.fillStyle = '#3a2a1a';
-            ctx.fillText(entry.name, boxX + 62, y);
+            ctx.fillText(entry.name, boxX + Math.round(62 * S), y);
 
             // Score
             ctx.textAlign = 'right';
             ctx.fillStyle = '#e8321a';
-            ctx.fillText(entry.score.toString(), boxX + boxWidth - 20, y);
+            ctx.fillText(entry.score.toString(), boxX + boxWidth - Math.round(20 * S), y);
         } else {
             // Empty slot
             ctx.textAlign = 'left';
             ctx.fillStyle = '#bbb';
-            ctx.font = '26px Arvo, Rockwell, Georgia, serif';
-            ctx.fillText('---', boxX + 62, y);
+            ctx.font = `${Math.round(26 * S)}px Arvo, Rockwell, Georgia, serif`;
+            ctx.fillText('---', boxX + Math.round(62 * S), y);
             ctx.textAlign = 'right';
-            ctx.fillText('---', boxX + boxWidth - 20, y);
-            ctx.font = 'bold 28px Arvo, Rockwell, Georgia, serif';
+            ctx.fillText('---', boxX + boxWidth - Math.round(20 * S), y);
+            ctx.font = `bold ${Math.round(28 * S)}px Arvo, Rockwell, Georgia, serif`;
         }
     }
 }

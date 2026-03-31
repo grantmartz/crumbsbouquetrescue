@@ -13,7 +13,10 @@ import {
     incrementFlowerTypeCounter
 } from './entities.js';
 import { canvas } from './renderer.js';
-import { FLOWER_COLORS, FINCH_COLOR } from '../shared/config.js';
+import { FLOWER_COLORS, FINCH_COLOR, S } from '../shared/config.js';
+
+// Soft ceiling — scales with canvas height
+const SOFT_CEILING = Math.round(50 * S);
 import { playBounce, playFinchHit, playChomp, playCountdownBeep } from './audio.js';
 
 // ============================================
@@ -27,7 +30,7 @@ export function updateClouds() {
     clouds.forEach(cloud => {
         cloud.x += cloud.speed;
         if (cloud.x - cloud.width/2 > canvas.width) {
-            cloud.x = -cloud.width/2 - Math.random() * 300;
+            cloud.x = -cloud.width/2 - Math.random() * Math.round(300 * S);
             cloud.y = Math.random() * (canvas.height * 0.4);
         }
     });
@@ -56,14 +59,14 @@ export function checkCollision(flower) {
     // Oops mode: eat flowers whether falling onto them or rising into them
     if (gameState.oopsAllFinches) {
         return hOverlap &&
-               playerBottom >= flowerTop - 15 &&
-               playerBottom <= flowerTop + 25;
+               playerBottom >= flowerTop - Math.round(15 * S) &&
+               playerBottom <= flowerTop + Math.round(25 * S);
     }
 
     // Normal mode: must be falling
     if (player.velocityY > 0 &&
         playerBottom >= flowerTop &&
-        playerBottom <= flowerTop + 20 &&
+        playerBottom <= flowerTop + Math.round(20 * S) &&
         hOverlap) {
         return true;
     }
@@ -84,25 +87,25 @@ export function spawnFlower() {
     // Progressive difficulty - flowers rise faster as score increases
     // In oops mode, dampen score for difficulty so fast scoring doesn't spike speed
     const difficultyScore = gameState.oopsAllFinches ? gameState.score * 0.1 : gameState.score;
-    const baseRiseSpeed = 2;
-    const speedIncrease = Math.floor(difficultyScore / 20) * 0.3; // +0.3 speed every 20 points up to 150
-    const bonusSpeed = difficultyScore > 150 ? (difficultyScore - 150) * 0.003 : 0; // slow creep after 150
-    const riseSpeed = Math.min(baseRiseSpeed + speedIncrease + bonusSpeed, 8); // hard cap at 8
+    const baseRiseSpeed = 2 * S;
+    const speedIncrease = Math.floor(difficultyScore / 20) * (0.3 * S); // +0.3 speed every 20 points up to 150
+    const bonusSpeed = difficultyScore > 150 ? (difficultyScore - 150) * (0.003 * S) : 0; // slow creep after 150
+    const riseSpeed = Math.min(baseRiseSpeed + speedIncrease + bonusSpeed, 8 * S); // hard cap scales too
 
     // Pick X with minimum horizontal separation from existing unbounced flowers
-    const minSeparation = 90;
+    const minSeparation = Math.round(90 * S);
     let x;
     let attempts = 0;
     do {
-        x = Math.random() * (canvas.width - 80) + 40;
+        x = Math.random() * (canvas.width - Math.round(80 * S)) + Math.round(40 * S);
         attempts++;
     } while (attempts < 10 && flowers.some(f => !f.bounced && Math.abs(f.x - x) < minSeparation));
 
     const flower = {
         x,
-        y: canvas.height + Math.random() * 40, // Stagger entry so back-to-back spawns don't overlap vertically
-        width: isFinch ? 60 : 50,  // Finches are wider
-        height: isFinch ? 50 : 50,
+        y: canvas.height + Math.random() * Math.round(40 * S), // Stagger entry so back-to-back spawns don't overlap vertically
+        width: Math.round((isFinch ? 60 : 50) * S),  // Finches are wider
+        height: Math.round(50 * S),
         riseSpeed: riseSpeed,
         bounced: false,
         type: isFinch ? 'finch' : Math.floor(Math.random() * 4), // Random flower type 0-3
@@ -121,13 +124,13 @@ export function spawnParticles(x, y, color) {
     const particleCount = 8;
     for (let i = 0; i < particleCount; i++) {
         const angle = (Math.PI * 2 * i) / particleCount;
-        const speed = 2 + Math.random() * 2;
+        const speed = (2 + Math.random() * 2) * S;
         particles.push({
             x: x,
             y: y,
             vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed - 2, // Slight upward bias
-            size: 3 + Math.random() * 3,
+            vy: Math.sin(angle) * speed - 2 * S, // Slight upward bias
+            size: (3 + Math.random() * 3) * S,
             color: color,
             life: 1.0, // 1.0 = fully visible, 0.0 = gone
             decay: 0.015 + Math.random() * 0.01
@@ -179,8 +182,8 @@ export function update(deltaTime = 1) {
             gameState.currentEatingFlower = {
                 x: topFlower.x,
                 y: topFlower.y,
-                width: 60,
-                height: 60,
+                width: Math.round(60 * S),
+                height: Math.round(60 * S),
                 animationFrame: 0,
                 phase: 'chomp1_open'
             };
@@ -277,7 +280,7 @@ export function update(deltaTime = 1) {
     }
 
     // Apply gravity (dynamic based on height)
-    if (player.y < 50) {
+    if (player.y < SOFT_CEILING) {
         // Floaty zone - reduced gravity for more air control
         player.velocityY += player.gravity * 0.5 * deltaTime;
     } else {
@@ -287,9 +290,9 @@ export function update(deltaTime = 1) {
 
     player.y += player.velocityY * deltaTime;
 
-    // Soft ceiling - prevent going above y=50
-    if (player.y < 50) {
-        player.y = 50;
+    // Soft ceiling - prevent going above SOFT_CEILING
+    if (player.y < SOFT_CEILING) {
+        player.y = SOFT_CEILING;
         // Absorb excess upward velocity
         if (player.velocityY < 0) {
             player.velocityY = 0;
@@ -365,7 +368,7 @@ export function update(deltaTime = 1) {
                 gameState.bonusText = {
                     text: birdText,
                     x: flower.x,
-                    y: flower.y - 30,
+                    y: flower.y - Math.round(30 * S),
                     timer: 0
                 };
             } else if (gameState.comboStreak > 1) {
@@ -373,7 +376,7 @@ export function update(deltaTime = 1) {
                 gameState.bonusText = {
                     text: '+' + gameState.comboStreak + '!',
                     x: flower.x,
-                    y: flower.y - 30,
+                    y: flower.y - Math.round(30 * S),
                     timer: 0
                 };
             }
@@ -392,15 +395,15 @@ export function update(deltaTime = 1) {
         }
 
         // Spawn eater if flower reaches top without being bounced
-        if (!flower.bounced && !flower.eaterSpawned && flower.y < 50 && !gameState.oopsAllFinches) {
+        if (!flower.bounced && !flower.eaterSpawned && flower.y < SOFT_CEILING && !gameState.oopsAllFinches) {
             // Spawn an eater at the top to "eat" this flower
             const eater = {
                 x: flower.x,
-                y: -50,
-                targetY: 20, // Stop at y=20
-                width: 60,
-                height: 60,
-                speed: 3,
+                y: -Math.round(50 * S),
+                targetY: Math.round(20 * S),
+                width: Math.round(74 * S),
+                height: Math.round(74 * S),
+                speed: 3 * S,
                 animationFrame: 0,
                 phase: 'descending',
                 isGameOverEater: false
@@ -410,7 +413,7 @@ export function update(deltaTime = 1) {
         }
 
         // Remove flowers that were bounced or went way off screen
-        if (flower.bounced || flower.y < -100) {
+        if (flower.bounced || flower.y < -Math.round(100 * S)) {
             flowers.splice(i, 1);
         }
     }
@@ -456,10 +459,10 @@ export function update(deltaTime = 1) {
             }
         } else if (eater.phase === 'leaving') {
             // Slide back up
-            eater.y -= 5 * deltaTime;
+            eater.y -= 5 * S * deltaTime;
 
             // Remove when off screen
-            if (eater.y < -eater.height - 20) {
+            if (eater.y < -eater.height - Math.round(20 * S)) {
                 eaters.splice(i, 1);
             }
         }
@@ -474,7 +477,7 @@ export function update(deltaTime = 1) {
     // Update bonus text timer
     if (gameState.bonusText) {
         gameState.bonusText.timer += deltaTime;
-        gameState.bonusText.y -= 1 * deltaTime; // Float upward
+        gameState.bonusText.y -= 1 * S * deltaTime; // Float upward
         if (gameState.bonusText.timer >= 60) { // Show for 1 second
             gameState.bonusText = null;
         }
@@ -485,7 +488,7 @@ export function update(deltaTime = 1) {
         const p = particles[i];
         p.x += p.vx * deltaTime;
         p.y += p.vy * deltaTime;
-        p.vy += 0.1 * deltaTime; // Gravity
+        p.vy += 0.1 * S * deltaTime; // Gravity
         p.life -= p.decay * deltaTime;
 
         if (p.life <= 0) {

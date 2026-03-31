@@ -12,6 +12,7 @@ import { initGamepad, pollGamepad, isButtonJustPressed } from './gamepad.js';
 import { updateAttractMode, drawAttractOverlay, resetAttractMode as resetAttract } from './attract.js';
 import { updateNameEntry, drawNameEntry } from './nameentry.js';
 import { loadLeaderboard, isTopTen, loadOopsRecord, isNewOopsRecord } from '../shared/leaderboard.js';
+import { CANVAS_WIDTH, CANVAS_HEIGHT, S } from '../shared/config.js';
 
 // ============================================
 // TIMING
@@ -53,8 +54,8 @@ function gameLoop(currentTime) {
             // re-spawn initial flowers now that oopsAllFinches is set
             flowers.length = 0;
             spawnFlower(); spawnFlower(); spawnFlower();
-            flowers[flowers.length - 2].y = canvas.height - 150;
-            flowers[flowers.length - 1].y = canvas.height - 300;
+            flowers[flowers.length - 2].y = canvas.height - Math.round(150 * S);
+            flowers[flowers.length - 1].y = canvas.height - Math.round(300 * S);
         }
         requestAnimationFrame(gameLoop);
         return;
@@ -129,7 +130,7 @@ export function startGame() {
 
     // Reset player
     player.x = canvas.width / 2;
-    player.y = 100;
+    player.y = Math.round(100 * S);
     player.velocityY = 0;
     player.velocityX = 0;
 
@@ -147,8 +148,8 @@ export function startGame() {
     spawnFlower();
     spawnFlower();
     // Spread them vertically so they don't all start at the bottom
-    flowers[flowers.length - 2].y = canvas.height - 150;
-    flowers[flowers.length - 1].y = canvas.height - 300;
+    flowers[flowers.length - 2].y = canvas.height - Math.round(150 * S);
+    flowers[flowers.length - 1].y = canvas.height - Math.round(300 * S);
 }
 
 /**
@@ -192,6 +193,10 @@ function returnToAttract() {
 
 // Initialize gamepad
 initGamepad();
+
+// Set canvas to target resolution before anything else
+canvas.width  = CANVAS_WIDTH;
+canvas.height = CANVAS_HEIGHT;
 
 // Initialize clouds and trees
 initClouds(canvas.width, canvas.height);

@@ -28,7 +28,8 @@ import {
     CLOUD_COLOR,
     EATER_COLOR,
     FINCH_COLOR,
-    TREE_COLOR
+    TREE_COLOR,
+    S
 } from '../shared/config.js';
 
 // ============================================
@@ -204,7 +205,7 @@ export function drawFlower(flower) {
         ctx.fillStyle = FLOWER_COLORS[flower.type];
 
         // Stem
-        ctx.fillRect(flower.x - 3, flower.y, 6, flower.height/2);
+        ctx.fillRect(flower.x - Math.round(3 * S), flower.y, Math.round(6 * S), flower.height/2);
 
         // Petals (5 circles around center)
         const petalRadius = flower.width/5;
@@ -308,8 +309,8 @@ export function draw() {
 
     // Draw very subtle diagonal line texture
     ctx.strokeStyle = 'rgba(232, 184, 77, 0.07)';  // Light yellow, very transparent
-    ctx.lineWidth = 6;
-    const lineSpacing = 20;
+    ctx.lineWidth = Math.round(6 * S);
+    const lineSpacing = Math.round(20 * S);
     for (let i = -canvas.height; i < canvas.width + canvas.height; i += lineSpacing) {
         ctx.beginPath();
         ctx.moveTo(i, 0);
@@ -362,28 +363,28 @@ export function draw() {
     // Draw score on canvas (upper right corner) - only during active game
     if (!gameState.attractMode) {
         ctx.fillStyle = '#e8321a';
-        ctx.font = 'bold 34px Arvo, Rockwell, Georgia, serif';
+        ctx.font = `bold ${Math.round(34 * S)}px Arvo, Rockwell, Georgia, serif`;
         ctx.textAlign = 'right';
-        ctx.fillText('Score: ' + gameState.score, canvas.width - 20, 42);
+        ctx.fillText('Score: ' + gameState.score, canvas.width - Math.round(20 * S), Math.round(42 * S));
     }
 
     // Draw bonus text
     if (gameState.bonusText) {
         ctx.fillStyle = '#4a9eff';
-        ctx.font = 'bold 28px Arvo, Rockwell, Georgia, serif';
+        ctx.font = `bold ${Math.round(28 * S)}px Arvo, Rockwell, Georgia, serif`;
         ctx.textAlign = 'center';
         ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = Math.round(3 * S);
         ctx.strokeText(gameState.bonusText.text, gameState.bonusText.x, gameState.bonusText.y);
         ctx.fillText(gameState.bonusText.text, gameState.bonusText.x, gameState.bonusText.y);
     }
 
     // Draw countdown if active
     if (gameState.countdown > 0) {
-        ctx.font = 'bold 96px Arvo, Rockwell, Georgia, serif';
+        ctx.font = `bold ${Math.round(96 * S)}px Arvo, Rockwell, Georgia, serif`;
         ctx.textAlign = 'center';
         ctx.strokeStyle = '#e8321a';
-        ctx.lineWidth = 4;
+        ctx.lineWidth = Math.round(4 * S);
         ctx.strokeText(gameState.countdown.toString(), canvas.width/2, canvas.height/2);
         ctx.fillStyle = '#f5c020';  // Sunshine yellow
         ctx.fillText(gameState.countdown.toString(), canvas.width/2, canvas.height/2);
@@ -391,22 +392,22 @@ export function draw() {
 
     // Draw scolding text during game over
     if (gameState.gameOverPhase === 'scolding') {
-        ctx.font = 'bold 78px Arvo, Rockwell, Georgia, serif';
+        ctx.font = `bold ${Math.round(78 * S)}px Arvo, Rockwell, Georgia, serif`;
         ctx.textAlign = 'center';
 
         // Yellow outline
         ctx.strokeStyle = '#f5c020';
-        ctx.lineWidth = 4;
-        ctx.strokeText('No, Cricket!', canvas.width/2, canvas.height/2 - 46);
+        ctx.lineWidth = Math.round(4 * S);
+        ctx.strokeText('No, Cricket!', canvas.width/2, canvas.height/2 - Math.round(46 * S));
 
         // Red fill
         ctx.fillStyle = '#e8321a';
-        ctx.fillText('No, Cricket!', canvas.width/2, canvas.height/2 - 46);
+        ctx.fillText('No, Cricket!', canvas.width/2, canvas.height/2 - Math.round(46 * S));
 
         // Show "Bad!" after a full second (60 frames)
         if (gameState.gameOverTimer >= 60) {
-            ctx.strokeText('Bad!', canvas.width/2, canvas.height/2 + 50);
-            ctx.fillText('Bad!', canvas.width/2, canvas.height/2 + 50);
+            ctx.strokeText('Bad!', canvas.width/2, canvas.height/2 + Math.round(50 * S));
+            ctx.fillText('Bad!', canvas.width/2, canvas.height/2 + Math.round(50 * S));
         }
     }
 
@@ -419,36 +420,36 @@ export function draw() {
         const cx = canvas.width / 2;
 
         // "GAME OVER" header
-        ctx.font = 'bold 62px Arvo, Rockwell, Georgia, serif';
+        ctx.font = `bold ${Math.round(62 * S)}px Arvo, Rockwell, Georgia, serif`;
         ctx.textAlign = 'center';
         ctx.strokeStyle = '#f5c020';
-        ctx.lineWidth = 4;
-        ctx.strokeText('GAME OVER', cx, 72);
+        ctx.lineWidth = Math.round(4 * S);
+        ctx.strokeText('GAME OVER', cx, Math.round(72 * S));
         ctx.fillStyle = '#e8321a';
-        ctx.fillText('GAME OVER', cx, 72);
+        ctx.fillText('GAME OVER', cx, Math.round(72 * S));
 
         // Current score
         ctx.fillStyle = '#f5a3b5';
-        ctx.font = 'bold 34px Arvo, Rockwell, Georgia, serif';
-        ctx.fillText('Score: ' + gameState.score, cx, 114);
+        ctx.font = `bold ${Math.round(34 * S)}px Arvo, Rockwell, Georgia, serif`;
+        ctx.fillText('Score: ' + gameState.score, cx, Math.round(114 * S));
 
         // Leaderboard title
         ctx.fillStyle = '#f5c020';
-        ctx.font = 'bold 26px Arvo, Rockwell, Georgia, serif';
-        ctx.fillText('HIGH SCORES', cx, 154);
+        ctx.font = `bold ${Math.round(26 * S)}px Arvo, Rockwell, Georgia, serif`;
+        ctx.fillText('HIGH SCORES', cx, Math.round(154 * S));
 
         // Divider line
         ctx.strokeStyle = '#f5c020';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = Math.round(2 * S);
         ctx.beginPath();
-        ctx.moveTo(cx - 185, 166);
-        ctx.lineTo(cx + 185, 166);
+        ctx.moveTo(cx - Math.round(185 * S), Math.round(166 * S));
+        ctx.lineTo(cx + Math.round(185 * S), Math.round(166 * S));
         ctx.stroke();
 
         // Leaderboard rows
         const scores = loadLeaderboard();
-        const rowHeight = 36;
-        const startY = 194;
+        const rowHeight = Math.round(36 * S);
+        const startY = Math.round(194 * S);
         const maxRows = 10;
 
         for (let i = 0; i < maxRows; i++) {
@@ -463,46 +464,46 @@ export function draw() {
 
             if (isPlayerScore) {
                 ctx.fillStyle = 'rgba(232, 184, 77, 0.25)';
-                ctx.fillRect(cx - 185, rowY - 22, 370, rowHeight);
+                ctx.fillRect(cx - Math.round(185 * S), rowY - Math.round(22 * S), Math.round(370 * S), rowHeight);
             }
 
             if (entry) {
                 // Rank
                 ctx.textAlign = 'right';
                 ctx.fillStyle = isPlayerScore ? '#f5c020' : '#aaa';
-                ctx.font = 'bold 26px Arvo, Rockwell, Georgia, serif';
-                ctx.fillText(i + 1 + '.', cx - 130, rowY);
+                ctx.font = `bold ${Math.round(26 * S)}px Arvo, Rockwell, Georgia, serif`;
+                ctx.fillText(i + 1 + '.', cx - Math.round(130 * S), rowY);
 
                 // Name
                 ctx.textAlign = 'left';
                 ctx.fillStyle = isPlayerScore ? '#f5c020' : '#fef9f0';
-                ctx.font = 'bold 28px Arvo, Rockwell, Georgia, serif';
-                ctx.fillText(entry.name, cx - 110, rowY);
+                ctx.font = `bold ${Math.round(28 * S)}px Arvo, Rockwell, Georgia, serif`;
+                ctx.fillText(entry.name, cx - Math.round(110 * S), rowY);
 
                 // Score
                 ctx.textAlign = 'right';
                 ctx.fillStyle = isPlayerScore ? '#f5a3b5' : '#fef9f0';
-                ctx.fillText(entry.score, cx + 185, rowY);
+                ctx.fillText(entry.score, cx + Math.round(185 * S), rowY);
             } else {
                 // Empty slot
                 ctx.textAlign = 'right';
                 ctx.fillStyle = '#555';
-                ctx.font = 'bold 26px Arvo, Rockwell, Georgia, serif';
-                ctx.fillText(i + 1 + '.', cx - 130, rowY);
+                ctx.font = `bold ${Math.round(26 * S)}px Arvo, Rockwell, Georgia, serif`;
+                ctx.fillText(i + 1 + '.', cx - Math.round(130 * S), rowY);
                 ctx.textAlign = 'left';
                 ctx.fillStyle = '#555';
-                ctx.font = '26px Arvo, Rockwell, Georgia, serif';
-                ctx.fillText('---', cx - 110, rowY);
+                ctx.font = `${Math.round(26 * S)}px Arvo, Rockwell, Georgia, serif`;
+                ctx.fillText('---', cx - Math.round(110 * S), rowY);
                 ctx.textAlign = 'right';
-                ctx.fillText('---', cx + 185, rowY);
+                ctx.fillText('---', cx + Math.round(185 * S), rowY);
             }
         }
 
         // "Press Start to Continue"
         ctx.textAlign = 'center';
         ctx.fillStyle = '#f5c020';
-        ctx.font = 'bold 26px Arvo, Rockwell, Georgia, serif';
-        ctx.fillText('Press Start to Continue', cx, startY + maxRows * rowHeight + 20);
+        ctx.font = `bold ${Math.round(26 * S)}px Arvo, Rockwell, Georgia, serif`;
+        ctx.fillText('Press Start to Continue', cx, startY + maxRows * rowHeight + Math.round(20 * S));
     }
 
     // "Bird is the Word" screen — shown after oops all finches when no new record
@@ -513,20 +514,20 @@ export function draw() {
         const cx = canvas.width / 2;
         const cy = canvas.height / 2;
         const lines = ['BIRD IS THE WORD', '&', 'FINCH IS THE BIRD'];
-        const spacing = 90;
+        const spacing = Math.round(90 * S);
 
         ctx.textAlign = 'center';
-        ctx.lineWidth = 4;
+        ctx.lineWidth = Math.round(4 * S);
         lines.forEach((line, i) => {
             const y = cy - spacing + i * spacing;
-            ctx.font = i === 1 ? 'bold 72px Arvo, Rockwell, Georgia, serif' : 'bold 52px Arvo, Rockwell, Georgia, serif';
+            ctx.font = i === 1 ? `bold ${Math.round(72 * S)}px Arvo, Rockwell, Georgia, serif` : `bold ${Math.round(52 * S)}px Arvo, Rockwell, Georgia, serif`;
             ctx.strokeStyle = '#f5c020';
             ctx.strokeText(line, cx, y);
             ctx.fillStyle = '#e8321a';
             ctx.fillText(line, cx, y);
         });
 
-        ctx.font = 'bold 26px Arvo, Rockwell, Georgia, serif';
+        ctx.font = `bold ${Math.round(26 * S)}px Arvo, Rockwell, Georgia, serif`;
         ctx.fillStyle = '#f5c020';
         ctx.fillText('Press Start to Continue', cx, cy + spacing * 1.8);
     }
@@ -555,21 +556,21 @@ export function drawOopsScreen() {
 
     // "OOPS,"
     ctx.textAlign = 'center';
-    ctx.font = 'bold 72px Arvo, Rockwell, Georgia, serif';
+    ctx.font = `bold ${Math.round(72 * S)}px Arvo, Rockwell, Georgia, serif`;
     ctx.strokeStyle = '#000';
-    ctx.lineWidth = 6;
-    ctx.strokeText('OOPS,', cx, cy - 60);
+    ctx.lineWidth = Math.round(6 * S);
+    ctx.strokeText('OOPS,', cx, cy - Math.round(60 * S));
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('OOPS,', cx, cy - 60);
+    ctx.fillText('OOPS,', cx, cy - Math.round(60 * S));
 
     // "ALL FINCHES"
-    ctx.font = 'bold 96px Arvo, Rockwell, Georgia, serif';
-    ctx.strokeText('ALL FINCHES', cx, cy + 50);
+    ctx.font = `bold ${Math.round(96 * S)}px Arvo, Rockwell, Georgia, serif`;
+    ctx.strokeText('ALL FINCHES', cx, cy + Math.round(50 * S));
     ctx.fillStyle = '#f5c020';
-    ctx.fillText('ALL FINCHES', cx, cy + 50);
+    ctx.fillText('ALL FINCHES', cx, cy + Math.round(50 * S));
 
     // Subtitle
-    ctx.font = 'bold 24px Arvo, Rockwell, Georgia, serif';
+    ctx.font = `bold ${Math.round(24 * S)}px Arvo, Rockwell, Georgia, serif`;
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('Press button to start', cx, cy + 110);
+    ctx.fillText('Press button to start', cx, cy + Math.round(110 * S));
 }
