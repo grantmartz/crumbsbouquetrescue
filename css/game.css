@@ -18,8 +18,8 @@ body {
 #gameContainer {
     background: transparent;
     border: none;
-    border-radius: 12px;
-    overflow: hidden;
+    clip-path: inset(0 round 12px);
+    overflow: visible;
     padding: 0;
     box-shadow: none;
     width: 928px;
