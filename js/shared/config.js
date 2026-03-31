@@ -50,8 +50,8 @@ export const BASE_CANVAS_HEIGHT = 614;
 
 // Target resolution — set to your CRT's native resolution to fill the screen
 // Common 4:3 CRT resolutions: 800x600, 1024x768, 1280x960
-export const CANVAS_WIDTH  = 1280;
-export const CANVAS_HEIGHT = 720;
+export const CANVAS_WIDTH  = 1200;
+export const CANVAS_HEIGHT = 700;
 
 // Scale factor — multiply all hardcoded pixel values by S so they stay proportional
 export const S = CANVAS_HEIGHT / BASE_CANVAS_HEIGHT;
