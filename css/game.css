@@ -3,12 +3,12 @@
    Optimized for TV display on Raspberry Pi
    ============================================ */
 
-/* Kiosk body - full black background */
+/* Kiosk body - matches canvas sky color */
 body {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background: var(--color-secondary);
+    background: #f7e0d6;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -18,7 +18,6 @@ body {
 #gameContainer {
     background: transparent;
     border: none;
-    clip-path: inset(0 round 12px);
     overflow: visible;
     padding: 0;
     box-shadow: none;
@@ -30,8 +29,8 @@ body {
 }
 
 #gameCanvas {
-    background: var(--color-background);
-    border: 8px solid var(--color-primary);
+    background: #f7e0d6;
+    border: none;
     display: block;
     margin: 0 auto;
     image-rendering: pixelated;
