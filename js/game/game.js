@@ -19,6 +19,7 @@ import { loadLeaderboard, isTopTen, loadOopsRecord, isNewOopsRecord } from '../s
 
 let lastFrameTime = performance.now();
 const targetFrameTime = 1000 / 60; // 60 FPS
+let smoothedDeltaTime = 1;
 
 // Game over timeout (7 seconds = 420 frames at 60fps)
 const GAME_OVER_TIMEOUT = 420;
@@ -31,8 +32,11 @@ const GAME_OVER_TIMEOUT = 420;
  * Main game loop using requestAnimationFrame
  */
 function gameLoop(currentTime) {
-    // Calculate delta time and cap it to prevent huge jumps when tab loses focus
-    const deltaTime = Math.min((currentTime - lastFrameTime) / targetFrameTime, 3);
+    // Calculate delta time, cap it, then smooth with exponential moving average
+    // to prevent jitter from variable CPU rasterization time (especially on Pi)
+    const rawDelta = Math.min((currentTime - lastFrameTime) / targetFrameTime, 3);
+    smoothedDeltaTime = smoothedDeltaTime * 0.85 + rawDelta * 0.15;
+    const deltaTime = smoothedDeltaTime;
     lastFrameTime = currentTime;
 
     // Poll gamepad input each frame
