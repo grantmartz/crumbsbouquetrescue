@@ -122,15 +122,15 @@ const COMBO_CHORD = [
     1318.51, // 6: E6  (tenth / octave third)
 ];
 
-/** Bounce — each combo level adds a new note to build a chord (up to 6) */
+/** Bounce — each combo level plays one more note in a fast arpeggio (up to 6) */
 export function playBounce(comboStreak) {
     initAudio();
     if (isMuted || !ctx) return;
     const t = ctx.currentTime;
     const count = Math.min(comboStreak || 1, COMBO_CHORD.length);
-    const gainPerNote = 0.20 / Math.sqrt(count); // softer rolloff — chords stay audible
+    const noteSpacing = 0.045;
     for (let i = 0; i < count; i++) {
-        makeOsc('square', COMBO_CHORD[i], gainPerNote, t, 0.10);
+        makeOsc('square', COMBO_CHORD[i], 0.20, t + i * noteSpacing, 0.08);
     }
 }
 
