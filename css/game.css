@@ -18,7 +18,8 @@ body {
 #gameContainer {
     background: transparent;
     border: none;
-    border-radius: 0;
+    border-radius: 12px;
+    overflow: hidden;
     padding: 0;
     box-shadow: none;
     width: 928px;
@@ -31,7 +32,6 @@ body {
 #gameCanvas {
     background: var(--color-background);
     border: 8px solid var(--color-primary);
-    border-radius: 12px;
     display: block;
     width: 920px;
     height: 614px;
