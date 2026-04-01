@@ -541,6 +541,14 @@ export function draw() {
 
     // Mute indicator — small red dot when muted
     drawMuteIndicator(ctx);
+
+    // Sync body background with overlay screens so edges outside canvas go dark too
+    const hasOverlay = gameState.gameOverPhase === 'gameover' ||
+                       gameState.gameOverPhase === 'birdword' ||
+                       gameState.gameOverPhase === 'nameentry' ||
+                       gameState.gameOverPhase === 'scolding' ||
+                       gameState.oopsScreen;
+    document.body.classList.toggle('overlay-active', hasOverlay);
 }
 
 /**

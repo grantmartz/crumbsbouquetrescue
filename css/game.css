@@ -15,6 +15,11 @@ body {
     min-height: 100vh;
 }
 
+/* Dark edges when overlay screens are active (game over, name entry, etc.) */
+body.overlay-active {
+    background: #45403c;
+}
+
 #gameContainer {
     background: transparent;
     border: none;
