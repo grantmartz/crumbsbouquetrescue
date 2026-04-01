@@ -543,12 +543,13 @@ export function draw() {
     drawMuteIndicator(ctx);
 
     // Sync body background with overlay screens so edges outside canvas go dark too
+    const isOopsOverlay = gameState.oopsScreen;
     const hasOverlay = gameState.gameOverPhase === 'gameover' ||
                        gameState.gameOverPhase === 'birdword' ||
                        gameState.gameOverPhase === 'nameentry' ||
-                       gameState.gameOverPhase === 'scolding' ||
-                       gameState.oopsScreen;
-    document.body.classList.toggle('overlay-active', hasOverlay);
+                       isOopsOverlay;
+    document.body.classList.toggle('overlay-darker', isOopsOverlay);
+    document.body.classList.toggle('overlay-active', hasOverlay && !isOopsOverlay);
 }
 
 /**

@@ -20,6 +20,11 @@ body.overlay-active {
     background: #45403c;
 }
 
+/* Darker edges for the oops all finches screen (uses 0.82 opacity overlay) */
+body.overlay-darker {
+    background: #2d2827;
+}
+
 #gameContainer {
     background: transparent;
     border: none;
