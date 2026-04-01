@@ -33,6 +33,26 @@ import {
 } from '../shared/config.js';
 
 // ============================================
+// CACHED FONT STRINGS
+// (computed once at module load, not every frame)
+// ============================================
+const FONT_SCORE     = `bold ${Math.round(34 * S)}px Arvo, Rockwell, Georgia, serif`;
+const FONT_BONUS     = `bold ${Math.round(28 * S)}px Arvo, Rockwell, Georgia, serif`;
+const FONT_COUNTDOWN = `bold ${Math.round(96 * S)}px Arvo, Rockwell, Georgia, serif`;
+const FONT_SCOLDING  = `bold ${Math.round(78 * S)}px Arvo, Rockwell, Georgia, serif`;
+const FONT_GAMEOVER  = `bold ${Math.round(62 * S)}px Arvo, Rockwell, Georgia, serif`;
+const FONT_LB_TITLE  = `bold ${Math.round(26 * S)}px Arvo, Rockwell, Georgia, serif`;
+const FONT_LB_NAME   = `bold ${Math.round(28 * S)}px Arvo, Rockwell, Georgia, serif`;
+const FONT_LB_RANK   = `bold ${Math.round(26 * S)}px Arvo, Rockwell, Georgia, serif`;
+const FONT_LB_EMPTY  = `${Math.round(26 * S)}px Arvo, Rockwell, Georgia, serif`;
+const FONT_PRESS     = `bold ${Math.round(26 * S)}px Arvo, Rockwell, Georgia, serif`;
+const FONT_BIRDWORD_SM = `bold ${Math.round(52 * S)}px Arvo, Rockwell, Georgia, serif`;
+const FONT_BIRDWORD_LG = `bold ${Math.round(72 * S)}px Arvo, Rockwell, Georgia, serif`;
+const FONT_OOPS_SM   = `bold ${Math.round(72 * S)}px Arvo, Rockwell, Georgia, serif`;
+const FONT_OOPS_LG   = `bold ${Math.round(96 * S)}px Arvo, Rockwell, Georgia, serif`;
+const FONT_OOPS_SUB  = `bold ${Math.round(24 * S)}px Arvo, Rockwell, Georgia, serif`;
+
+// ============================================
 // CANVAS SETUP
 // ============================================
 
@@ -303,6 +323,10 @@ export function drawEater(eater, sizeMultiplier = 1) {
  * Main draw function - renders entire scene
  */
 export function draw() {
+    // Reset context state to avoid bleed from previous frame
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+
     // Clear canvas
     ctx.fillStyle = '#f7e0d6';  // Off-white pinkish cream background
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -351,19 +375,20 @@ export function draw() {
     }
 
     // Draw particles
+    ctx.save();
     particles.forEach(p => {
         ctx.globalAlpha = p.life;
         ctx.fillStyle = p.color;
         ctx.beginPath();
         ctx.arc(Math.round(p.x), Math.round(p.y), p.size, 0, Math.PI * 2);
         ctx.fill();
-        ctx.globalAlpha = 1;
     });
+    ctx.restore();
 
     // Draw score on canvas (upper right corner) - only during active game
     if (!gameState.attractMode) {
         ctx.fillStyle = '#e8321a';
-        ctx.font = `bold ${Math.round(34 * S)}px Arvo, Rockwell, Georgia, serif`;
+        ctx.font = FONT_SCORE;
         ctx.textAlign = 'right';
         ctx.fillText('Score: ' + gameState.score, canvas.width - Math.round(20 * S), Math.round(42 * S));
     }
@@ -371,7 +396,7 @@ export function draw() {
     // Draw bonus text
     if (gameState.bonusText) {
         ctx.fillStyle = '#4a9eff';
-        ctx.font = `bold ${Math.round(28 * S)}px Arvo, Rockwell, Georgia, serif`;
+        ctx.font = FONT_BONUS;
         ctx.textAlign = 'center';
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = Math.round(3 * S);
@@ -381,7 +406,7 @@ export function draw() {
 
     // Draw countdown if active
     if (gameState.countdown > 0) {
-        ctx.font = `bold ${Math.round(96 * S)}px Arvo, Rockwell, Georgia, serif`;
+        ctx.font = FONT_COUNTDOWN;
         ctx.textAlign = 'center';
         ctx.strokeStyle = '#e8321a';
         ctx.lineWidth = Math.round(4 * S);
@@ -392,7 +417,7 @@ export function draw() {
 
     // Draw scolding text during game over
     if (gameState.gameOverPhase === 'scolding') {
-        ctx.font = `bold ${Math.round(78 * S)}px Arvo, Rockwell, Georgia, serif`;
+        ctx.font = FONT_SCOLDING;
         ctx.textAlign = 'center';
 
         // Yellow outline
@@ -420,7 +445,7 @@ export function draw() {
         const cx = canvas.width / 2;
 
         // "GAME OVER" header
-        ctx.font = `bold ${Math.round(62 * S)}px Arvo, Rockwell, Georgia, serif`;
+        ctx.font = FONT_GAMEOVER;
         ctx.textAlign = 'center';
         ctx.strokeStyle = '#f5c020';
         ctx.lineWidth = Math.round(4 * S);
@@ -430,12 +455,12 @@ export function draw() {
 
         // Current score
         ctx.fillStyle = '#f5a3b5';
-        ctx.font = `bold ${Math.round(34 * S)}px Arvo, Rockwell, Georgia, serif`;
+        ctx.font = FONT_SCORE;
         ctx.fillText('Score: ' + gameState.score, cx, Math.round(114 * S));
 
         // Leaderboard title
         ctx.fillStyle = '#f5c020';
-        ctx.font = `bold ${Math.round(26 * S)}px Arvo, Rockwell, Georgia, serif`;
+        ctx.font = FONT_LB_TITLE;
         ctx.fillText('HIGH SCORES', cx, Math.round(154 * S));
 
         // Divider line
@@ -471,13 +496,13 @@ export function draw() {
                 // Rank
                 ctx.textAlign = 'right';
                 ctx.fillStyle = isPlayerScore ? '#f5c020' : '#aaa';
-                ctx.font = `bold ${Math.round(26 * S)}px Arvo, Rockwell, Georgia, serif`;
+                ctx.font = FONT_LB_RANK;
                 ctx.fillText(i + 1 + '.', cx - Math.round(130 * S), rowY);
 
                 // Name
                 ctx.textAlign = 'left';
                 ctx.fillStyle = isPlayerScore ? '#f5c020' : '#fef9f0';
-                ctx.font = `bold ${Math.round(28 * S)}px Arvo, Rockwell, Georgia, serif`;
+                ctx.font = FONT_LB_NAME;
                 ctx.fillText(entry.name, cx - Math.round(110 * S), rowY);
 
                 // Score
@@ -488,11 +513,11 @@ export function draw() {
                 // Empty slot
                 ctx.textAlign = 'right';
                 ctx.fillStyle = '#555';
-                ctx.font = `bold ${Math.round(26 * S)}px Arvo, Rockwell, Georgia, serif`;
+                ctx.font = FONT_LB_RANK;
                 ctx.fillText(i + 1 + '.', cx - Math.round(130 * S), rowY);
                 ctx.textAlign = 'left';
                 ctx.fillStyle = '#555';
-                ctx.font = `${Math.round(26 * S)}px Arvo, Rockwell, Georgia, serif`;
+                ctx.font = FONT_LB_EMPTY;
                 ctx.fillText('---', cx - Math.round(110 * S), rowY);
                 ctx.textAlign = 'right';
                 ctx.fillText('---', cx + Math.round(185 * S), rowY);
@@ -502,7 +527,7 @@ export function draw() {
         // "Press Start to Continue"
         ctx.textAlign = 'center';
         ctx.fillStyle = '#f5c020';
-        ctx.font = `bold ${Math.round(26 * S)}px Arvo, Rockwell, Georgia, serif`;
+        ctx.font = FONT_PRESS;
         ctx.fillText('Press Start to Continue', cx, startY + maxRows * rowHeight + Math.round(20 * S));
     }
 
@@ -520,14 +545,14 @@ export function draw() {
         ctx.lineWidth = Math.round(4 * S);
         lines.forEach((line, i) => {
             const y = cy - spacing + i * spacing;
-            ctx.font = i === 1 ? `bold ${Math.round(72 * S)}px Arvo, Rockwell, Georgia, serif` : `bold ${Math.round(52 * S)}px Arvo, Rockwell, Georgia, serif`;
+            ctx.font = i === 1 ? FONT_BIRDWORD_LG : FONT_BIRDWORD_SM;
             ctx.strokeStyle = '#f5c020';
             ctx.strokeText(line, cx, y);
             ctx.fillStyle = '#e8321a';
             ctx.fillText(line, cx, y);
         });
 
-        ctx.font = `bold ${Math.round(26 * S)}px Arvo, Rockwell, Georgia, serif`;
+        ctx.font = FONT_PRESS;
         ctx.fillStyle = '#f5c020';
         ctx.fillText('Press Start to Continue', cx, cy + spacing * 1.8);
     }
@@ -565,7 +590,7 @@ export function drawOopsScreen() {
 
     // "OOPS,"
     ctx.textAlign = 'center';
-    ctx.font = `bold ${Math.round(72 * S)}px Arvo, Rockwell, Georgia, serif`;
+    ctx.font = FONT_OOPS_SM;
     ctx.strokeStyle = '#000';
     ctx.lineWidth = Math.round(6 * S);
     ctx.strokeText('OOPS,', cx, cy - Math.round(60 * S));
@@ -573,13 +598,13 @@ export function drawOopsScreen() {
     ctx.fillText('OOPS,', cx, cy - Math.round(60 * S));
 
     // "ALL FINCHES"
-    ctx.font = `bold ${Math.round(96 * S)}px Arvo, Rockwell, Georgia, serif`;
+    ctx.font = FONT_OOPS_LG;
     ctx.strokeText('ALL FINCHES', cx, cy + Math.round(50 * S));
     ctx.fillStyle = '#f5c020';
     ctx.fillText('ALL FINCHES', cx, cy + Math.round(50 * S));
 
     // Subtitle
-    ctx.font = `bold ${Math.round(24 * S)}px Arvo, Rockwell, Georgia, serif`;
+    ctx.font = FONT_OOPS_SUB;
     ctx.fillStyle = '#ffffff';
     ctx.fillText('Press button to start', cx, cy + Math.round(110 * S));
 }

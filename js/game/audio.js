@@ -17,6 +17,7 @@ let lastChompTime = -1;
 let bgmSource = null;
 let bgmBuffer = null;
 let bgmGain = null;
+let chompNoiseBuffer = null;
 
 // ============================================
 // AUDIO CONTEXT INIT (lazy — call on gesture)
@@ -88,7 +89,10 @@ export function stopMusic() {
         try { bgmSource.stop(); } catch (e) {}
         bgmSource = null;
     }
-    bgmGain = null;
+    if (bgmGain) {
+        bgmGain.disconnect();
+        bgmGain = null;
+    }
 }
 
 // ============================================
@@ -218,15 +222,17 @@ export function playChomp() {
     osc.start(now);
     osc.stop(now + 0.32);
 
-    // Soft noise layer — low gain, slow fade in
-    const bufferSize = ctx.sampleRate * 0.25;
-    const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = noiseBuffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-        data[i] = Math.random() * 2 - 1;
+    // Soft noise layer — low gain, slow fade in (buffer reused across calls)
+    if (!chompNoiseBuffer) {
+        const bufferSize = ctx.sampleRate * 0.25;
+        chompNoiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = chompNoiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
     }
     const noise = ctx.createBufferSource();
-    noise.buffer = noiseBuffer;
+    noise.buffer = chompNoiseBuffer;
 
     const noiseGain = ctx.createGain();
     noiseGain.gain.setValueAtTime(0.001, now);

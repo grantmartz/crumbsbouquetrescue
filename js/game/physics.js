@@ -136,6 +136,8 @@ export function spawnParticles(x, y, color) {
             decay: 0.015 + Math.random() * 0.01
         });
     }
+    // Cap particle array to prevent unbounded growth
+    if (particles.length > 200) particles.splice(0, particles.length - 200);
 }
 
 // ============================================

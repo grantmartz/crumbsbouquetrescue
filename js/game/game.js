@@ -21,6 +21,7 @@ import { CANVAS_WIDTH, CANVAS_HEIGHT, S } from '../shared/config.js';
 let lastFrameTime = performance.now();
 const targetFrameTime = 1000 / 60; // 60 FPS
 let smoothedDeltaTime = 1;
+let rafHandle = null;
 
 // Game over timeout (7 seconds = 420 frames at 60fps)
 const GAME_OVER_TIMEOUT = 420;
@@ -57,7 +58,7 @@ function gameLoop(currentTime) {
             flowers[flowers.length - 2].y = canvas.height - Math.round(150 * S);
             flowers[flowers.length - 1].y = canvas.height - Math.round(300 * S);
         }
-        requestAnimationFrame(gameLoop);
+        rafHandle = requestAnimationFrame(gameLoop);
         return;
     }
 
@@ -72,7 +73,7 @@ function gameLoop(currentTime) {
             startGame();
         }
 
-        requestAnimationFrame(gameLoop);
+        rafHandle = requestAnimationFrame(gameLoop);
         return;
     }
 
@@ -81,7 +82,7 @@ function gameLoop(currentTime) {
         draw();
         drawNameEntry();
         updateNameEntry(deltaTime);
-        requestAnimationFrame(gameLoop);
+        rafHandle = requestAnimationFrame(gameLoop);
         return;
     }
 
@@ -111,7 +112,7 @@ function gameLoop(currentTime) {
     }
 
     draw();
-    requestAnimationFrame(gameLoop);
+    rafHandle = requestAnimationFrame(gameLoop);
 }
 
 // ============================================
@@ -221,4 +222,5 @@ document.addEventListener('keydown', (e) => {
 
 // Start game loop
 lastFrameTime = performance.now();
-gameLoop(lastFrameTime);
+if (rafHandle) cancelAnimationFrame(rafHandle);
+rafHandle = requestAnimationFrame(gameLoop);
