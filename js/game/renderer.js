@@ -47,9 +47,11 @@ export const ctx = canvas.getContext('2d');
  * Draw cloud (fluffy cloud with overlapping circles or custom image)
  */
 export function drawCloud(cloud) {
+    const cx = Math.round(cloud.x);
+    const cy = Math.round(cloud.y);
     if (cloudImage && cloudImage.complete) {
         // Use custom cloud image
-        ctx.drawImage(cloudImage, cloud.x - cloud.width/2, cloud.y - cloud.height/2, cloud.width, cloud.height);
+        ctx.drawImage(cloudImage, cx - cloud.width/2, cy - cloud.height/2, cloud.width, cloud.height);
     } else {
         // Fallback to placeholder fluffy cloud - solid soft pink
         ctx.fillStyle = '#f5d5c8'; // Soft pink, no transparency
@@ -58,23 +60,19 @@ export function drawCloud(cloud) {
 
         // Draw 4 overlapping circles to create a fluffy cloud
         ctx.beginPath();
-        // Left circle (smallest)
-        ctx.arc(cloud.x - baseRadius * 0.8, cloud.y, baseRadius * 0.7, 0, Math.PI * 2);
+        ctx.arc(cx - baseRadius * 0.8, cy, baseRadius * 0.7, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.beginPath();
-        // Left-center circle
-        ctx.arc(cloud.x - baseRadius * 0.3, cloud.y - baseRadius * 0.3, baseRadius * 0.9, 0, Math.PI * 2);
+        ctx.arc(cx - baseRadius * 0.3, cy - baseRadius * 0.3, baseRadius * 0.9, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.beginPath();
-        // Center circle (largest)
-        ctx.arc(cloud.x + baseRadius * 0.2, cloud.y, baseRadius, 0, Math.PI * 2);
+        ctx.arc(cx + baseRadius * 0.2, cy, baseRadius, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.beginPath();
-        // Right circle
-        ctx.arc(cloud.x + baseRadius * 0.9, cloud.y + baseRadius * 0.1, baseRadius * 0.8, 0, Math.PI * 2);
+        ctx.arc(cx + baseRadius * 0.9, cy + baseRadius * 0.1, baseRadius * 0.8, 0, Math.PI * 2);
         ctx.fill();
     }
 }
@@ -119,40 +117,42 @@ export function drawPlayer() {
     const visualScale = 1.1;
     const visualWidth = player.width * visualScale;
     const visualHeight = player.height * visualScale;
+    const px = Math.round(player.x);
+    const py = Math.round(player.y);
 
     // Oops mode: draw Cricket as the player
     if (gameState.oopsAllFinches) {
         const mouthOpen = player.velocityY < 0; // falling = mouth open
         const img = mouthOpen ? eaterMouthOpen : eaterMouthClosed;
         if (img && img.complete) {
-            ctx.drawImage(img, player.x - visualWidth/2, player.y - visualHeight/2, visualWidth, visualHeight);
+            ctx.drawImage(img, px - visualWidth/2, py - visualHeight/2, visualWidth, visualHeight);
         } else {
             ctx.fillStyle = EATER_COLOR;
             ctx.beginPath();
-            ctx.arc(player.x, player.y, visualWidth/2, 0, Math.PI * 2);
+            ctx.arc(px, py, visualWidth/2, 0, Math.PI * 2);
             ctx.fill();
         }
         return;
     }
 
     if (player.image && player.image.complete) {
-        ctx.drawImage(player.image, player.x - visualWidth/2, player.y - visualHeight/2, visualWidth, visualHeight);
+        ctx.drawImage(player.image, px - visualWidth/2, py - visualHeight/2, visualWidth, visualHeight);
     } else {
         // Placeholder: simple animal-like shape (circle with ears)
         ctx.fillStyle = SPRITE_COLOR;
 
         // Body
         ctx.beginPath();
-        ctx.arc(player.x, player.y, visualWidth/2, 0, Math.PI * 2);
+        ctx.arc(px, py, visualWidth/2, 0, Math.PI * 2);
         ctx.fill();
 
         // Ears
         ctx.beginPath();
-        ctx.arc(player.x - visualWidth/3, player.y - visualHeight/3, visualWidth/4, 0, Math.PI * 2);
+        ctx.arc(px - visualWidth/3, py - visualHeight/3, visualWidth/4, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.beginPath();
-        ctx.arc(player.x + visualWidth/3, player.y - visualHeight/3, visualWidth/4, 0, Math.PI * 2);
+        ctx.arc(px + visualWidth/3, py - visualHeight/3, visualWidth/4, 0, Math.PI * 2);
         ctx.fill();
     }
 }
@@ -161,35 +161,34 @@ export function drawPlayer() {
  * Draw flower (placeholder or custom image)
  */
 export function drawFlower(flower) {
+    const fx = Math.round(flower.x);
+    const fy = Math.round(flower.y);
+
     // Draw finch if it's a finch
     if (flower.isFinch) {
         if (finchImage && finchImage.complete) {
-            ctx.drawImage(finchImage, flower.x - flower.width/2, flower.y - flower.height/2, flower.width, flower.height);
+            ctx.drawImage(finchImage, fx - flower.width/2, fy - flower.height/2, flower.width, flower.height);
         } else {
             // Placeholder finch: simple bird shape
             ctx.fillStyle = FINCH_COLOR;
 
-            // Body (oval)
             ctx.beginPath();
-            ctx.ellipse(flower.x, flower.y, flower.width/3, flower.height/4, 0, 0, Math.PI * 2);
+            ctx.ellipse(fx, fy, flower.width/3, flower.height/4, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            // Head (circle)
             ctx.beginPath();
-            ctx.arc(flower.x + flower.width/4, flower.y - flower.height/6, flower.width/5, 0, Math.PI * 2);
+            ctx.arc(fx + flower.width/4, fy - flower.height/6, flower.width/5, 0, Math.PI * 2);
             ctx.fill();
 
-            // Wing (arc)
             ctx.beginPath();
-            ctx.arc(flower.x - flower.width/6, flower.y, flower.width/4, 0, Math.PI * 2);
+            ctx.arc(fx - flower.width/6, fy, flower.width/4, 0, Math.PI * 2);
             ctx.fill();
 
-            // Beak (small triangle)
             ctx.fillStyle = '#ffa500';
             ctx.beginPath();
-            ctx.moveTo(flower.x + flower.width/3, flower.y - flower.height/6);
-            ctx.lineTo(flower.x + flower.width/2.3, flower.y - flower.height/8);
-            ctx.lineTo(flower.x + flower.width/3, flower.y - flower.height/12);
+            ctx.moveTo(fx + flower.width/3, fy - flower.height/6);
+            ctx.lineTo(fx + flower.width/2.3, fy - flower.height/8);
+            ctx.lineTo(fx + flower.width/3, fy - flower.height/12);
             ctx.fill();
         }
         return;
@@ -199,20 +198,20 @@ export function drawFlower(flower) {
     const flowerImage = flowerImages[flower.type];
 
     if (flowerImage && flowerImage.complete) {
-        ctx.drawImage(flowerImage, flower.x - flower.width/2, flower.y - flower.height/2, flower.width, flower.height);
+        ctx.drawImage(flowerImage, fx - flower.width/2, fy - flower.height/2, flower.width, flower.height);
     } else {
         // Placeholder: simple flower shape with color based on type
         ctx.fillStyle = FLOWER_COLORS[flower.type];
 
         // Stem
-        ctx.fillRect(flower.x - Math.round(3 * S), flower.y, Math.round(6 * S), flower.height/2);
+        ctx.fillRect(fx - Math.round(3 * S), fy, Math.round(6 * S), flower.height/2);
 
         // Petals (5 circles around center)
         const petalRadius = flower.width/5;
-        const centerY = flower.y - flower.height/4;
+        const centerY = fy - flower.height/4;
         for (let i = 0; i < 5; i++) {
             const angle = (i * Math.PI * 2 / 5) - Math.PI/2;
-            const petalX = flower.x + Math.cos(angle) * petalRadius * 1.2;
+            const petalX = fx + Math.cos(angle) * petalRadius * 1.2;
             const petalY = centerY + Math.sin(angle) * petalRadius * 1.2;
 
             ctx.beginPath();
@@ -222,7 +221,7 @@ export function drawFlower(flower) {
 
         // Center
         ctx.beginPath();
-        ctx.arc(flower.x, centerY, petalRadius * 0.8, 0, Math.PI * 2);
+        ctx.arc(fx, centerY, petalRadius * 0.8, 0, Math.PI * 2);
         ctx.fill();
     }
 }
@@ -235,6 +234,8 @@ export function drawEater(eater, sizeMultiplier = 1) {
     const visualScale = 1.1 * sizeMultiplier;
     const visualWidth = eater.width * visualScale;
     const visualHeight = eater.height * visualScale;
+    const ex = Math.round(eater.x);
+    const ey = Math.round(eater.y);
 
     // Determine if mouth should be open or closed based on phase
     const mouthOpen = eater.phase === 'descending' ||
@@ -243,10 +244,10 @@ export function drawEater(eater, sizeMultiplier = 1) {
 
     // Use custom images if provided
     if (mouthOpen && eaterMouthOpen && eaterMouthOpen.complete) {
-        ctx.drawImage(eaterMouthOpen, eater.x - visualWidth/2, eater.y - visualHeight/2, visualWidth, visualHeight);
+        ctx.drawImage(eaterMouthOpen, ex - visualWidth/2, ey - visualHeight/2, visualWidth, visualHeight);
         return;
     } else if (!mouthOpen && eaterMouthClosed && eaterMouthClosed.complete) {
-        ctx.drawImage(eaterMouthClosed, eater.x - visualWidth/2, eater.y - visualHeight/2, visualWidth, visualHeight);
+        ctx.drawImage(eaterMouthClosed, ex - visualWidth/2, ey - visualHeight/2, visualWidth, visualHeight);
         return;
     }
 
@@ -255,47 +256,46 @@ export function drawEater(eater, sizeMultiplier = 1) {
 
     // Head (main circle)
     ctx.beginPath();
-    ctx.arc(eater.x, eater.y, visualWidth/2, 0, Math.PI * 2);
+    ctx.arc(ex, ey, visualWidth/2, 0, Math.PI * 2);
     ctx.fill();
 
     // Left ear (floppy, pointing down-left)
     ctx.beginPath();
-    ctx.ellipse(eater.x - visualWidth/3, eater.y - visualHeight/4, visualWidth/4, visualHeight/3, -0.3, 0, Math.PI * 2);
+    ctx.ellipse(ex - visualWidth/3, ey - visualHeight/4, visualWidth/4, visualHeight/3, -0.3, 0, Math.PI * 2);
     ctx.fill();
 
     // Right ear (floppy, pointing down-right)
     ctx.beginPath();
-    ctx.ellipse(eater.x + visualWidth/3, eater.y - visualHeight/4, visualWidth/4, visualHeight/3, 0.3, 0, Math.PI * 2);
+    ctx.ellipse(ex + visualWidth/3, ey - visualHeight/4, visualWidth/4, visualHeight/3, 0.3, 0, Math.PI * 2);
     ctx.fill();
 
     // Snout (oval pointing downward)
     ctx.beginPath();
-    ctx.ellipse(eater.x, eater.y + visualHeight/4, visualWidth/3, visualHeight/3, 0, 0, Math.PI * 2);
+    ctx.ellipse(ex, ey + visualHeight/4, visualWidth/3, visualHeight/3, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // Draw mouth differently based on open/closed state
     if (mouthOpen) {
-        // Open mouth (small arc at bottom of snout)
         ctx.fillStyle = '#1a0a0a';
         ctx.beginPath();
-        ctx.arc(eater.x, eater.y + visualHeight/2.5, visualWidth/6, 0, Math.PI);
+        ctx.arc(ex, ey + visualHeight/2.5, visualWidth/6, 0, Math.PI);
         ctx.fill();
     }
 
     // Nose (small circle at bottom of snout)
     ctx.fillStyle = '#3a2a1a';
     ctx.beginPath();
-    ctx.arc(eater.x, eater.y + visualHeight/2, visualWidth/8, 0, Math.PI * 2);
+    ctx.arc(ex, ey + visualHeight/2, visualWidth/8, 0, Math.PI * 2);
     ctx.fill();
 
     // Eyes (two small circles)
     ctx.fillStyle = '#3a2a1a';
     ctx.beginPath();
-    ctx.arc(eater.x - visualWidth/5, eater.y, visualWidth/10, 0, Math.PI * 2);
+    ctx.arc(ex - visualWidth/5, ey, visualWidth/10, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.beginPath();
-    ctx.arc(eater.x + visualWidth/5, eater.y, visualWidth/10, 0, Math.PI * 2);
+    ctx.arc(ex + visualWidth/5, ey, visualWidth/10, 0, Math.PI * 2);
     ctx.fill();
 }
 
@@ -355,7 +355,7 @@ export function draw() {
         ctx.globalAlpha = p.life;
         ctx.fillStyle = p.color;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.arc(Math.round(p.x), Math.round(p.y), p.size, 0, Math.PI * 2);
         ctx.fill();
         ctx.globalAlpha = 1;
     });
