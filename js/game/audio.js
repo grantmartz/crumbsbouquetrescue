@@ -13,6 +13,7 @@ import { S as _S } from '../shared/config.js';
 let ctx = null;
 let masterGain = null;
 let isMuted = false;
+let volume = 0.4; // current unmuted volume level
 let lastChompTime = -1;
 let bgmSource = null;
 let bgmBuffer = null;
@@ -30,7 +31,7 @@ export function initAudio() {
     }
     ctx = new (window.AudioContext || window.webkitAudioContext)();
     masterGain = ctx.createGain();
-    masterGain.gain.value = 0.4;
+    masterGain.gain.value = volume;
     masterGain.connect(ctx.destination);
 }
 
@@ -40,8 +41,9 @@ export function initAudio() {
 
 export function toggleMute() {
     isMuted = !isMuted;
-    if (masterGain) masterGain.gain.value = isMuted ? 0 : 0.4;
-    if (bgmGain) bgmGain.gain.value = isMuted ? 0 : 0.25;
+    const v = isMuted ? 0 : volume;
+    if (masterGain) masterGain.gain.value = v;
+    if (bgmGain) bgmGain.gain.value = v;
     return isMuted;
 }
 
@@ -51,11 +53,10 @@ export function getMuted() {
 
 export function adjustVolume(delta) {
     if (!masterGain) return;
-    const current = isMuted ? 0 : masterGain.gain.value;
-    const next = Math.min(1, Math.max(0, current + delta));
+    volume = Math.min(1, Math.max(0, volume + delta));
     isMuted = false;
-    masterGain.gain.value = next;
-    if (bgmGain) bgmGain.gain.value = Math.min(1, Math.max(0, next * 0.625)); // keep BGM ratio
+    masterGain.gain.value = volume;
+    if (bgmGain) bgmGain.gain.value = volume;
 }
 
 // ============================================
@@ -76,7 +77,7 @@ async function loadBgm() {
 function playBgmBuffer() {
     if (!bgmBuffer || !ctx) return;
     bgmGain = ctx.createGain();
-    bgmGain.gain.value = isMuted ? 0 : 0.25;
+    bgmGain.gain.value = isMuted ? 0 : masterGain.gain.value;
     bgmGain.connect(ctx.destination);
 
     bgmSource = ctx.createBufferSource();
