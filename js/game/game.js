@@ -4,7 +4,7 @@
    ============================================ */
 
 import { gameState, inputState, resetGameState, resetAttractMode, loadHighScore } from './state.js';
-import { initAudio, toggleMute, adjustVolume, startMusic, stopMusic, playCountdownBeep, playGameOver } from './audio.js';
+import { initAudio, toggleMute, adjustVolume, triggerWhiteNoise, startMusic, stopMusic, playCountdownBeep, playGameOver } from './audio.js';
 import { player, flowers, eaters, particles, initClouds, initPineTrees, initPlayer } from './entities.js';
 import { update, spawnFlower } from './physics.js';
 import { canvas, draw, drawOopsScreen } from './renderer.js';
@@ -221,6 +221,8 @@ document.addEventListener('keydown', (e) => {
         adjustVolume(0.1);
     } else if (e.key === '-' || e.key === '_') {
         adjustVolume(-0.1);
+    } else if (e.key === 'q' || e.key === 'Q') {
+        triggerWhiteNoise();
     }
 });
 

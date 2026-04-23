@@ -318,6 +318,44 @@ export function playConfirm() {
 }
 
 // ============================================
+// WHITE NOISE BLAST
+// ============================================
+
+let whiteNoiseSource = null;
+
+export function triggerWhiteNoise() {
+    initAudio();
+    if (!ctx) return;
+    if (whiteNoiseSource) return; // already playing
+
+    const fadeIn  = 0.5;
+    const hold    = 3.0;
+    const fadeOut = 0.5;
+    const total   = fadeIn + hold + fadeOut;
+
+    const bufferSize = ctx.sampleRate * total;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+    whiteNoiseSource = ctx.createBufferSource();
+    whiteNoiseSource.buffer = buffer;
+
+    const g = ctx.createGain();
+    const t = ctx.currentTime;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(masterGain.gain.value, t + fadeIn);
+    g.gain.setValueAtTime(masterGain.gain.value, t + fadeIn + hold);
+    g.gain.linearRampToValueAtTime(0, t + total);
+
+    whiteNoiseSource.connect(g);
+    g.connect(ctx.destination);
+    whiteNoiseSource.start(t);
+    whiteNoiseSource.stop(t + total);
+    whiteNoiseSource.onended = () => { whiteNoiseSource = null; };
+}
+
+// ============================================
 // MUTE INDICATOR
 // ============================================
 
