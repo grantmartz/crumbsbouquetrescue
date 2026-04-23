@@ -49,6 +49,15 @@ export function getMuted() {
     return isMuted;
 }
 
+export function adjustVolume(delta) {
+    if (!masterGain) return;
+    const current = isMuted ? 0 : masterGain.gain.value;
+    const next = Math.min(1, Math.max(0, current + delta));
+    isMuted = false;
+    masterGain.gain.value = next;
+    if (bgmGain) bgmGain.gain.value = Math.min(1, Math.max(0, next * 0.625)); // keep BGM ratio
+}
+
 // ============================================
 // BGM (AudioBuffer — sample-accurate looping)
 // ============================================

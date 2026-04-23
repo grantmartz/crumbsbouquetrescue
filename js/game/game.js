@@ -4,7 +4,7 @@
    ============================================ */
 
 import { gameState, inputState, resetGameState, resetAttractMode, loadHighScore } from './state.js';
-import { initAudio, toggleMute, startMusic, stopMusic, playCountdownBeep, playGameOver } from './audio.js';
+import { initAudio, toggleMute, adjustVolume, startMusic, stopMusic, playCountdownBeep, playGameOver } from './audio.js';
 import { player, flowers, eaters, particles, initClouds, initPineTrees, initPlayer } from './entities.js';
 import { update, spawnFlower } from './physics.js';
 import { canvas, draw, drawOopsScreen } from './renderer.js';
@@ -212,11 +212,15 @@ gameState.oopsRecord = loadOopsRecord();
 // Start in attract mode
 gameState.attractMode = true;
 
-// Keyboard: unlock AudioContext on any key, toggle mute with M
+// Keyboard: unlock AudioContext on any key, toggle mute with M, volume with +/-
 document.addEventListener('keydown', (e) => {
     initAudio();
     if (e.key === 'm' || e.key === 'M') {
         toggleMute();
+    } else if (e.key === '+' || e.key === '=') {
+        adjustVolume(0.1);
+    } else if (e.key === '-' || e.key === '_') {
+        adjustVolume(-0.1);
     }
 });
 
