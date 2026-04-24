@@ -13,7 +13,7 @@ import { S as _S } from '../shared/config.js';
 let ctx = null;
 let masterGain = null;
 let isMuted = false;
-let volume = 0.8; // current unmuted volume level
+let volume = 1.0; // current unmuted volume level
 let lastChompTime = -1;
 let bgmSource = null;
 let bgmBuffer = null;
